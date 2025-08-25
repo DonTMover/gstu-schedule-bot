@@ -1,7 +1,8 @@
 [project]
 name = "gstu-schedule-bot"
 version = "0.1.0"
-description = "Add your description here"
+description = "Student helper"
+author = ["@Oimasi", "@DonTMover"]
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [

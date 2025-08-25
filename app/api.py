@@ -57,25 +57,26 @@ def get_human_readable_schedule(data):
     
     return schedule_by_day
 
-def pretty_print_schedule(data: dict):
+def pretty_schedule_str(data: dict) -> str:
     entity = data.get("data", {}).get("entity", {}) if isinstance(data, dict) else {}
     items = data.get("data", {}).get("scheduleItems", []) if isinstance(data, dict) else []
     order = {"MONDAY":0,"TUESDAY":1,"WEDNESDAY":2,"THURSDAY":3,"FRIDAY":4,"SATURDAY":5,"SUNDAY":6}
     ru = {"MONDAY":"Понедельник","TUESDAY":"Вторник","WEDNESDAY":"Среда",
           "THURSDAY":"Четверг","FRIDAY":"Пятница","SATURDAY":"Суббота","SUNDAY":"Воскресенье"}
 
-    print(f"{entity.get('facultyShort','')} — {entity.get('faculty','')}")
-    print(f"Группа: {entity.get('name','—')} | Курс: {entity.get('course','—')}")
+    lines = []
+    lines.append(f"{entity.get('facultyShort','')} — {entity.get('faculty','')}")
+    lines.append(f"Группа: {entity.get('name','—')} | Курс: {entity.get('course','—')}")
     spec = entity.get('specialty') or {}
-    print(f"Специальность: {spec.get('code','—')} {spec.get('name','—')}")
-    print("="*80)
+    lines.append(f"Специальность: {spec.get('code','—')} {spec.get('name','—')}")
+    lines.append("="*80)
 
     by_day = defaultdict(list)
     for it in items:
         by_day[it.get("dayOfWeek","UNKNOWN")].append(it)
 
     for day in sorted(by_day.keys(), key=lambda k: order.get(k, 99)):
-        print(f"\n--- {ru.get(day, day)} ---")
+        lines.append(f"\n--- {ru.get(day, day)} ---")
         for it in sorted(by_day[day], key=lambda x: x.get("startTime","")):
             st = (it.get("startTime","")[:5] or "??:??")
             en = (it.get("endTime","")[:5] or "??:??")
@@ -84,10 +85,15 @@ def pretty_print_schedule(data: dict):
             rooms = ", ".join(c.get("roomNumber","") for c in it.get("classrooms",[])) or "—"
             teachers = ", ".join(t.get("shortName","") for t in it.get("teachers",[])) or "—"
             groups = ", ".join(g.get("name","") for g in it.get("groups",[])) or "—"
-            print(f"{st}-{en} | №{num} | {subj} | Группы: {groups} | Каб.: {rooms} | Преп.: {teachers}")
+            lines.append(f"{st}-{en} | №{num} | {subj} | Группы: {groups} | Каб.: {rooms} | Преп.: {teachers}")
 
+    return "\n".join(lines)
 
-
+async def get_schedule(group_name: str) -> str:
+    print(f"Fetching schedule for group: {group_name}")
+    data = await fetch_schedule(group_name)
+    lines = pretty_schedule_str(data)
+    return lines
 
 
 

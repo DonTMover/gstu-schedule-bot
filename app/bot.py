@@ -5,6 +5,8 @@ from os import getenv
 # other imports
 import hashlib
 from typing import Dict, List
+import re
+from api import get_schedule
 
 # aiogram imports
 from aiogram import types
@@ -42,7 +44,19 @@ async def start(message: Message):
 
 @dp.message()
 async def handler(message: Message):
-    pass
+    text = message.text.strip()
+
+    match = re.search(r"Вы выбрали группу: (\S+)", text)
+    print(match)
+    if match:
+        group_code = match.group(1)
+
+        if group_code in groups:
+            print(group_code)
+            await message.answer(
+                text=await get_schedule(group_code),
+                #reply_markup=get_inline_keyboard()
+            )
 
 def get_inline_keyboard_select_group() -> InlineKeyboardMarkup:
     select_button = InlineKeyboardButton(
