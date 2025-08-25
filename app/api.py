@@ -1,11 +1,12 @@
 import aiohttp
 import asyncio
 from pprint import pprint
+from app.enum import groups
 
 BASE_URL = "https://sc.gstu.by/api/schedules/group"
 
 async def fetch_schedule(group_name: str) -> dict:
-    url = f"{BASE_URL}/{group_name}"
+    url = f"{BASE_URL}/{groups[group_name]}"
     headers = {"User-Agent": "Mozilla/5.0"}
     async with aiohttp.ClientSession(headers=headers) as session:
         async with session.get(url) as resp:
@@ -13,8 +14,10 @@ async def fetch_schedule(group_name: str) -> dict:
             return await resp.json()
 
 
+
+# Example usage
 async def main():
-    data = await fetch_schedule("ap-11")
+    data = await fetch_schedule("АП-11")
     pprint(data)
 
 if __name__ == "__main__":
