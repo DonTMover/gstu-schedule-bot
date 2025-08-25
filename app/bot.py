@@ -79,33 +79,37 @@ async def inline_handler(inline_query: types.InlineQuery):
     query = inline_query.query.strip()
     results = []
 
-    group_code = groups.get(query)
-    if group_code:
+    if query:  # Чекаем что пользователь В ОБЩЕМ что то ввел 
+        for key, value in groups.items():
+            if query.lower() in key.lower():  #Ищем по подстроке
+                result_id = hashlib.md5(key.encode()).hexdigest()
+                input_content = types.InputTextMessageContent(
+                    message_text=f"Вы выбрали группу: {key} ({value})"
+                )
+                result = types.InlineQueryResultArticle(
+                    id=result_id,
+                    title=f"Группа: {key}",
+                    input_message_content=input_content,
+                    description=f"Код группы: {value}"
+                )
+                results.append(result)
+
+    # Если юзер даун и ввел че то что мы не знаем говорим ему что не найдено 
+    if query and not results:
         result_id = hashlib.md5(query.encode()).hexdigest()
         input_content = types.InputTextMessageContent(
-            message_text=f"Вы выбрали группу: {query} ({group_code})"
+            message_text="Группа не найдена. Пожалуйста, введите корректный код группы."
         )
         result = types.InlineQueryResultArticle(
             id=result_id,
-            title=f"Группа: {query}",
+            title="Группа не найдена",
             input_message_content=input_content,
-            description=f"Код группы: {group_code}"
+            description="Нет такой группы." #Еле сдержался от мата вхзввххвхв
         )
         results.append(result)
-    else:
-        if query:
-            result_id = hashlib.md5(query.encode()).hexdigest()
-            input_content = types.InputTextMessageContent(
-                message_text="Группа не найдена. Пожалуйста, введите корректный код группы."
-            )
-            result = types.InlineQueryResultArticle(
-                id=result_id,
-                title="Группа не найдена",
-                input_message_content=input_content,
-                description="Нет такой группы."
-            )
-            results.append(result)
+
     await inline_query.answer(results, cache_time=1)
+
 
 async def main():
     bot = Bot(
