@@ -8,6 +8,7 @@ from typing import Dict, List
 import re
 from api import get_schedule
 from groupes import groups
+from loguru import logger
 
 # aiogram imports
 from aiogram import types
@@ -23,9 +24,12 @@ TOKEN = getenv("BOT_TOKEN")
 
 dp = Dispatcher()
 
+#add logging
+logger.add("bot.log", rotation="10 MB", retention="30 days", level="INFO")
 
 @dp.message(CommandStart())
 async def start(message: Message):
+    logger.info(f"User {message.from_user.id} started bot")
     await message.answer(
         text="Привет, выбери группу, чтобы получить расписание.",
         reply_markup=get_inline_keyboard_select_group()
@@ -34,6 +38,8 @@ async def start(message: Message):
 @dp.message()
 async def handler(message: Message):
     text = message.text.strip()
+    logger.info(f"Received message: {text} from user {message.from_user.id}")
+
 
     match = re.search(r"Вы выбрали группу: (\S+)", text)
     print(match)
@@ -80,6 +86,8 @@ async def process_button2(callback_query):
 @dp.inline_query()
 async def inline_handler(inline_query: types.InlineQuery):
     query = inline_query.query.strip()
+    logger.info(f"Inline query: '{query}' from user {inline_query.from_user.id}")
+
     results = []
 
     if query:  # Чекаем что пользователь В ОБЩЕМ что то ввел 
@@ -115,6 +123,7 @@ async def inline_handler(inline_query: types.InlineQuery):
 
 
 async def main():
+    logger.info("Bot is starting polling...")
     bot = Bot(
         token=TOKEN,
         properties=DefaultBotProperties(parse_mode=ParseMode.HTML),
