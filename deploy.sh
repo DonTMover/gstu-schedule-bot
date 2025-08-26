@@ -17,3 +17,4 @@ echo "🚀 Запуск через Docker Compose"
 docker-compose up -d
 
 echo "✅ Бот перезапущен!"
+
