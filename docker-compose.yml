@@ -1,0 +1,9 @@
+services:
+  gstu-bot:
+    image: gstu-bot
+    container_name: gstu-bot
+    restart: always
+    env_file:
+      - app/.env
+    volumes:
+      - ./bot.log:/app/bot.log  # Пробрасываем лог-файл наружу
