@@ -9,6 +9,7 @@ services:
       - app/.env
     volumes:
       - ./app:/app
+      - ./bot.log:/app/bot.log
     logging:
       driver: "json-file"
       options:
