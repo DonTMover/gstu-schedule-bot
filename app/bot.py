@@ -22,7 +22,7 @@ from aiogram.types import InlineQuery
 
 # from packages
 from utils import (get_inline_keyboard_select, get_days_keyboard, days_map,
-                   handle_group_search, handle_teacher_search)
+                   handle_group_search, handle_teacher_search,get_teacher_rating_keyboard)
 from api import get_human_readable_schedule, fetch_schedule
 from db import db
 
@@ -80,18 +80,43 @@ async def schedule_cmd(message: types.Message):
     )
 
 @dp.inline_query()
-async def inline_handler(inline_query: InlineQuery):
+@dp.inline_query()
+async def inline_handler(inline_query: types.InlineQuery):
     query = inline_query.query.strip()
-    logger.info(f"Inline query: '{query}' from user {inline_query.from_user.id}")
-
     results = []
 
     if query.startswith("group:"):
         results = handle_group_search(query.replace("group:", "").strip())
     elif query.startswith("teacher:"):
-        results = handle_teacher_search(query.replace("teacher:", "").strip())
+        search = query.replace("teacher:", "").strip().lower()
+        for name in db.teachers.keys():
+            if search in name.lower():
+                rating = db.get_teacher_rating(name)
+                result_id = hashlib.md5(name.encode()).hexdigest()
+                input_content = types.InputTextMessageContent(
+                    message_text=f"Преподаватель: {name}\n⭐ Рейтинг: {rating}/5"
+                )
+                result = types.InlineQueryResultArticle(
+                    id=result_id,
+                    title=name,
+                    input_message_content=input_content,
+                    description=f"Текущий рейтинг: {rating}/5"
+                )
+                results.append(result)
 
     await inline_query.answer(results, cache_time=1)
+
+@dp.callback_query(lambda c: c.data.startswith("rate:"))
+async def rate_teacher(callback: types.CallbackQuery):
+    data = callback.data.split(":")  # ["rate", "Имя", "звезды"]
+    name = data[1]
+    value = int(data[2])
+    new_rating = db.add_teacher_rating(name, value)
+    await callback.message.edit_text(
+        f"Преподаватель: {name}\n⭐ Рейтинг: {new_rating}/5",
+        reply_markup=get_teacher_rating_keyboard(name)
+    )
+    await callback.answer(f"Вы установили {new_rating}⭐!")
 
 @dp.callback_query(F.data.startswith("day:"))
 async def day_schedule(callback: types.CallbackQuery):
