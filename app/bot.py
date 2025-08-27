@@ -137,6 +137,7 @@ async def day_schedule(callback: types.CallbackQuery):
     
     schedule = get_human_readable_schedule(await fetch_schedule(db.get_group(callback.from_user.id)))  
     lessons = schedule[day_name]
+    logger.info(f"Fetched schedule for user {callback.from_user.id} for {day_name}: {lessons}")
 
     if not lessons:
         text = f"📅 {day_name}\n\nЗанятий нет 🎉"
