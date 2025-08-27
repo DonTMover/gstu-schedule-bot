@@ -83,8 +83,6 @@ async def handler(message: Message):
             reply_markup=get_teacher_rating_keyboard(fullname)
         )
         return
-    else:
-        await message.answer(text="ИДИ НАХУЙ")
 
 
 @dp.callback_query(lambda c: c.data == "search")
@@ -115,16 +113,12 @@ async def inline_handler(inline_query: types.InlineQuery):
 
     await inline_query.answer(results, cache_time=1)
 
-
-
 @dp.callback_query(lambda c: c.data.startswith("rate:"))
 async def rate_teacher(callback: types.CallbackQuery):
     _, name, value_str = callback.data.split(":")
     value = int(value_str)
-    avg, count = db.add_teacher_rating(name, value)
 
-    print(12112)
-    logger.info(12112)
+    avg, count = db.add_teacher_rating(name, value, callback.from_user.id)
 
     text = f"Преподаватель: {name}\n⭐ Рейтинг: {avg:.2f}/5\nКоличество оценок: {count}"
     keyboard = get_teacher_rating_keyboard(name)
@@ -140,6 +134,28 @@ async def rate_teacher(callback: types.CallbackQuery):
         ).send(callback.bot)
 
     await callback.answer(f"Вы установили {value}⭐!")
+
+
+# @dp.callback_query(lambda c: c.data.startswith("rate:"))
+# async def rate_teacher(callback: types.CallbackQuery):
+#     _, name, value_str = callback.data.split(":")
+#     value = int(value_str)
+#     avg, count = db.add_teacher_rating(name, value)
+
+#     text = f"Преподаватель: {name}\n⭐ Рейтинг: {avg:.2f}/5\nКоличество оценок: {count}"
+#     keyboard = get_teacher_rating_keyboard(name)
+
+#     if callback.message:  # обычное сообщение
+#         await callback.message.edit_text(text, reply_markup=keyboard)
+#     elif callback.inline_message_id:  # inline-сообщение
+#         await EditMessageText(
+#             text=text,
+#             inline_message_id=callback.inline_message_id,
+#             reply_markup=keyboard,
+#             parse_mode="HTML"
+#         ).send(callback.bot)
+
+#     await callback.answer(f"Вы установили {value}⭐!")
 
 # @dp.callback_query(lambda c: c.data.startswith("rate:"))
 # async def rate_teacher(callback: types.CallbackQuery):
