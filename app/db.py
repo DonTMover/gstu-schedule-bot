@@ -28,23 +28,43 @@ class Database:
     # --- teachers ---
     def _load_teachers(self) -> None:
         if self.teachers_file.exists():
-            with open(self.teachers_file, "r", encoding="utf-8") as f:
-                self.teachers: Dict[str, float] = json.load(f)
+            try:
+                with open(self.teachers_file, "r", encoding="utf-8") as f:
+                    self.teachers: Dict[str, List[int]] = json.load(f)
+            except json.JSONDecodeError:
+                self.teachers = {}
         else:
             self.teachers = {}
+
+        # на случай старого формата с числами
+        for k, v in list(self.teachers.items()):
+            if isinstance(v, int):
+                self.teachers[k] = [v]
+
 
     def _save_teachers(self) -> None:
         with open(self.teachers_file, "w", encoding="utf-8") as f:
             json.dump(self.teachers, f, ensure_ascii=False, indent=2)
 
-    def add_teacher_rating(self, name: str, value: int) -> int:
+    def add_teacher_rating(self, name: str, value: int):
+        """Добавляет оценку преподавателю и возвращает средний рейтинг + количество оценок"""
         value = max(0, min(5, value))
-        self.teachers[name] = value
-        self._save_teachers()  # сохраняем после изменения
-        return self.teachers[name]
+        if name not in self.teachers:
+            self.teachers[name] = []
+        self.teachers[name].append(value)
+        self._save_teachers()
+        avg = sum(self.teachers[name]) / len(self.teachers[name])
+        return avg, len(self.teachers[name])
 
-    def get_teacher_rating(self, name: str) -> int:
-        return self.teachers.get(name, 0)
+
+    def get_teacher_rating(self, name: str):
+        """Возвращает средний рейтинг и количество оценок"""
+        grades = self.teachers.get(name, [])
+        if not grades:
+            return 0.0, 0
+        avg = sum(grades) / len(grades)
+        return avg, len(grades)
+
 
 
 # Создаём один экземпляр

@@ -18,14 +18,6 @@ days_map = {
     "SATURDAY": "Суббота"
 }
 
-# Старое - скоро удалю
-# def get_inline_keyboard_select_group() -> InlineKeyboardMarkup:
-#     select_button = InlineKeyboardButton(
-#         text="Поиск",
-#         switch_inline_query_current_chat="",
-#     )
-#     keyboard = InlineKeyboardMarkup(inline_keyboard=[[select_button]])
-#     return keyboard
 
 def get_inline_keyboard_select() -> InlineKeyboardMarkup:
     select_group_button = InlineKeyboardButton(
@@ -92,10 +84,6 @@ def handle_group_search(query: str):
     return results
 
 def handle_teacher_inline_search(query: str) -> list[InlineQueryResultArticle]:
-    """
-    Обработка inline поиска преподавателя.
-    Возвращает список InlineQueryResultArticle для inline_query.answer()
-    """
     results = []
 
     search = query.strip().lower()
@@ -106,9 +94,11 @@ def handle_teacher_inline_search(query: str) -> list[InlineQueryResultArticle]:
     matched = [name for name in db.teachers.keys() if search in name.lower()]
 
     for name in matched[:50]:  # ограничиваем 50 результатами
+        avg, count = db.get_teacher_rating(name)
+        avg_str = f"{avg:.2f}"  # среднее с 2 знаками после запятой
         result_id = hashlib.md5(name.encode()).hexdigest()
         input_content = InputTextMessageContent(
-            message_text=f"Преподаватель: {name}\n⭐ Рейтинг: {db.get_teacher_rating(name)}/5"
+            message_text=f"Преподаватель: {name}\n⭐ Рейтинг: {avg_str}/5\nКоличество оценок: {count}"
         )
 
         results.append(
@@ -116,11 +106,12 @@ def handle_teacher_inline_search(query: str) -> list[InlineQueryResultArticle]:
                 id=result_id,
                 title=name,
                 input_message_content=input_content,
-                description=f"Текущий рейтинг: {db.get_teacher_rating(name)}/5"
+                description=f"Рейтинг: {avg_str}/5, оценок: {count}"
             )
         )
 
     return results
+
 
 # Получаем клавиатуру для оценки преподавателя
 def get_teacher_rating_keyboard(name: str) -> InlineKeyboardMarkup:
