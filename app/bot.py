@@ -112,10 +112,21 @@ async def inline_handler(inline_query: types.InlineQuery):
 
     await inline_query.answer(results, cache_time=1)
 
-@dp.callback_query(lambda c: c.data.startswith("rate:"))
+@dp.callback_query(F.data.startswith("rate:"))
 async def rate_teacher(callback: types.CallbackQuery):
-    _, name, value_str = callback.data.split(":")
+    _, hash_id, value_str = callback.data.split(":")
     value = int(value_str)
+
+    # Находим имя преподавателя по хешу
+    name = None
+    for t_name, info in db.teachers.items():
+        if info.get("hash") == hash_id:
+            name = t_name
+            break
+
+    if not name:
+        await callback.answer("Преподаватель не найден!", show_alert=True)
+        return
 
     avg, count = db.add_teacher_rating(name, value, callback.from_user.id)
 
