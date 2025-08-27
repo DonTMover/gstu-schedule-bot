@@ -18,9 +18,11 @@ from aiogram.filters import CommandStart, Command
 from aiogram import F
 from aiogram.types import Message
 from aiogram import types
+from aiogram.types import InlineQuery
 
 # from packages
-from utils import get_inline_keyboard_select_group, get_days_keyboard, days_map
+from utils import (get_inline_keyboard_select, get_days_keyboard, days_map,
+                   handle_group_search, handle_teacher_inline_search,get_teacher_rating_keyboard)
 from api import get_human_readable_schedule, fetch_schedule
 from db import db
 
@@ -38,7 +40,7 @@ async def start(message: Message):
     logger.info(f"User {message.from_user.id} started bot")
     await message.answer(
         text="Привет, выбери группу, чтобы получить расписание.",
-        reply_markup=get_inline_keyboard_select_group()
+        reply_markup=get_inline_keyboard_select()
     )
 
 @dp.message()
@@ -62,49 +64,27 @@ async def handler(message: Message):
                 text="Выберете день недели, чтобы увидеть расписание.",
                 reply_markup=get_days_keyboard()
             )
+    match_teacher = re.search(r"Преподаватель: (.+)\n⭐ Рейтинг: ([0-5](?:\.[0-9])?)/5", text)
+    if match_teacher:
+        fullname = match_teacher.group(1)
+        current_rating = match_teacher.group(2)
+
+        logger.info(f"User {message.from_user.id} viewing teacher {fullname} with rating {current_rating}")
+
+        # Отправляем сообщение с клавиатурой для оценки
+        await message.answer(
+            text=f"Преподаватель: {fullname}\n⭐ Текущий рейтинг: {current_rating}/5",
+            reply_markup=get_teacher_rating_keyboard(fullname)
+        )
+        return
+
 
 @dp.callback_query(lambda c: c.data == "search")
 async def process_search(callback_query):
     await callback_query.message.answer("Please enter the group code (e.g., АП-11):")
     await callback_query.answer()
+    
 
-@dp.inline_query()
-async def inline_handler(inline_query: types.InlineQuery):
-    query = inline_query.query.strip()
-    logger.info(f"Inline query: '{query}' from user {inline_query.from_user.id}")
-
-    results = []
-
-    if query:  # Чекаем что пользователь В ОБЩЕМ что то ввел 
-        for key, value in groups.items():
-            if query.lower() in key.lower():  #Ищем по подстроке
-                result_id = hashlib.md5(key.encode()).hexdigest()
-                input_content = types.InputTextMessageContent(
-                    message_text=f"Вы выбрали группу: {key} ({value})"
-                )
-                result = types.InlineQueryResultArticle(
-                    id=result_id,
-                    title=f"Группа: {key}",
-                    input_message_content=input_content,
-                    description=f"Код группы: {value}"
-                )
-                results.append(result)
-
-    # Если юзер даун и ввел че то что мы не знаем говорим ему что не найдено 
-    if query and not results:
-        result_id = hashlib.md5(query.encode()).hexdigest()
-        input_content = types.InputTextMessageContent(
-            message_text="Группа не найдена. Пожалуйста, введите корректный код группы."
-        )
-        result = types.InlineQueryResultArticle(
-            id=result_id,
-            title="Группа не найдена",
-            input_message_content=input_content,
-            description="Нет такой группы." #Еле сдержался от мата вхзввххвхв
-        )
-        results.append(result)
-
-    await inline_query.answer(results, cache_time=1)
 
 @dp.message(Command("schedule"))
 async def schedule_cmd(message: types.Message):
@@ -114,6 +94,76 @@ async def schedule_cmd(message: types.Message):
     )
 
 
+@dp.inline_query()
+async def inline_handler(inline_query: types.InlineQuery):
+    query = inline_query.query.strip()
+    results = []
+
+    if query.startswith("teacher:"):
+        results = handle_teacher_inline_search(query.replace("teacher:", "").strip())
+
+    elif query.startswith("group:"):
+        results = handle_group_search(query.replace("group:", "").strip())
+
+    await inline_query.answer(results, cache_time=1)
+
+@dp.message()
+async def teacher_message_handler(message: types.Message):
+    """
+    После выбора преподавателя вставляется сообщение с кнопками оценки
+    """
+    text = message.text.strip()
+    if text.startswith("Преподаватель:"):
+        name = text.split("\n")[0].replace("Преподаватель: ", "").strip()
+        keyboard = get_teacher_rating_keyboard(name)
+        await message.reply(f"Выберите оценку для {name}:", reply_markup=keyboard)
+
+@dp.message()
+async def teacher_message_handler(message: types.Message):
+    """
+    Если сообщение начинается с 'Преподаватель:', добавляем клавиатуру рейтинга
+    """
+    text = message.text.strip()
+    if text.startswith("Преподаватель:"):
+        name = text.split("\n")[0].replace("Преподаватель: ", "").strip()
+        keyboard = get_teacher_rating_keyboard(name)
+        await message.reply("Выберите оценку:", reply_markup=keyboard)
+
+@dp.callback_query(lambda c: c.data.startswith("rate:"))
+async def rate_teacher(callback: types.CallbackQuery):
+    data = callback.data.split(":")  # ["rate", "Имя", "звезды"]
+    name = data[1]
+    value = int(data[2])
+    new_rating = db.add_teacher_rating(name, value)
+    await callback.message.edit_text(
+        f"Преподаватель: {name}\n⭐ Рейтинг: {new_rating}/5",
+        reply_markup=get_teacher_rating_keyboard(name)
+    )
+    await callback.answer(f"Вы установили {new_rating}⭐!")
+
+@dp.callback_query(lambda c: c.data.startswith("rate:"))
+async def rate_teacher(callback: types.CallbackQuery):
+    data = callback.data.split(":")  # ["rate", "Имя", "звезды"]
+    name = data[1]
+    value = int(data[2])
+    new_rating = db.add_teacher_rating(name, value)
+
+    text = f"Преподаватель: {name}\n⭐ Рейтинг: {new_rating}/5"
+    keyboard = get_teacher_rating_keyboard(name)
+
+    if callback.message:  # обычное сообщение в чате
+        await callback.message.edit_text(text, reply_markup=keyboard)
+    elif callback.inline_message_id:  # inline-сообщение
+        from aiogram.methods import EditMessageText
+        await EditMessageText(
+            text=text,
+            inline_message_id=callback.inline_message_id,
+            reply_markup=keyboard,
+            parse_mode="HTML"
+        ).send(callback.bot)
+
+    await callback.answer(f"Вы установили {new_rating}⭐!")
+
 @dp.callback_query(F.data.startswith("day:"))
 async def day_schedule(callback: types.CallbackQuery):
     code = callback.data.split(":")[1]   # MONDAY, TUESDAY ...
@@ -122,7 +172,7 @@ async def day_schedule(callback: types.CallbackQuery):
         if not db.get_group(callback.from_user.id):
             await callback.message.edit_text(
                 "Сначала выберите группу, используя команду /start",
-                reply_markup=get_inline_keyboard_select_group()
+                reply_markup=get_inline_keyboard_select()
             )
             await callback.answer()
             return
@@ -130,7 +180,7 @@ async def day_schedule(callback: types.CallbackQuery):
         logger.error(f"Error fetching group for user {callback.from_user.id}: {e}")
         await callback.message.edit_text(
             "Произошла ошибка при получении вашей группы. Пожалуйста, попробуйте снова.",
-            reply_markup=get_inline_keyboard_select_group()
+            reply_markup=get_inline_keyboard_select()
         )
         await callback.answer()
         return
@@ -175,7 +225,7 @@ def run():
     import asyncio
     print("Starting bot...")
     load_dotenv()
-    print(getenv("BOT_TOKEN"))
+    #print(getenv("BOT_TOKEN"))
     asyncio.run(main())
     
 
