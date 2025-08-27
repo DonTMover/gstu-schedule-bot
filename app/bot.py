@@ -14,12 +14,15 @@ import hashlib
 from aiogram import Bot, Dispatcher, html
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
-from aiogram.filters import CommandStart
+from aiogram.filters import CommandStart, Command
+from aiogram import F
 from aiogram.types import Message
 from aiogram import types
 
-# from utils
-from utils import get_inline_keyboard_select_group
+# from packages
+from utils import get_inline_keyboard_select_group, get_days_keyboard, days_map
+from api import get_human_readable_schedule, fetch_schedule
+from db import db
 
 
 load_dotenv()
@@ -48,27 +51,21 @@ async def handler(message: Message):
     print(match)
     if match:
         group_code = match.group(1)
+        print(group_code)
+
+        db.set_group(message.from_user.id, group_code)
+        logger.info(f"Set group {group_code} for user {message.from_user.id}")
 
         if group_code in groups:
             print(group_code)
             await message.answer(
-                text=await get_schedule(group_code),
-                #reply_markup=get_inline_keyboard()
+                text="Выберете день недели, чтобы увидеть расписание.",
+                reply_markup=get_days_keyboard()
             )
 
 @dp.callback_query(lambda c: c.data == "search")
 async def process_search(callback_query):
     await callback_query.message.answer("Please enter the group code (e.g., АП-11):")
-    await callback_query.answer()
-
-@dp.callback_query(lambda c: c.data == "button1")
-async def process_button1(callback_query):
-    await callback_query.message.answer("You clicked Button 1!")
-    await callback_query.answer()
-    
-@dp.callback_query(lambda c: c.data == "button2")
-async def process_button2(callback_query):
-    await callback_query.message.answer("You clicked Button 2!")
     await callback_query.answer()
 
 @dp.inline_query()
@@ -108,6 +105,59 @@ async def inline_handler(inline_query: types.InlineQuery):
         results.append(result)
 
     await inline_query.answer(results, cache_time=1)
+
+@dp.message(Command("schedule"))
+async def schedule_cmd(message: types.Message):
+    await message.answer(
+        "Выберите день недели:",
+        reply_markup=get_days_keyboard()
+    )
+
+
+@dp.callback_query(F.data.startswith("day:"))
+async def day_schedule(callback: types.CallbackQuery):
+    code = callback.data.split(":")[1]   # MONDAY, TUESDAY ...
+    day_name = days_map[code]
+    try:
+        if not db.get_group(callback.from_user.id):
+            await callback.message.edit_text(
+                "Сначала выберите группу, используя команду /start",
+                reply_markup=get_inline_keyboard_select_group()
+            )
+            await callback.answer()
+            return
+    except Exception as e:
+        logger.error(f"Error fetching group for user {callback.from_user.id}: {e}")
+        await callback.message.edit_text(
+            "Произошла ошибка при получении вашей группы. Пожалуйста, попробуйте снова.",
+            reply_markup=get_inline_keyboard_select_group()
+        )
+        await callback.answer()
+        return
+    
+    schedule = get_human_readable_schedule(await fetch_schedule(db.get_group(callback.from_user.id)))  
+    lessons = schedule[day_name]
+
+    if not lessons:
+        text = f"📅 {day_name}\n\nЗанятий нет 🎉"
+    else:
+        parts = [f"📅 {day_name}\n"]
+        for i, lesson in enumerate(lessons, 1):
+            parts.append(
+                f"<b>{i}. {lesson['subject']}</b> ({lesson['subjectShort'] or ''})\n"
+                f"🕒 {lesson['startTime']} – {lesson['endTime']}\n"
+                f"👨‍🏫 {lesson['teachers'] or '-'}\n"
+                f"🏫 {lesson['classrooms'] or '-'}\n"
+                f"👥 {lesson['groups'] or '-'}\n"
+            )
+        text = "\n".join(parts)
+
+    await callback.message.edit_text(
+        text,
+        reply_markup=get_days_keyboard(),
+        parse_mode="HTML"
+    )
+    await callback.answer()
 
 
 

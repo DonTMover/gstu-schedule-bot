@@ -7,3 +7,4 @@ services:
       - app/.env
     volumes:
       - ./bot.log:/app/bot.log  # Пробрасываем лог-файл наружу
+      - ./db.json:/app/db.json    # проброс базы данных наружу
