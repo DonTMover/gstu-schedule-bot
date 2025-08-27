@@ -1,7 +1,6 @@
 import json
 from pathlib import Path
 
-# путь к вашему teachers.json
 teachers_file = Path("teachers.json")
 
 if not teachers_file.exists():
@@ -10,13 +9,32 @@ if not teachers_file.exists():
 
 # загружаем текущий файл
 with open(teachers_file, "r", encoding="utf-8") as f:
-    data = json.load(f)
+    try:
+        data = json.load(f)
+    except json.JSONDecodeError:
+        print("Ошибка в формате JSON")
+        exit(1)
 
-# если это список, преобразуем в словарь с рейтингом 0
-if isinstance(data, list):
-    teachers_dict = {name: 0 for name in data}
-    with open(teachers_file, "w", encoding="utf-8") as f:
-        json.dump(teachers_dict, f, ensure_ascii=False, indent=2)
-    print(f"Файл teachers.json успешно преобразован в словарь с рейтингами {len(teachers_dict)} преподавателей")
-else:
-    print("Файл уже в формате словаря, преобразование не требуется")
+# функция для расчета среднего
+def average(grades):
+    return sum(grades) / len(grades) if grades else 0
+
+# преобразуем словарь в новый формат
+new_data = {}
+for teacher, value in data.items():
+    if isinstance(value, int) or isinstance(value, float):
+        grades = [value] if value != 0 else []
+    elif isinstance(value, list):
+        grades = value
+    else:
+        grades = []
+    new_data[teacher] = {
+        "grades": grades,
+        "average": average(grades)
+    }
+
+# сохраняем обратно
+with open(teachers_file, "w", encoding="utf-8") as f:
+    json.dump(new_data, f, ensure_ascii=False, indent=2)
+
+print(f"Файл teachers.json успешно обновлён с {len(new_data)} преподавателями")
