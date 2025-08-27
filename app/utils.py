@@ -18,15 +18,6 @@ days_map = {
     "SATURDAY": "Суббота"
 }
 
-# Старое - скоро удалю
-# def get_inline_keyboard_select_group() -> InlineKeyboardMarkup:
-#     select_button = InlineKeyboardButton(
-#         text="Поиск",
-#         switch_inline_query_current_chat="",
-#     )
-#     keyboard = InlineKeyboardMarkup(inline_keyboard=[[select_button]])
-#     return keyboard
-
 def get_inline_keyboard_select() -> InlineKeyboardMarkup:
     select_group_button = InlineKeyboardButton(
         text="Поиск группы",
