@@ -2,7 +2,7 @@ import aiohttp
 import asyncio
 from collections import defaultdict
 from groupes import groups
-from bot import logger
+# from bot import logger
 BASE_URL = "https://sc.gstu.by/api/schedules/group"
 
 
@@ -79,7 +79,7 @@ def pretty_schedule_str(data: dict) -> str:
     return "\n".join(lines)
 
 async def get_schedule(group_name: str) -> str:
-    logger.info(f"Fetching schedule for group: {group_name}")
+    print(f"Fetching schedule for group: {group_name}")
     data = await fetch_schedule(group_name)
     lines = pretty_schedule_str(data)
     return lines
