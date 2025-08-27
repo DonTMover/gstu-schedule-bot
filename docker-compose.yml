@@ -8,3 +8,4 @@ services:
     volumes:
       - ./bot.log:/app/bot.log  # Пробрасываем лог-файл наружу
       - ./db.json:/app/db.json    # проброс базы данных наружу
+      - ./teachers.json:/app/teachers.json    # проброс базы данных преподователей наружу
