@@ -50,16 +50,16 @@ async def handler(message: Message):
 
 
     match = re.search(r"Вы выбрали группу: (\S+)", text)
-    print(match)
+    logger.info(f"Regex match for group: {match}")
     if match:
         group_code = match.group(1)
-        print(group_code)
+        
 
         db.set_group(message.from_user.id, group_code)
         logger.info(f"Set group {group_code} for user {message.from_user.id}")
 
         if group_code in groups:
-            print(group_code)
+            logger.info(f"User {message.from_user.id} selected valid group {group_code}")
             await message.answer(
                 text="Выберете день недели, чтобы увидеть расписание.",
                 reply_markup=get_days_keyboard()
@@ -68,6 +68,7 @@ async def handler(message: Message):
     if match_teacher:
         fullname = match_teacher.group(1)
         current_rating = match_teacher.group(2)
+        logger.info(f"User {message.from_user.id} viewing teacher {fullname} with rating {current_rating}")
 
         logger.info(f"User {message.from_user.id} viewing teacher {fullname} with rating {current_rating}")
 
@@ -223,7 +224,7 @@ async def main():
 
 def run():
     import asyncio
-    print("Starting bot...")
+    logger.info("Starting bot...")
     load_dotenv()
     #print(getenv("BOT_TOKEN"))
     asyncio.run(main())
