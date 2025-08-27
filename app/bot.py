@@ -18,12 +18,11 @@ from aiogram.filters import CommandStart, Command
 from aiogram import F
 from aiogram.types import Message
 from aiogram import types
-from aiogram.types import (
-    InlineQueryResultArticle, InputTextMessageContent
-)
+from aiogram.types import InlineQuery
 
 # from packages
-from utils import get_inline_keyboard_select_group, get_days_keyboard, days_map
+from utils import (get_inline_keyboard_select, get_days_keyboard, days_map,
+                   handle_group_search, handle_teacher_search)
 from api import get_human_readable_schedule, fetch_schedule
 from db import db
 
@@ -41,7 +40,7 @@ async def start(message: Message):
     logger.info(f"User {message.from_user.id} started bot")
     await message.answer(
         text="Привет, выбери группу, чтобы получить расписание.",
-        reply_markup=get_inline_keyboard_select_group()
+        reply_markup=get_inline_keyboard_select()
     )
 
 @dp.message()
@@ -80,6 +79,19 @@ async def schedule_cmd(message: types.Message):
         reply_markup=get_days_keyboard()
     )
 
+@dp.inline_query()
+async def inline_handler(inline_query: InlineQuery):
+    query = inline_query.query.strip()
+    logger.info(f"Inline query: '{query}' from user {inline_query.from_user.id}")
+
+    results = []
+
+    if query.startswith("group:"):
+        results = handle_group_search(query.replace("group:", "").strip())
+    elif query.startswith("teacher:"):
+        results = handle_teacher_search(query.replace("teacher:", "").strip())
+
+    await inline_query.answer(results, cache_time=1)
 
 @dp.callback_query(F.data.startswith("day:"))
 async def day_schedule(callback: types.CallbackQuery):
@@ -89,7 +101,7 @@ async def day_schedule(callback: types.CallbackQuery):
         if not db.get_group(callback.from_user.id):
             await callback.message.edit_text(
                 "Сначала выберите группу, используя команду /start",
-                reply_markup=get_inline_keyboard_select_group()
+                reply_markup=get_inline_keyboard_select()
             )
             await callback.answer()
             return
@@ -97,7 +109,7 @@ async def day_schedule(callback: types.CallbackQuery):
         logger.error(f"Error fetching group for user {callback.from_user.id}: {e}")
         await callback.message.edit_text(
             "Произошла ошибка при получении вашей группы. Пожалуйста, попробуйте снова.",
-            reply_markup=get_inline_keyboard_select_group()
+            reply_markup=get_inline_keyboard_select()
         )
         await callback.answer()
         return
