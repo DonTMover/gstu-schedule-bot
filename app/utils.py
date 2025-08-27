@@ -18,6 +18,7 @@ days_map = {
     "SATURDAY": "Суббота"
 }
 
+
 def get_inline_keyboard_select() -> InlineKeyboardMarkup:
     select_group_button = InlineKeyboardButton(
         text="Поиск группы",
@@ -83,23 +84,24 @@ def handle_group_search(query: str):
     return results
 
 def handle_teacher_inline_search(query: str) -> list[InlineQueryResultArticle]:
-    """
-    Обработка inline поиска преподавателя.
-    Возвращает список InlineQueryResultArticle для inline_query.answer()
-    """
     results = []
 
     search = query.strip().lower()
     if not search:
         return results
+    
+    print("IN UTILS")
+    logger.info("IN UTILS")
 
     # Найдём совпадения в базе преподавателей
     matched = [name for name in db.teachers.keys() if search in name.lower()]
 
     for name in matched[:50]:  # ограничиваем 50 результатами
+        avg, count = db.get_teacher_rating(name)
+        avg_str = f"{avg:.2f}"  # среднее с 2 знаками после запятой
         result_id = hashlib.md5(name.encode()).hexdigest()
         input_content = InputTextMessageContent(
-            message_text=f"Преподаватель: {name}\n⭐ Рейтинг: {db.get_teacher_rating(name)}/5"
+            message_text=f"Преподаватель: {name}\n⭐ Рейтинг: {avg_str}/5\nКоличество оценок: {count}"
         )
 
         results.append(
@@ -107,11 +109,12 @@ def handle_teacher_inline_search(query: str) -> list[InlineQueryResultArticle]:
                 id=result_id,
                 title=name,
                 input_message_content=input_content,
-                description=f"Текущий рейтинг: {db.get_teacher_rating(name)}/5"
+                description=f"Рейтинг: {avg_str}/5, оценок: {count}"
             )
         )
 
     return results
+
 
 # Получаем клавиатуру для оценки преподавателя
 def get_teacher_rating_keyboard(name: str) -> InlineKeyboardMarkup:
@@ -129,45 +132,3 @@ def get_teacher_rating_keyboard(name: str) -> InlineKeyboardMarkup:
     # Разбиваем на ряды по 3 кнопки
     keyboard = [buttons[i:i+3] for i in range(0, len(buttons), 3)]
     return InlineKeyboardMarkup(inline_keyboard=keyboard)
-
-
-
-# --- Обработчик поиска преподавателей ---
-def handle_teacher_search(query: str):
-    results = []
-    # TMP TODO
-    teachers = {
-        "иванов": "Иванов И.И. — ⭐⭐⭐⭐☆",
-        "петров": "Петров П.П. — ⭐⭐⭐⭐⭐",
-    }
-
-    if query:
-        for name, rating in teachers.items():
-            if query.lower() in name.lower():
-                result_id = hashlib.md5(name.encode()).hexdigest()
-                input_content = InputTextMessageContent(
-                    message_text=f"Преподаватель: {rating}"
-                )
-                result = InlineQueryResultArticle(
-                    id=result_id,
-                    title=f"Преподаватель: {name.title()}",
-                    input_message_content=input_content,
-                    description=rating
-                )
-                results.append(result)
-
-    if query and not results:
-        result_id = hashlib.md5(query.encode()).hexdigest()
-        input_content = InputTextMessageContent(
-            message_text="Преподаватель не найден."
-        )
-        results.append(
-            InlineQueryResultArticle(
-                id=result_id,
-                title="Преподаватель не найден",
-                input_message_content=input_content,
-                description="Нет такого преподавателя."
-            )
-        )
-    return results
-

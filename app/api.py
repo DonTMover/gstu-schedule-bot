@@ -2,15 +2,34 @@ import aiohttp
 import asyncio
 from collections import defaultdict
 from groupes import groups
-# from bot import logger
+import uuid
+
 BASE_URL = "https://sc.gstu.by/api/schedules/group"
+
+COMMON_HEADERS = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:142.0) Gecko/20100101 Firefox/142.0",
+    "Accept": "application/json, text/plain, */*",
+    "Accept-Language": "ru-RU,ru;q=0.8,en-US;q=0.5,en;q=0.3",
+    "Accept-Encoding": "gzip, deflate",
+    "DNT": "1",
+    "Connection": "keep-alive",
+    "Sec-Fetch-Dest": "empty",
+    "Sec-Fetch-Mode": "cors",
+    "Sec-Fetch-Site": "same-origin",
+    "Sec-GPC": "1",
+}
 
 
 async def fetch_schedule(group_name: str) -> dict:
-    url = f"{BASE_URL}/{groups[group_name]}"
-    headers = {"User-Agent": "Mozilla/5.0"}
+    # генерируем новый tid для каждого запроса
+    tid = uuid.uuid4().hex
+    headers = COMMON_HEADERS.copy()
+    headers["X-Id"] = tid
+    headers["Cookie"] = f"_tid={tid}"
+    headers["Referer"] = f"https://sc.gstu.by/group/{groups[group_name]}"
+
     async with aiohttp.ClientSession(headers=headers) as session:
-        async with session.get(url) as resp:
+        async with session.get(f"{BASE_URL}/{groups[group_name]}", timeout=15) as resp:
             resp.raise_for_status()
             return await resp.json()
 

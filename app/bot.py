@@ -19,6 +19,7 @@ from aiogram import F
 from aiogram.types import Message
 from aiogram import types
 from aiogram.types import InlineQuery
+from aiogram.methods import EditMessageText
 
 # from packages
 from utils import (get_inline_keyboard_select, get_days_keyboard, days_map,
@@ -64,15 +65,18 @@ async def handler(message: Message):
                 text="Выберете день недели, чтобы увидеть расписание.",
                 reply_markup=get_days_keyboard()
             )
-    match_teacher = re.search(r"Преподаватель: (.+)\n⭐ Рейтинг: ([0-5](?:\.[0-9])?)/5", text)
+    match_teacher = re.search(
+    r"Преподаватель: (.+)\n⭐\s*Рейтинг: ([0-5](?:\.[0-9]{1,2})?)/5",
+    text
+    )
+
     if match_teacher:
         fullname = match_teacher.group(1)
         current_rating = match_teacher.group(2)
         logger.info(f"User {message.from_user.id} viewing teacher {fullname} with rating {current_rating}")
-
-        logger.info(f"User {message.from_user.id} viewing teacher {fullname} with rating {current_rating}")
-
         # Отправляем сообщение с клавиатурой для оценки
+        logger.info(f"Sending rating keyboard for {fullname} to user {message.from_user.id}")
+        
         await message.answer(
             text=f"Преподаватель: {fullname}\n⭐ Текущий рейтинг: {current_rating}/5",
             reply_markup=get_teacher_rating_keyboard(fullname)
@@ -108,54 +112,19 @@ async def inline_handler(inline_query: types.InlineQuery):
 
     await inline_query.answer(results, cache_time=1)
 
-@dp.message()
-async def teacher_message_handler(message: types.Message):
-    """
-    После выбора преподавателя вставляется сообщение с кнопками оценки
-    """
-    text = message.text.strip()
-    if text.startswith("Преподаватель:"):
-        name = text.split("\n")[0].replace("Преподаватель: ", "").strip()
-        keyboard = get_teacher_rating_keyboard(name)
-        await message.reply(f"Выберите оценку для {name}:", reply_markup=keyboard)
-
-@dp.message()
-async def teacher_message_handler(message: types.Message):
-    """
-    Если сообщение начинается с 'Преподаватель:', добавляем клавиатуру рейтинга
-    """
-    text = message.text.strip()
-    if text.startswith("Преподаватель:"):
-        name = text.split("\n")[0].replace("Преподаватель: ", "").strip()
-        keyboard = get_teacher_rating_keyboard(name)
-        await message.reply("Выберите оценку:", reply_markup=keyboard)
-
 @dp.callback_query(lambda c: c.data.startswith("rate:"))
 async def rate_teacher(callback: types.CallbackQuery):
-    data = callback.data.split(":")  # ["rate", "Имя", "звезды"]
-    name = data[1]
-    value = int(data[2])
-    new_rating = db.add_teacher_rating(name, value)
-    await callback.message.edit_text(
-        f"Преподаватель: {name}\n⭐ Рейтинг: {new_rating}/5",
-        reply_markup=get_teacher_rating_keyboard(name)
-    )
-    await callback.answer(f"Вы установили {new_rating}⭐!")
+    _, name, value_str = callback.data.split(":")
+    value = int(value_str)
 
-@dp.callback_query(lambda c: c.data.startswith("rate:"))
-async def rate_teacher(callback: types.CallbackQuery):
-    data = callback.data.split(":")  # ["rate", "Имя", "звезды"]
-    name = data[1]
-    value = int(data[2])
-    new_rating = db.add_teacher_rating(name, value)
+    avg, count = db.add_teacher_rating(name, value, callback.from_user.id)
 
-    text = f"Преподаватель: {name}\n⭐ Рейтинг: {new_rating}/5"
+    text = f"Преподаватель: {name}\n⭐ Рейтинг: {avg:.2f}/5\nКоличество оценок: {count}"
     keyboard = get_teacher_rating_keyboard(name)
 
-    if callback.message:  # обычное сообщение в чате
+    if callback.message:  # обычное сообщение
         await callback.message.edit_text(text, reply_markup=keyboard)
     elif callback.inline_message_id:  # inline-сообщение
-        from aiogram.methods import EditMessageText
         await EditMessageText(
             text=text,
             inline_message_id=callback.inline_message_id,
@@ -163,7 +132,64 @@ async def rate_teacher(callback: types.CallbackQuery):
             parse_mode="HTML"
         ).send(callback.bot)
 
-    await callback.answer(f"Вы установили {new_rating}⭐!")
+    await callback.answer(f"Вы установили {value}⭐!")
+
+
+# @dp.callback_query(lambda c: c.data.startswith("rate:"))
+# async def rate_teacher(callback: types.CallbackQuery):
+#     _, name, value_str = callback.data.split(":")
+#     value = int(value_str)
+#     avg, count = db.add_teacher_rating(name, value)
+
+#     text = f"Преподаватель: {name}\n⭐ Рейтинг: {avg:.2f}/5\nКоличество оценок: {count}"
+#     keyboard = get_teacher_rating_keyboard(name)
+
+#     if callback.message:  # обычное сообщение
+#         await callback.message.edit_text(text, reply_markup=keyboard)
+#     elif callback.inline_message_id:  # inline-сообщение
+#         await EditMessageText(
+#             text=text,
+#             inline_message_id=callback.inline_message_id,
+#             reply_markup=keyboard,
+#             parse_mode="HTML"
+#         ).send(callback.bot)
+
+#     await callback.answer(f"Вы установили {value}⭐!")
+
+# @dp.callback_query(lambda c: c.data.startswith("rate:"))
+# async def rate_teacher(callback: types.CallbackQuery):
+#     data = callback.data.split(":")  # ["rate", "Имя", "звезды"]
+#     name = data[1]
+#     value = int(data[2])
+#     avg, count = db.add_teacher_rating(name, value)
+#     await callback.message.edit_text(
+#         f"Преподаватель: {name}\n⭐ Рейтинг: {avg:.2f}/5\nКоличество оценок: {count}",
+#         reply_markup=get_teacher_rating_keyboard(name)
+#     )
+
+#     await callback.answer(f"Вы установили {new_rating}⭐!")
+
+# @dp.callback_query(lambda c: c.data.startswith("rate:"))
+# async def rate_teacher(callback: types.CallbackQuery):
+#     data = callback.data.split(":")  # ["rate", "Имя", "звезды"]
+#     name = data[1]
+#     value = int(data[2])
+#     new_rating = db.add_teacher_rating(name, value)
+
+#     text = f"Преподаватель: {name}\n⭐ Рейтинг: {new_rating}/5"
+#     keyboard = get_teacher_rating_keyboard(name)
+
+#     if callback.message:  # обычное сообщение в чате
+#         await callback.message.edit_text(text, reply_markup=keyboard)
+#     elif callback.inline_message_id:  # inline-сообщение
+#         await EditMessageText(
+#             text=text,
+#             inline_message_id=callback.inline_message_id,
+#             reply_markup=keyboard,
+#             parse_mode="HTML"
+#         ).send(callback.bot)
+
+#     await callback.answer(f"Вы установили {new_rating}⭐!")
 
 @dp.callback_query(F.data.startswith("day:"))
 async def day_schedule(callback: types.CallbackQuery):
