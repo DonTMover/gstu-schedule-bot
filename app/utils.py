@@ -89,6 +89,9 @@ def handle_teacher_inline_search(query: str) -> list[InlineQueryResultArticle]:
     search = query.strip().lower()
     if not search:
         return results
+    
+    print("IN UTILS")
+    logger.info("IN UTILS")
 
     # Найдём совпадения в базе преподавателей
     matched = [name for name in db.teachers.keys() if search in name.lower()]
@@ -129,45 +132,3 @@ def get_teacher_rating_keyboard(name: str) -> InlineKeyboardMarkup:
     # Разбиваем на ряды по 3 кнопки
     keyboard = [buttons[i:i+3] for i in range(0, len(buttons), 3)]
     return InlineKeyboardMarkup(inline_keyboard=keyboard)
-
-
-
-# --- Обработчик поиска преподавателей ---
-def handle_teacher_search(query: str):
-    results = []
-    # TMP TODO
-    teachers = {
-        "иванов": "Иванов И.И. — ⭐⭐⭐⭐☆",
-        "петров": "Петров П.П. — ⭐⭐⭐⭐⭐",
-    }
-
-    if query:
-        for name, rating in teachers.items():
-            if query.lower() in name.lower():
-                result_id = hashlib.md5(name.encode()).hexdigest()
-                input_content = InputTextMessageContent(
-                    message_text=f"Преподаватель: {rating}"
-                )
-                result = InlineQueryResultArticle(
-                    id=result_id,
-                    title=f"Преподаватель: {name.title()}",
-                    input_message_content=input_content,
-                    description=rating
-                )
-                results.append(result)
-
-    if query and not results:
-        result_id = hashlib.md5(query.encode()).hexdigest()
-        input_content = InputTextMessageContent(
-            message_text="Преподаватель не найден."
-        )
-        results.append(
-            InlineQueryResultArticle(
-                id=result_id,
-                title="Преподаватель не найден",
-                input_message_content=input_content,
-                description="Нет такого преподавателя."
-            )
-        )
-    return results
-

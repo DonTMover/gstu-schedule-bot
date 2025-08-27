@@ -57,13 +57,17 @@ class Database:
         return avg, len(self.teachers[name])
 
 
-    def get_teacher_rating(self, name: str):
-        """Возвращает средний рейтинг и количество оценок"""
-        grades = self.teachers.get(name, [])
+    def get_teacher_rating(self, name):
+        teacher = self.teachers.get(name)
+        if not teacher:
+            return 0.0, 0
+        grades = teacher.get("grades", [])
         if not grades:
             return 0.0, 0
-        avg = sum(grades) / len(grades)
-        return avg, len(grades)
+        avg = sum(map(int, grades)) / len(grades)
+        count = len(grades)
+        return avg, count
+
 
 
 

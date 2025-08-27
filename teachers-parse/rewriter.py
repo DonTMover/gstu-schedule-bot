@@ -15,26 +15,16 @@ with open(teachers_file, "r", encoding="utf-8") as f:
         print("Ошибка в формате JSON")
         exit(1)
 
-# функция для расчета среднего
-def average(grades):
-    return sum(grades) / len(grades) if grades else 0
-
-# преобразуем словарь в новый формат
+# преобразуем: grades = [0], average = 0.0
 new_data = {}
-for teacher, value in data.items():
-    if isinstance(value, int) or isinstance(value, float):
-        grades = [value] if value != 0 else []
-    elif isinstance(value, list):
-        grades = value
-    else:
-        grades = []
+for teacher in data.keys():
     new_data[teacher] = {
-        "grades": grades,
-        "average": average(grades)
+        "grades": [0],
+        "average": 0.0
     }
 
 # сохраняем обратно
 with open(teachers_file, "w", encoding="utf-8") as f:
     json.dump(new_data, f, ensure_ascii=False, indent=2)
 
-print(f"Файл teachers.json успешно обновлён с {len(new_data)} преподавателями")
+print(f"Файл teachers.json успешно обновлён для {len(new_data)} преподавателей")
