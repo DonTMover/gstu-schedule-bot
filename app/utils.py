@@ -4,6 +4,15 @@ from aiogram import types
 from groupes import groups
 import hashlib
 
+days_map = {
+    "MONDAY": "Понедельник",
+    "TUESDAY": "Вторник",
+    "WEDNESDAY": "Среда",
+    "THURSDAY": "Четверг",
+    "FRIDAY": "Пятница",
+    "SATURDAY": "Суббота"
+}
+
 def get_inline_keyboard_select_group() -> InlineKeyboardMarkup:
     select_button = InlineKeyboardButton(
         text="Поиск",
@@ -13,10 +22,19 @@ def get_inline_keyboard_select_group() -> InlineKeyboardMarkup:
     return keyboard
 
 
-
-def get_inline_keyboard() -> InlineKeyboardMarkup:
-    button1 = InlineKeyboardButton(text="Button 1", callback_data="button1")
-    button2 = InlineKeyboardButton(text="Button 2", callback_data="button2")
-    keyboard = InlineKeyboardMarkup(inline_keyboard=[[button1, button2]])
-    return keyboard
-
+def get_days_keyboard() -> InlineKeyboardMarkup:
+    buttons = [
+        [
+            InlineKeyboardButton(text="Понедельник", callback_data="day:MONDAY"),
+            InlineKeyboardButton(text="Вторник", callback_data="day:TUESDAY")
+        ],
+        [
+            InlineKeyboardButton(text="Среда", callback_data="day:WEDNESDAY"),
+            InlineKeyboardButton(text="Четверг", callback_data="day:THURSDAY")
+        ],
+        [
+            InlineKeyboardButton(text="Пятница", callback_data="day:FRIDAY"),
+            InlineKeyboardButton(text="Суббота", callback_data="day:SATURDAY")
+        ]
+    ]
+    return InlineKeyboardMarkup(inline_keyboard=buttons)
