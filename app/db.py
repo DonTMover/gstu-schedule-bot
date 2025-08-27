@@ -1,12 +1,12 @@
 import json
 from pathlib import Path
-from typing import Optional, Dict, List
+from typing import Optional, Dict
 
 class Database:
     def __init__(self, filename: str = "db.json", teachers_file: str = "teachers.json"):
         self.path = Path(filename)
         self.teachers_file = Path(teachers_file)
-        self._data: Dict[str, str] = {}
+        self._data: Dict[str, str] = {}  # хранение user_id -> group
         self._load()
         self._load_teachers()
 
@@ -52,10 +52,22 @@ class Database:
         else:
             self.teachers = {}
 
-        # на случай старого формата grades = [int]
-        for k, v in list(self.teachers.items()):
-            if isinstance(v, list):
-                self.teachers[k] = {"grades": {}, "average": sum(v)/len(v) if v else 0.0}
+        # нормализация старого формата
+        for name, info in list(self.teachers.items()):
+            if isinstance(info, list):
+                # старый формат: grades = [int]
+                self.teachers[name] = {
+                    "grades": {str(i): v for i, v in enumerate(info)},
+                    "average": sum(info) / len(info) if info else 0.0,
+                    "slug": "",
+                    "hash": ""
+                }
+            elif isinstance(info, dict):
+                # добавляем недостающие поля
+                self.teachers[name].setdefault("grades", {})
+                self.teachers[name].setdefault("average", 0.0)
+                self.teachers[name].setdefault("slug", "")
+                self.teachers[name].setdefault("hash", "")
 
     def _save_teachers(self) -> None:
         with open(self.teachers_file, "w", encoding="utf-8") as f:
@@ -63,7 +75,7 @@ class Database:
 
     def add_teacher_rating(self, name: str, value: int, user_id: int):
         if name not in self.teachers:
-            self.teachers[name] = {"grades": {}, "average": 0.0}
+            self.teachers[name] = {"grades": {}, "average": 0.0, "slug": "", "hash": ""}
 
         # ставим или заменяем оценку пользователя
         self.teachers[name]["grades"][str(user_id)] = value
