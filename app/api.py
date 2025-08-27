@@ -1,6 +1,5 @@
 import aiohttp
 import asyncio
-from pprint import pprint
 from collections import defaultdict
 from groupes import groups
 
@@ -92,7 +91,7 @@ async def main():
     
     data = await fetch_schedule("АП-11")
     #pprint(data)
-    pprint(pretty_print_schedule(data))
+    print(pretty_schedule_str(data))
 
 
 if __name__ == "__main__":
