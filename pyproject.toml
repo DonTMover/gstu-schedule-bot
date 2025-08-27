@@ -1,6 +1,6 @@
 [project]
 name = "gstu-schedule-bot"
-version = "0.1.0"
+version = "1.0.0"
 description = "Student helper"
 author = ["@Oimasi", "@DonTMover"]
 readme = "README.md"
