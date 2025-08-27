@@ -18,6 +18,9 @@ from aiogram.filters import CommandStart, Command
 from aiogram import F
 from aiogram.types import Message
 from aiogram import types
+from aiogram.types import (
+    InlineQueryResultArticle, InputTextMessageContent
+)
 
 # from packages
 from utils import get_inline_keyboard_select_group, get_days_keyboard, days_map
@@ -67,44 +70,8 @@ async def handler(message: Message):
 async def process_search(callback_query):
     await callback_query.message.answer("Please enter the group code (e.g., АП-11):")
     await callback_query.answer()
+    
 
-@dp.inline_query()
-async def inline_handler(inline_query: types.InlineQuery):
-    query = inline_query.query.strip()
-    logger.info(f"Inline query: '{query}' from user {inline_query.from_user.id}")
-
-    results = []
-
-    if query:  # Чекаем что пользователь В ОБЩЕМ что то ввел 
-        for key, value in groups.items():
-            if query.lower() in key.lower():  #Ищем по подстроке
-                result_id = hashlib.md5(key.encode()).hexdigest()
-                input_content = types.InputTextMessageContent(
-                    message_text=f"Вы выбрали группу: {key} ({value})"
-                )
-                result = types.InlineQueryResultArticle(
-                    id=result_id,
-                    title=f"Группа: {key}",
-                    input_message_content=input_content,
-                    description=f"Код группы: {value}"
-                )
-                results.append(result)
-
-    # Если юзер даун и ввел че то что мы не знаем говорим ему что не найдено 
-    if query and not results:
-        result_id = hashlib.md5(query.encode()).hexdigest()
-        input_content = types.InputTextMessageContent(
-            message_text="Группа не найдена. Пожалуйста, введите корректный код группы."
-        )
-        result = types.InlineQueryResultArticle(
-            id=result_id,
-            title="Группа не найдена",
-            input_message_content=input_content,
-            description="Нет такой группы." #Еле сдержался от мата вхзввххвхв
-        )
-        results.append(result)
-
-    await inline_query.answer(results, cache_time=1)
 
 @dp.message(Command("schedule"))
 async def schedule_cmd(message: types.Message):
