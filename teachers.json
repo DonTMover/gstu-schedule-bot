@@ -1,654 +1,2127 @@
 {
   "Абрамович Ольга Константиновна": {
-    "grades": {},
-    "average": 0.0
+    "grades": {
+    },
+    "average": 0.0,
+    "slug": "abramovich-o",
+    "hash": "1b3d2682e317b4143ba9d41de0e68e78"
   },
   "Авакян Елена Зиновьевна": {
-    "grades": {
-      "8112308601": 5
-    },
-    "average": 5.0
+    "grades": {},
+    "average": 0.0,
+    "slug": "avakyan-e",
+    "hash": "94d19117f77e8c9f2de89a7c0cf371f2"
   },
   "Авакян С Л": {
-    "grades": {
-      "981886811": 0
-    },
-    "average": 0.0
+    "grades": {},
+    "average": 0.0,
+    "slug": "avakyan-s",
+    "hash": "02f058a2e9a0a9301a80d0b6db3aa351"
   },
   "Агунович Ирина Валентиновна": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "agunovich-i",
+    "hash": "d1295b9e9f70d7da1f5465f0c83b2b04"
   },
   "Акулова Елена Михайловна": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "akulova-e",
+    "hash": "58ccf3f732340e0b13eab3385087c993"
+  },
+  "Алексеенко Н А": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "alekseenko-n",
+    "hash": "27e0b1bda285dd13dedfd24cb5db3a94"
+  },
+  "Алферов А А": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "alferov-a",
+    "hash": "0c3018a063c65110fce03a728b6d72e5"
   },
   "Алферова Т В": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "alferova-t",
+    "hash": "1c236c2ec2da697459c10339e6a5e080"
+  },
+  "Алфёрова Тамара Викторовна": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "alfyorova-t",
+    "hash": "577e613a08c092b11f556bf07add1477"
+  },
+  "Аль Камали Марван": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "al-k",
+    "hash": "2c2d0ba2dd7be22b7adb5bb53cc44848"
   },
   "Андреевец Юлия Ахатовна": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "andreevec-yu",
+    "hash": "78841b7d1a642192a1d730d47502573d"
+  },
+  "Андриянчикова М Н": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "andriyanchikova-m",
+    "hash": "dfdc9c9d6e2b5dcb4474042748f8e748"
+  },
+  "Асадчев А С": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "asadchev-a",
+    "hash": "0b45509316b8264ddf8dabc7478e27f8"
   },
   "Асенчик О Д": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "asenchik-o",
+    "hash": "2c34f3fe839c5449e447fa124e752ecd"
   },
   "Астапенко Игорь Васильевич": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "astapenko-i",
+    "hash": "51d9d37c33061eab6c30870b8e3577cc"
   },
   "Астраханцев Сергей Евгеньевич": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "astrahancev-s",
+    "hash": "ed323738d89d1f344c7fd48d409ed5c2"
   },
   "Атвиновская Татьяна Владимировна": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "atvinovskaya-t",
+    "hash": "0aa67983701e73a574aca266fcaefab1"
   },
   "Бабич Александр Антонович": {
-    "grades": {
-      "1471750102": 5,
-      "8112308601": 5
-    },
-    "average": 5.0
+    "grades": {},
+    "average": 0.0,
+    "slug": "babich-a",
+    "hash": "2428a43121391156c8d8fa25de4df8bc"
+  },
+  "Баборико Е Г": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "baboriko-e",
+    "hash": "cbfbdda6681c0668ed2086aed313c664"
+  },
+  "Бань М Ф": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "ban-m",
+    "hash": "1dc361321fad99a24930f1f4ae361c7b"
+  },
+  "Бахмутская Валентина Владимировна": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "bahmutskaya-v",
+    "hash": "acf00f8f05081db66189ed2368619c9d"
+  },
+  "Башаримов Ю С": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "basharimov-yu",
+    "hash": "4fb003a5b385e23bcc4fa2fb52eb30f3"
+  },
+  "Белявский Е В": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "belyavskiy-e",
+    "hash": "cd3b4fb28e187d92e4580d6216105d51"
   },
   "Бобарикин Юрий Леонидович": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "bobarikin-yu",
+    "hash": "795c56b9be861c85b81f6d746b6c8351"
+  },
+  "Бобрик В А": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "bobrik-v",
+    "hash": "9e84e8c60db6aa38d77d61a7c6788d1f"
   },
   "Бобрышева Светлана Николаевна": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "bobrysheva-s",
+    "hash": "f82f5bb8d7948e0f6941020b0980ba4b"
+  },
+  "Богданов М И": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "bogdanov-m",
+    "hash": "780e23ca18b2a7732aeb7acbee2a545a"
   },
   "Богуш В В": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "bogush-v",
+    "hash": "34aacc6c45ac0075c9609a037d63655a"
   },
   "Бойко А А": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "boyko-a",
+    "hash": "f64d6944dcc8c59387f69b9414145678"
+  },
+  "Бойко Андрей Андреевич": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "boyko-a1",
+    "hash": "46a7577d16775107b08ff7a5fd34ae95"
+  },
+  "Бондарева А М": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "bondareva-a",
+    "hash": "2af7ee17d524cc09a7522a833ec3d97f"
+  },
+  "Борецкая В К": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "boreckaya-v",
+    "hash": "cc544ba2870597382eac74c3a90b7a5c"
   },
   "Бородин Николай Николаевич": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "borodin-n",
+    "hash": "17116192d407e64366aa04294d653054"
+  },
+  "Борсук В Н": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "borsuk-v",
+    "hash": "9efa76697a244ed5c29e50c2a0c1a5ba"
+  },
+  "Бохан А Н": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "bohan-a",
+    "hash": "6a72aebd11d2b9d5ef799ca23820b5f1"
   },
   "Брель Виктор Валерьевич": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "brel-v",
+    "hash": "1f2c84d2f093d2e9845a57de670ef51b"
+  },
+  "Брикач Георгий Евгеньевич": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "brikach-g",
+    "hash": "9ccf8b92ef9b6afec36b60fc123792b6"
+  },
+  "Бруй Л К": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "bruy-l",
+    "hash": "d284bf9fc0da24fc9bdfe2c2d72bd13c"
+  },
+  "Бужан Андрей Вадимович": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "buzhan-a",
+    "hash": "159192037157c430165a173d03c5284f"
+  },
+  "Буракова Марина Владимировна": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "burakova-m",
+    "hash": "cfaf9cb27014529d8e51281bef12c6ad"
+  },
+  "Быстренков В М": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "bystrenkov-v",
+    "hash": "8436ae0592a1cf36c750e848c62287cd"
+  },
+  "Бычкова Л Г": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "bychkova-l",
+    "hash": "4869177944cf78047cb70bd7f14761e3"
+  },
+  "Вакансия Н": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "vakansiya-n",
+    "hash": "6a391bcc70488635d2b13b537f2b3e65"
   },
   "Вальченко Николай Адамович": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "valchenko-n",
+    "hash": "cdf7fafce92265ae29678810cf769a24"
+  },
+  "Ванькович В А": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "vankovich-v",
+    "hash": "bf16140366ee5eab910777c139b1d683"
+  },
+  "Васюкова В О": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "vasyukova-v",
+    "hash": "ea49bacdaeaa2cb3b0a845dc6943806a"
+  },
+  "Велесницкий В Ф": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "velesnickiy-v",
+    "hash": "41861b9a861e50959cd37ab5e7f55a6f"
   },
   "Великович Лев Липович": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "velikovich-l",
+    "hash": "6dcdde135c83a44e1e2e2365e35bb9bf"
   },
   "Веппер Леонид Владимирович": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "vepper-l",
+    "hash": "1f5a01bf4cca8d1e103ca9542a1c46f8"
   },
   "Верещагин Михаил Николаевич": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "vereshchagin-m",
+    "hash": "4a5db6c1983bdb12db44a25dea0b61a1"
+  },
+  "Вержбовская М В": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "verzhbovskaya-m",
+    "hash": "5f4b205ce66346a20860a10330f2eb42"
+  },
+  "Винидиктова Н С": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "vinidiktova-n",
+    "hash": "1115e2e6ba916ce3ca747e7dcde0704d"
   },
   "Винник Ольга Григорьевна": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "vinnik-o",
+    "hash": "194262536e96f8ddbf174111b6ef1e88"
   },
   "Виноградов Э М": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "vinogradov-e",
+    "hash": "71f874e3cf47ca4c0425f4c789352bc2"
+  },
+  "Войтишенюк Елена Валерьевна": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "voytishenyuk-e",
+    "hash": "43fd99d173a476f59e72f0bc00049ca4"
+  },
+  "Волкова Ю А": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "volkova-yu",
+    "hash": "87095f596f0f2fc8f36ce969a9d5c755"
+  },
+  "Волнянко Е Н": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "volnyanko-e",
+    "hash": "54b432b28d7656fedc189ed604ccce87"
+  },
+  "Володкович С Л": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "volodkovich-s",
+    "hash": "612fa30564ccb5ad4b33011a6c95495b"
+  },
+  "Воробьев В В": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "vorobev-v",
+    "hash": "96ba61e087355965438ff88e7e8d4491"
+  },
+  "Вяхирев Н И": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "vyahirev-n",
+    "hash": "6f2ef22a48eebc8b0de156a2d4d684b5"
   },
   "Гавриш Вадим Юрьевич": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "gavrish-v",
+    "hash": "028838748babf3fdc8dd1850cd637345"
   },
   "Гегедеш Марина Григорьевна": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "gegedesh-m",
+    "hash": "6c528fa6a4582eb1450c58567cdfa93f"
   },
   "Герасимова О В": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "gerasimova-o",
+    "hash": "70711ddeb74aa149cc83b226b4915a44"
+  },
+  "Гинзбург А А": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "ginzburg-a",
+    "hash": "c1e4b07c16a806c741bd5dd557b9de6d"
+  },
+  "Гладышев В В": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "gladyshev-v",
+    "hash": "1035fabb72532bedee8b8b857d658307"
+  },
+  "Глушенок Анна Александровна": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "glushenok-a",
+    "hash": "3e4a2baab60f8be2c87c78d85a1ade04"
+  },
+  "Гойко В И": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "goyko-v",
+    "hash": "fb22687f4b0a042d7f6f6c51edddc786"
+  },
+  "Головач О М": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "golovach-o",
+    "hash": "3ace76e4676e6773937b68b78547746b"
+  },
+  "Голопятин А В": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "golopyatin-a",
+    "hash": "7da9b51b31e5f6f7ae9d90083eb2d92a"
+  },
+  "Голуб В А": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "golub-v",
+    "hash": "0708fde4dca4bee847bd8ca64404c068"
+  },
+  "Голуб М В": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "golub-m",
+    "hash": "e40e24369d56eac9108314444a4bb1ab"
+  },
+  "Гончаренко Юлия Вячеславовна": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "goncharenko-yu",
+    "hash": "6ba94624c459c852284e93267233bc5c"
+  },
+  "Григорьев А Я": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "grigorev-a",
+    "hash": "3622d77684315bb7220a0c0021b6063d"
+  },
+  "Гридина Е И": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "gridina-e",
+    "hash": "6e9c67e56aab2d08dbda12a845a18f7d"
+  },
+  "Грицев Д Л": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "gricev-d",
+    "hash": "ca2c3f59ae276d80f99680304ea59eaf"
   },
   "Грищенко Ирина Адамовна": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "grishchenko-i",
+    "hash": "c2bad3ebb039f01cf8436c9c78cb8900"
   },
   "Громыко Раиса Ивановна": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "gromyko-r",
+    "hash": "f73f78c6840f446a69cf6496fb0cb22e"
+  },
+  "Грудина Н В": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "grudina-n",
+    "hash": "25c6575de1fc17ac585c6b9eac364f7f"
+  },
+  "Грунтович НИК В": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "gruntovich-n1",
+    "hash": "08328b3c0e74f09e0b0fed59be0e1c0b"
+  },
+  "Грунтович Надежда Владимировна": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "gruntovich-n",
+    "hash": "8051b87700c8336c866e2679806ee744"
+  },
+  "Губатенко М. С.": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "gubatenko-m",
+    "hash": "ffd0fa743a09637a13e774de7e9fb869"
+  },
+  "Гулевич С П": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "gulevich-s",
+    "hash": "cd59a32d2f2ab1452df292dc22c74796"
   },
   "Гуменников Егор Дмитриевич": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "gumennikov-e",
+    "hash": "7a431363d98c664edf8ffa8cfcc7114c"
   },
   "Гусарова Ольга Юрьевна": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "gusarova-o",
+    "hash": "6833c782baa8f3bb92bda74d2d7d6273"
+  },
+  "Гуткина Т Е": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "gutkina-t",
+    "hash": "ce91383ff674c83c92b5bbdf9e9ec198"
+  },
+  "Гуцев Д М": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "gucev-d",
+    "hash": "029d6ccee309bef3f7da5836aa0b113f"
+  },
+  "Давыдова Ольга Владиславовна": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "davydova-o",
+    "hash": "c0e32ba02aa5a309a7d421bec1179b61"
   },
   "Давыдова Ю С": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "davydova-yu",
+    "hash": "571993f1dd7ee6088b179eb5b22876dc"
+  },
+  "Дашкевич Д А": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "dashkevich-d",
+    "hash": "b2eb35e312e58ea130f8af9a55d0e15b"
+  },
+  "Демиденко Евгений Николаевич": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "demidenko-e",
+    "hash": "19336dfa87cb6cce73a9f02774fdea36"
   },
   "Демяненко Н А": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "demyanenko-n",
+    "hash": "18817aef4e1df8ecba809f2201937791"
+  },
+  "Дмитриченко Е Э": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "dmitrichenko-e1",
+    "hash": "e3acd5ff390ca89a76eab98e55709828"
+  },
+  "Дмитриченко Э И": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "dmitrichenko-e",
+    "hash": "2f547afccd940b986abdd17205bf25e4"
+  },
+  "Добродей Александр Олегович": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "dobrodey-a",
+    "hash": "a8be68b6ed3b5328df7cac7562ed08d4"
   },
   "Дорощенко Игорь Васильевич": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "doroshchenko-i",
+    "hash": "57cfc74f9183cc0ca9b53299893e1a60"
+  },
+  "Евминов Леонид Иванович": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "evminov-l",
+    "hash": "3da93b0d5b7f6db2b5ebb918a97ae2c4"
   },
   "Евтухова Светлана Михайловна": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "evtuhova-s",
+    "hash": "828f9fbbcabd8f22f20c8c7aeb6af685"
+  },
+  "Езерская Т А": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "ezerskaya-t",
+    "hash": "f9540ac3ad1199fbc21e4a29f57fbc62"
   },
   "Елизаров Сергей Александрович": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "elizarov-s",
+    "hash": "bb68861d8983b5799698c773a5514124"
+  },
+  "Елкин Валерий Дмитриевич": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "elkin-v",
+    "hash": "e8c2dfe88b721591685826f9ea2cf1ff"
+  },
+  "Емелин А В": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "emelin-a",
+    "hash": "2a8b80aa807fa339ac6d8c627452819c"
   },
   "Ермалинская Наталья Васильевна": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "ermalinskaya-n",
+    "hash": "e56397f30eb23defd882fab06b95ad68"
+  },
+  "Ермашкевич В С": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "ermashkevich-v",
+    "hash": "0f9dc239b051ed560e55a6f2d7da461e"
   },
   "Ермонина Инна Владимировна": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "ermonina-i",
+    "hash": "5fe7dcbc051282926e6746682d32f282"
+  },
+  "Жаранов В А": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "zharanov-v",
+    "hash": "d1e173b622647334f8c3da17a02ab623"
+  },
+  "Жогло В Г": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "zhoglo-v",
+    "hash": "900099123e2d4bfa95834a648b38294a"
+  },
+  "Жуковец Светлана Григорьевна": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "zhukovec-s",
+    "hash": "acc122e487d9064c5bf37bfec9ccf55c"
+  },
+  "Заглубоцкий Николай Засимович": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "zaglubockiy-n",
+    "hash": "f32db7cbb5cfb56cb767e429c683244a"
   },
   "Задорожнюк Мария Викторовна": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "zadorozhnyuk-m",
+    "hash": "2deb45def555267cf8bea71347da5edc"
+  },
+  "Зализный Дмитрий Иванович": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "zaliznyy-d",
+    "hash": "5b5d60df96b65238fa884057f4394d43"
+  },
+  "Запольский А Е": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "zapolskiy-a",
+    "hash": "5a85b24c5eed017e7ab0fbb0d2db4ffc"
+  },
+  "Захаренко В С": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "zaharenko-v",
+    "hash": "75cb15b1671b0c3b4cabdb2c8ede9475"
   },
   "Захаренко Галина Николаевна": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "zaharenko-g",
+    "hash": "94e996b23f34152fdb7fd0fcf5d85437"
   },
   "Захаренко Л А": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "zaharenko-l",
+    "hash": "3f1562b4086737b6b356bff3de608bd9"
+  },
+  "Зинкевич И Н": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "zinkevich-i",
+    "hash": "30e747694a1d454e3cf07b3ab1209eb8"
+  },
+  "Зинкевичус Ксения Александровна": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "zinkevichus-k",
+    "hash": "d876d52836f2e4e7b3de6e7f721b2ed8"
   },
   "Злотников Игорь Иванович": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "zlotnikov-i",
+    "hash": "083c47da33eb339abc57a4faa6f45954"
+  },
+  "Зыблева Данута Викторовна": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "zybleva-d",
+    "hash": "59fb227c42dee0e39faadef6bd4badbc"
+  },
+  "Иванейчик А В": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "ivaneychik-a",
+    "hash": "587c3abd0f2fc29d0ddc53f6fdc79c9e"
+  },
+  "Иванисова В А": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "ivanisova-v",
+    "hash": "4d8be0bed93080bc78832d4a28a8e99e"
+  },
+  "Ильков В А": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "ilkov-v",
+    "hash": "cb66084f915a055963dc4778fe525670"
+  },
+  "Иноземцева Е В": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "inozemceva-e",
+    "hash": "21782ee7f0c56b9c6e8a050ce263b45b"
   },
   "Иноземцева Наталья Владимировна": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "inozemceva-n",
+    "hash": "040582451f7be8c51a76ef129917b7ba"
+  },
+  "Исайчикова Н И": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "isaychikova-n",
+    "hash": "78f38ca1f8fccbd9c4fa2c94f88b8ff0"
   },
   "Кадолич Жанна Владимировна": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "kadolich-zh",
+    "hash": "f5101cc7901b7eb7ee2a7250e28d0b01"
+  },
+  "Казакова Е Г": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "kazakova-e",
+    "hash": "0f9a8326babb1bf316e852e1ea4a0d9b"
+  },
+  "Капанский Алексей Александрович": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "kapanskiy-a",
+    "hash": "2f8657c60f41865156e950bc6efa9553"
+  },
+  "Капинский Н О": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "kapinskiy-n",
+    "hash": "3284109ebefd26d99e91bffad1655594"
+  },
+  "Карась Ольга Васильевна": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "karas-o",
+    "hash": "af96aa56e2b5f2327c398b79252666a0"
+  },
+  "Карпенко С В": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "karpenko-s",
+    "hash": "5e336e9184332b08ed2ef4d38c90f60f"
   },
   "Карпов Александр Александрович": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "karpov-a",
+    "hash": "40adbdcbbcc6e1e0bdd51185eef39ae6"
+  },
+  "Карпов В А": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "karpov-v",
+    "hash": "25fd3dcdfa7c73610d77eeed003769d4"
+  },
+  "Карчевская Елена Николаевна": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "karchevskaya-e",
+    "hash": "4febc039a5919cd2cd3b58a7bca33b91"
   },
   "Кацубо Светлана Петровна": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "kacubo-s",
+    "hash": "41aaf9c562a98688cca2f54e70725589"
   },
   "Кидун Наталья Михайловна": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "kidun-n",
+    "hash": "61e4e5cdac7a18491c7741f7b625e2f6"
   },
   "Кириенко Виктор Васильевич": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "kirienko-v",
+    "hash": "1b77582b24020aed286359a07056ecb5"
   },
   "Кириленко Виталий Петрович": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "kirilenko-v",
+    "hash": "54d6b75d50c506d03a4b5818bc97aa42"
   },
   "Кирилюк Сергей Иванович": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "kirilyuk-s",
+    "hash": "f252f7bae083f62906945f11bbe82de4"
   },
   "Киселевич Валентин Владимирович": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "kiselevich-v",
+    "hash": "8c26557cb6ee131ddff44b3dd4d57d6a"
   },
   "Клейман Вадим Валерьевич": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "kleyman-v",
+    "hash": "ec1c9826564e983dfd77859a7be0a3dc"
   },
-  "Ковалев А В": {
+  "Ключинский В П": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "klyuchinskiy-v",
+    "hash": "9da2f4fe9ba3d957113bacb31104cc7d"
+  },
+  "Ковалва Н П": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "kovalva-n",
+    "hash": "d19e12c56a458bc2b0ea62c9a726cd7a"
+  },
+  "Ковалева Наталья Петровна": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "kovaleva-n",
+    "hash": "e8c50ba3ddf9c2c4d932908fbe93e8a0"
   },
   "Кожевников Е А": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "kozhevnikov-e1",
+    "hash": "7017930da5bd9f08ab64ac729241ebcb"
+  },
+  "Кожевников Евгений": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "kozhevnikov-e",
+    "hash": "3a41f9c7a9e7cc78437271339d17eca4"
   },
   "Козлов Андрей Владимирович": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "kozlov-a",
+    "hash": "1f9f3a5e42351fff8fb591e03036fefd"
+  },
+  "Козлова Ольга Анатольевна": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "kozlova-o",
+    "hash": "64a751e619c6299dc5b033fecda5989b"
+  },
+  "Козусев Юрий Андреевич": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "kozusev-yu",
+    "hash": "009b14fd542e09b7f0acea2c90789c95"
+  },
+  "Козырь В Д": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "kozyr-v",
+    "hash": "745e30d10bc3c354ac6a65834ffca505"
+  },
+  "Колесник Ю Н": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "kolesnik-yu",
+    "hash": "806d9bd4582821364c7f024bc84fdf4f"
+  },
+  "Колодко В А": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "kolodko-v",
+    "hash": "b9303b3529f897a2cafffaa9ec1e3166"
+  },
+  "Коляда Н П": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "kolyada-n",
+    "hash": "6be4eb717bcd5fc04b7a4d02f84a7b5e"
   },
   "Комнатный Дмитрий Викторович": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "komnatnyy-d",
+    "hash": "656cdf5b1f2438c6be14c5c77d8b5304"
+  },
+  "Комраков Владимир Викторович": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "komrakov-v",
+    "hash": "f373368d5544546c37914294d8a1b5fe"
   },
   "Комракова Евгения Владимировна": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "komrakova-e",
+    "hash": "56c497a67e2dee191f2b466273cf95ba"
+  },
+  "Кондратенко Н И": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "kondratenko-n",
+    "hash": "7bf1b6aec43833a5ca5784d73a088254"
+  },
+  "Кондратюк Валерия Вячеславовна": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "kondratyuk-v",
+    "hash": "b0efdcbb1796b595d6971f7c95482caf"
   },
   "Концевой Иван Александрович": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "koncevoy-i",
+    "hash": "4f9affc27574e143084fd9838446b910"
+  },
+  "Корсун Л Д": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "korsun-l",
+    "hash": "88b772c2aaf8fb4f80336a37af4b61eb"
   },
   "Котова Юлия Евгеньевна": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "kotova-yu",
+    "hash": "ff5ed4eab9e31a9adb144fedaeed708d"
+  },
+  "Кравченко Ольга Алексеевна": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "kravchenko-o",
+    "hash": "1b7fc75634c974fbccfb3459425e286c"
+  },
+  "Красовская Наталья Александровна": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "krasovskaya-n",
+    "hash": "66b591540796c10eeac7f6224bdead08"
   },
   "Красюк Станислав Иосифович": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "krasyuk-s",
+    "hash": "3de748d185b24dc1e1ee7b2c7ec1ba87"
+  },
+  "Кривогуз Ю М": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "krivoguz-yu",
+    "hash": "c2b21b35b96f1f6e4f92a970ea87abd2"
   },
   "Кроль Д Г": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "krol-d",
+    "hash": "67f9d082a82e2e81253b9f1d7f2b5179"
+  },
+  "Кротенок Ю С": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "krotenok-yu",
+    "hash": "f678c92fba2c0426e30b4233a5e7dfe8"
   },
   "Крышнев Ю В": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "kryshnev-yu",
+    "hash": "9e988ea69928d8be597c424205f2f6bb"
   },
   "Кудин Виктор Пантелеевич": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "kudin-v",
+    "hash": "833fdc2ccaf57b58027cd73a4de88bea"
+  },
+  "Кулик Людмила Владимировна": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "kulik-l",
+    "hash": "3c7bc34b8bb8284e410d440753ed87a6"
   },
   "Кульгейко Галина Степановна": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "kulgeyko-g",
+    "hash": "7912a8a069c1bee59a1b65f22182aaea"
+  },
+  "Купреев А В": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "kupreev-a",
+    "hash": "46e4485037e5ad062459337e0a4d134e"
+  },
+  "Куриленко В Р": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "kurilenko-v",
+    "hash": "4f8db94e483e188bee5ac750df6e7a13"
+  },
+  "Курило О Н": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "kurilo-o",
+    "hash": "1b10fcfd570d65d6ff7d23cfce9f917c"
   },
   "Курочка Константин Сергеевич": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "kurochka-k",
+    "hash": "e01ddecb153c1b6ce9e780ec56a890fc"
+  },
+  "Кусенкова Вероника Александровна": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "kusenkova-v",
+    "hash": "3337180f4f6a190bdc9063c4583a8850"
   },
   "Кухаренко Сергей Николаевич": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "kuharenko-s",
+    "hash": "6dadbd773f78a57d2f307ebb2933d25e"
+  },
+  "Кученева Е Е": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "kucheneva-e",
+    "hash": "fd40a17ab57b434af0ce7667738c7786"
+  },
+  "Лаевский Д В": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "laevskiy-d",
+    "hash": "15c59e2d9f61b6f5b25bd93caffad3b0"
   },
   "Ландова Надежда Константиновна": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "landova-n",
+    "hash": "60841d2c0339c788a59125e62d5dfb78"
   },
   "Лапицкая Ольга Владимировна": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "lapickaya-o",
+    "hash": "63325ccc17e7291121c9f950d4136234"
   },
   "Лапко Ольга Алексеевна": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "lapko-o",
+    "hash": "048166633f135675e523abcdf3465f07"
   },
   "Лашкевич Василий Иванович": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "lashkevich-v",
+    "hash": "0431062b6b579d69114edf7e26af0dc3"
+  },
+  "Левкина А Д": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "5hq1bd",
+    "hash": "cfdeadf91e9d71d826f5891dc160397c"
+  },
+  "Левцова Т С": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "levcova-t",
+    "hash": "eb0adf54670aed548b1c1805d2f19de6"
+  },
+  "Лемтюгов Денис Николаевич": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "lemtyugov-d",
+    "hash": "a6c9184b7ac510bd94ec25eec6faf8e7"
+  },
+  "Леонова В Н": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "leonova-v",
+    "hash": "883e7781deaa1cce87a0b1e51633b897"
   },
   "Лепший Александр Парфенович": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "lepshiy-a",
+    "hash": "9834ca13477189a954d8eb8751969908"
+  },
+  "Лещинская О А": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "leshchinskaya-o",
+    "hash": "00cf4badfbf3715a083494d2817ce3cf"
   },
   "Лискович Михаил Ильич": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "liskovich-m",
+    "hash": "8d8faf3c2cd3872704ce9e5816bffed0"
   },
   "Литвинов Дмитрий Александрович": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "litvinov-d",
+    "hash": "c55ae0281d4b2e14b07aa1ce1108f10e"
   },
   "Логвин Владимир Васильевич": {
-    "grades": {
-      "557821426": 5,
-      "6012597757": 4
-    },
-    "average": 4.5
+    "grades": {},
+    "average": 0.0,
+    "slug": "logvin-v",
+    "hash": "80f6e5bf812610579a89c00464dc897f"
+  },
+  "Лугвин С Б": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "lugvin-s",
+    "hash": "6d23102aac65a357bb017f1357f80dc3"
   },
   "Лычев Петр Васильевич": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "lychev-p",
+    "hash": "3bfa58c272e3856c36a9851e7f0abee3"
+  },
+  "Лёвкина Анастасия Дмитриевна": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "lyovkina-a",
+    "hash": "02648c3e1d61ef8c21f2e9b40da0ae4d"
+  },
+  "Мазурова Анастасия Сергеевна": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "mazurova-a",
+    "hash": "5a7d39829228c735cc31cd07db8080d6"
   },
   "Макеева Екатерина Николаевна": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "makeeva-e",
+    "hash": "235d905af52c39f242b9f5e5e9c6546d"
+  },
+  "Малиновский Иван Леонидович": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "malinovskiy-i",
+    "hash": "005cffaf02f0853ad83f2ab06d83bea3"
+  },
+  "Маляренко Т А": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "malyarenko-t",
+    "hash": "628ea8622e00c1692537cee534d9286a"
   },
   "Мартьянов Юрий Вадимович": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "martyanov-yu",
+    "hash": "89f3a21cd69117e6e749b3055b49bcb1"
   },
   "Марцинкевич Татьяна Федоровна": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "marcinkevich-t",
+    "hash": "6e30280d750b306d384d9d58b7996e12"
+  },
+  "Масалитина Н Н": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "masalitina-n",
+    "hash": "ad11f8a57c38f78571768883e75f591c"
   },
   "Матвеенко Д С": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "matveenko-d",
+    "hash": "38dcdfe5b141389cec87a9df18db363d"
+  },
+  "Медведева Г И": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "medvedeva-g",
+    "hash": "4d49fd62e54b1e5c1e9d2c2851448312"
   },
   "Митрофанова Гульнара Владимировна": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "mitrofanova-g",
+    "hash": "c68b1a6e882978aa967aaa6b3948971f"
   },
   "Михайлов Михаил Иванович": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "mihaylov-m",
+    "hash": "60adad610517c9a4510ed9c1dfaa7f4b"
+  },
+  "Михалевич В Г": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "mihalevich-v",
+    "hash": "19faba0e33d7cb3057b0e012da4a036a"
+  },
+  "Михарева В. А.": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "mihareva-v",
+    "hash": "02d567d7c3bb072ac7de5cabc99d697e"
+  },
+  "Моракинио Оджо Адетомива": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "morakinio-o",
+    "hash": "de2eb5bf969c033632f59a3a2938117b"
+  },
+  "Морозова О Ю": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "morozova-o",
+    "hash": "079bac393176983caf5edd1c46425fa3"
   },
   "Мурашко В С": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "murashko-v",
+    "hash": "27684c5d77380aad3ecc1f7157d00d4e"
+  },
+  "Мурашко Ольга Петровна": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "murashko-o",
+    "hash": "d94325bfdd78c7c0880e71bf1239b04f"
+  },
+  "Надыров А Ф": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "nadyrov-a",
+    "hash": "d1f8aba2dde79c59dbfedc19782da027"
+  },
+  "Неверов А С": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "neverov-a",
+    "hash": "4f895715ef4577624f87f9e720246334"
   },
   "Невзорова Алла Брониславовна": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "nevzorova-a",
+    "hash": "a0b5c95355c7c16e5af9df359e7d8e72"
+  },
+  "Нестереня И Г": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "nesterenya-i",
+    "hash": "37d0d8b7ec6728510de6dc7a48ff1276"
   },
   "Никулина Татьяна Николаевна": {
-    "grades": {
-      "797176974": 5
-    },
-    "average": 5.0
+    "grades": {},
+    "average": 0.0,
+    "slug": "nikulina-t",
+    "hash": "0eb7e4122c42f2dc0b448ccfe8d7dbe3"
+  },
+  "Ничипорчик О И": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "nichiporchik-o",
+    "hash": "d0bf9aeb7fa422bf8435e03115c59b5e"
+  },
+  "Облес Ю В": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "obles-yu",
+    "hash": "7f588315e3e02c2439a993280b7cc0e9"
   },
   "Овсянник Анатолий Васильевич": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "ovsyannik-a",
+    "hash": "77e6b40f6b74a0d47b3a33c4cf46be0e"
   },
   "Овсянник Н В": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "ovsyannik-n",
+    "hash": "a6f22d6d4f0ed99a024d89b77a725730"
   },
   "Одарченко И Б": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "odarchenko-i",
+    "hash": "45ceb314a2d2ebfd1e6c9ea13b46f247"
+  },
+  "Олизарович Я М": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "olizarovich-ya",
+    "hash": "cae703f88e4ca5d49f149d2cbb0b0597"
+  },
+  "Остриков О М": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "ostrikov-o",
+    "hash": "c5da2cfe26faa5db49d470b94099f147"
+  },
+  "Павлов А М": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "pavlov-a",
+    "hash": "27b83469dae94b913673b0ba5ca3cc09"
+  },
+  "Панарин К А": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "panarin-k",
+    "hash": "36f5081fcf3e7f1044e741175d17c479"
+  },
+  "Панасик В А": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "panasik-v",
+    "hash": "2fc9dc904c6c078a013b643b95271733"
+  },
+  "Пархоменко В Н": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "parhomenko-v",
+    "hash": "30d3f77108746e2ab10b824c7452a1cf"
+  },
+  "Петришин Г В": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "petrishin-g",
+    "hash": "0772387baf43c493e6a169c219ba2e87"
   },
   "Петухов Александр Владимирович": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "petuhov-a",
+    "hash": "645f5b3c55695733e4f05dc854eebd7b"
   },
   "Пинчук Владимир Владимирович": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "pinchuk-v",
+    "hash": "c166616cbf8728832ec36f3fe2834c26"
+  },
+  "Плешкунов Д А": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "pleshkunov-d",
+    "hash": "87013e2523af755ae598ad71c6060d40"
+  },
+  "Повжик П П": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "povzhik-p",
+    "hash": "88237b9a18b6631d18b1b067bf0e5e99"
+  },
+  "Погуляев Михаил Никифорович": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "pogulyaev-m",
+    "hash": "f798794e601a18fd8e92b8a65f9c7a2c"
   },
   "Поздняков Евгений Петрович": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "pozdnyakov-e",
+    "hash": "0d4e4c4444dee9415921ad79ad386a1e"
+  },
+  "Полозова О А": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "polozova-o",
+    "hash": "f1ffc120e29e7429a73865579238a017"
   },
   "Пономаренко Елена Павловна": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "ponomarenko-e",
+    "hash": "54326665e6b511feef07793918c6d994"
   },
   "Попов Виктор Борисович": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "popov-v",
+    "hash": "0ced8fd78b8374a0c33d4d1ad71b7b40"
   },
   "Порошин Валерий Дмитриевич": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "poroshin-v",
+    "hash": "790dd5fea801eeb4fbd69c87a0c29ddd"
   },
   "Порошина Светлана Леонидовна": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "poroshina-s",
+    "hash": "f9aa86f80f0907219fa40b89fd29e190"
   },
   "Прач Светлана Игоревна": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "prach-s",
+    "hash": "ada226e0746f62dcc6cbfcf4f475c0b5"
+  },
+  "Преподаватель Кафедры": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "prepodavatel-k",
+    "hash": "3de23994bf1938f65f7580ef618b34ce"
+  },
+  "Прищепов С С": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "prishchepov-s",
+    "hash": "be43cca39a525c9af42237888aadc01d"
   },
   "Прокопенко Дмитрий Викторович": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "prokopenko-d",
+    "hash": "aff4b48b1ad7e8ecbc4b24592b573865"
   },
   "Проневич Олег Иванович": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "pronevich-o",
+    "hash": "33aedb0d57a31926f3f3289e8f2b09ee"
+  },
+  "Процкая М А": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "prockaya-m",
+    "hash": "6441dfbb9e5ad5ac1d14169ec5d1cd3d"
+  },
+  "Процко В Ю": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "procko-v",
+    "hash": "e69bcbb84ffb4857503bf00beeb4d210"
   },
   "Прусенко И Н": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "prusenko-i",
+    "hash": "cbe6bd28c3fd468a12d8462effa634c0"
+  },
+  "Пузеев А А": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "puzeev-a",
+    "hash": "a7af8e1eb99547f17b3a52b327adc827"
+  },
+  "Пузенко Иван Николаевич": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "puzenko-i",
+    "hash": "44b5d59da45c1a84e5c8c665cea392af"
   },
   "Путято А В": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "putyato-a",
+    "hash": "c37406231ef0330f6f9fc95aa481e4f2"
+  },
+  "Пухальская Ольга Юрьевна": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "puhalskaya-o",
+    "hash": "75a8ce740c68aa2b11aea32dae2a40dd"
+  },
+  "Ракицкий А А": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "rakickiy-a",
+    "hash": "52737469d4b678dd58add974cbd05776"
   },
   "Рачкова Ирина Викторовна": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "rachkova-i",
+    "hash": "16ced5f4a02a9b0bbdb559a32571b33b"
   },
   "Ревенок М А": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "revenok-m",
+    "hash": "529127f840db7d17736986b38031e42d"
   },
   "Ридецкая Инна Николаевна": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "rideckaya-i",
+    "hash": "bbd11cc8e1a7b85ae954a0bb3a0116e5"
   },
   "Рогов Сергей Викторович": {
-    "grades": {
-      "889664752": 0
-    },
-    "average": 0.0
+    "grades": {},
+    "average": 0.0,
+    "slug": "rogov-s",
+    "hash": "61bd7f6d9f470976fb37820b73afc99d"
   },
   "Родзевич Павел Евгеньевич": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "rodzevich-p",
+    "hash": "5465a709ba53df5bf702067a89ec730b"
+  },
+  "Родин А В": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "rodin-a",
+    "hash": "431b626fa0dc28c591170f103b1bf5b8"
   },
   "Рожкова Н В": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "rozhkova-n",
+    "hash": "94ca5b6c1048ceae98c4a78b38c42b0c"
   },
   "Романькова Татьяна Леонидовна": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "romankova-t",
+    "hash": "d633fc2ce6a01f432787b4c516f292d4"
   },
   "Ростокина Ольга Михайловна": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "rostokina-o",
+    "hash": "6f305a64bd06e97a1cb0a5361cd6e7ec"
   },
   "Рудченко Галина Анатольевна": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "rudchenko-g",
+    "hash": "7f71b8fcd1426eecbf7c8a6cefcdcbd4"
+  },
+  "Рудченко Ю А": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "rudchenko-yu",
+    "hash": "7c5890da9ee579892e7cf5e3204b7ee1"
   },
   "Русая Людмила Николаевна": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "rusaya-l",
+    "hash": "1bcc4a041a7c87a3251b53256aa032d8"
   },
   "Рюмцев Алексадр Александрович": {
     "grades": {},
-    "average": 0.0
-  },
-  "Савельев Вадим Алексеевич": {
-    "grades": {},
-    "average": 0.0
-  },
-  "Савенко А Ю": {
-    "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "ryumcev-a",
+    "hash": "f0db6669291f243f7adf8a3263e5523a"
   },
   "Савенко Таисия Витальевна": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "savenko-t",
+    "hash": "8d3aa40b4844f98fc662d45b469af6ac"
+  },
+  "Савицкий А А": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "savickiy-a",
+    "hash": "8f3f8284adc1ba7a69ab4cbefd6fb6e8"
+  },
+  "Савкова Татьяна Николаевна": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "savkova-t",
+    "hash": "cde56d417ad0047165eb5d58b15a5ac1"
+  },
+  "Савченко Юрий Валерьевич": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "savchenko-yu",
+    "hash": "ee78f3fefb083a5dd753f8ef883f9aa9"
   },
   "Самовендюк Николай Владимирович": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "samovendyuk-n",
+    "hash": "9840cdc81dd1869fff9d964c87bcd5b7"
   },
   "Сахарук А В": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "saharuk-a",
+    "hash": "e7dd28721425d7aa138038a3ab6f641d"
+  },
+  "Сачко А С": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "sachko-a",
+    "hash": "cbdd6deb6eec433c0088c1fa969afda8"
   },
   "Светочный Александр Анатольевич": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "svetochnyy-a",
+    "hash": "0993eb0ceda66fa572f8b116783cd2f9"
+  },
+  "Свинтицкий Павел Вадимович": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "svintickiy-p",
+    "hash": "5bf7384a33c385f302fb8255d3906373"
+  },
+  "Селеня С Е": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "selenya-s",
+    "hash": "f5dac8ba852cb897d23213ffbdb50f5a"
   },
   "Селиверстов Георгий Иванович": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "seliverstov-g",
+    "hash": "cbe5174299d0302ba0ad948a6bffc5da"
   },
   "Селютин Александр Михайлович": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "selyutin-a",
+    "hash": "f58a26f502ec3666a2399899f10ab2f7"
+  },
+  "Семак Дарья Сергеевна": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "semak-d",
+    "hash": "9956076e6fbaecda3a56d8e4152c50f8"
+  },
+  "Семенова В А": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "semenova-v",
+    "hash": "bb563e7dfa442438efb41c0df2a0864d"
+  },
+  "Семенченя Т С": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "semenchenya-t",
+    "hash": "23338b0d3c24d7df3e9152a197cc9264"
+  },
+  "Симанович Наталья Михайловна": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "simanovich-n",
+    "hash": "a68a1de2eb6c8587d30ecb6d5e3a7050"
+  },
+  "Синегрибов Д В": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "sinegribov-d",
+    "hash": "834be669782fe227d53108d09126b578"
   },
   "Соловьева Лариса Лукинична": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "soloveva-l",
+    "hash": "ccd16a17a3beaadf3ce14b9c1c27d221"
+  },
+  "Сопот Н С": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "sopot-n",
+    "hash": "85ce3af41146008f29cb68d89a70872e"
   },
   "Старовойтов Николай Андреевич": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "starovoytov-n",
+    "hash": "d85f6ff45768aebf13c5ec1c19bbdacc"
   },
   "Стародубцев Евгений Генрихович": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "starodubcev-e",
+    "hash": "9d381b68cd76664092253225e87a65f5"
   },
   "Стасенко Дмитрий Леонидович": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "stasenko-d",
+    "hash": "74f1e53f85662d45c1cb5c8673058084"
   },
   "Стефановский Игорь Леонидович": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "stefanovskiy-i",
+    "hash": "03a56cc1978f5bd5e5c30f83972b5249"
   },
   "Столяров Александр Игоревич": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "stolyarov-a",
+    "hash": "42fece0634c29c690f1c9efda01a8a59"
+  },
+  "Стоцкая О А": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "stockaya-o",
+    "hash": "da6ae7fb9561a759d086584bb9c22ced"
   },
   "Суторьма И И": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "sutorma-i",
+    "hash": "d5cb0c53ccee6f77b2395f75b7a3f07d"
+  },
+  "Сычев Александр Васильевич": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "sychev-a",
+    "hash": "f5d6c8e2e69e70730c56b86d238c1648"
+  },
+  "Сычёва Наталья Вячеславовна": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "sychyova-n",
+    "hash": "e3cb6756408fb9db36e30c0318737bef"
+  },
+  "Твердов Е С": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "tverdov-e",
+    "hash": "f66d53e9b4482f1a4e5aa9a402ed191a"
   },
   "Тимошин Сергей Иванович": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "timoshin-s",
+    "hash": "2b4ab0ed95a223cc806b3fca6c23aec3"
   },
   "Титова Людмила Константиновна": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "titova-l",
+    "hash": "f1c0e9d734fab8f2887d8b0f0c34a56d"
+  },
+  "Тихоненко Т В": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "tihonenko-t",
+    "hash": "fa15c3170f1c2cef0d9a5f177e5d7bf5"
+  },
+  "Ткаченко А В": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "tkachenko-a",
+    "hash": "4b4a1b83f449cf8efb09c6ef798bb12f"
   },
   "Токочаков Владимир Иванович": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "tokochakov-v",
+    "hash": "cfba6907f17f065509ad70bc82c4154f"
+  },
+  "Торба Т Ф": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "torba-t",
+    "hash": "7330a3410e97d5e5ef4ceeb6189f80ce"
   },
   "Трейтьякова Елена Витальевна": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "treytyakova-e",
+    "hash": "bb69a61606502e25df391d6dde16e756"
   },
   "Трохова Татьяна Анатольевна": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "trohova-t",
+    "hash": "3d2f6bef34ed0654892a35de51ab5662"
+  },
+  "Трусевич И В": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "trusevich-i",
+    "hash": "fae4db00533dc2604617492ec8202691"
   },
   "Тюрин Сергей Александрович": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "tyurin-s",
+    "hash": "8838a5252ffadae434c293095921eb15"
   },
   "Уваров Игорь Юрьевич": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "uvarov-i",
+    "hash": "a9c32e7f7ee92c097e5234699117fb2e"
+  },
+  "Устиненко С И": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "ustinenko-s",
+    "hash": "920dbdf98948326dc86f7009ccd66bc4"
+  },
+  "Утверждение Н": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "utverzhdenie-n",
+    "hash": "ba7c76f8fecb61b7e88a291589d25dba"
   },
   "Ухарцева Ирина Юрьевна": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "uharceva-i",
+    "hash": "a021ef7b6e214b33bbf558de03324f79"
+  },
+  "Фаняев И А": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "fanyaev-i",
+    "hash": "cf81f2cf63f2f9ebb2da1440c6637362"
   },
   "Фильчук Татьяна Григорьевна": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "filchuk-t",
+    "hash": "fefbd0add054bf5de47e0b56a4ef27a5"
+  },
+  "Фисюк Ю А": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "fisyuk-yu",
+    "hash": "f057e696f8eeb49762f2c78b3773a949"
+  },
+  "Фролова Екатерина Витальевна": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "frolova-e",
+    "hash": "443b23f9aaaeb8685808a4e951cc36c1"
+  },
+  "Хаврукова С В": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "havrukova-s",
+    "hash": "20376d83e95827c53375099a15d146f3"
   },
   "Хазеев Егор Валерьевич": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "hazeev-e",
+    "hash": "996c1be5c169bc7d8b85c5b33ef5fd73"
   },
   "Хило П А": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "hilo-p",
+    "hash": "c03de47c551dda8296c880f7eab6f1c1"
   },
   "Хило Янина Петровна": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "hilo-ya",
+    "hash": "4cb9b0bbf92236bf97faace4994f308e"
   },
   "Ходько Елена Михайловна": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "hodko-e",
+    "hash": "7664d4c6c26647f6d8dfffd5ca27877e"
+  },
+  "Храбров Е А": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "hrabrov-e",
+    "hash": "df44a36dfb75c66c543360bbfc94f054"
   },
   "Царенко Ирина Владимировна": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "carenko-i",
+    "hash": "f906cb2798582505ba8788261f5af52c"
+  },
+  "Царун В В": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "carun-v",
+    "hash": "71336a7498e0bf85f75d3f8104bd112a"
+  },
+  "Целикова Лариса Владимировна": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "celikova-l",
+    "hash": "d553af9873288c1cb804e774b49d533e"
   },
   "Целуев Михаил Юрьевич": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "celuev-m",
+    "hash": "ece63399e7c2fee8989c707d18a60f71"
   },
   "Целуева Светлана Николаевна": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "celueva-s",
+    "hash": "e1ed0b3a76437f442136aafbd0285206"
   },
   "Чабуркина София Абелевна": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "chaburkina-s",
+    "hash": "b8a004b0ac94ceb8a71a917143e03304"
   },
   "Черниченко Юрий Дмитриевич": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "chernichenko-yu",
+    "hash": "a5e487c8cf9917c2ccbccb1e9a1e6d12"
+  },
+  "Чернявская А Э": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "chernyavskaya-a",
+    "hash": "796461c859574c235535e89a878b9a86"
+  },
+  "Чернявская И А": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "chernyavskaya-i",
+    "hash": "9c3d35d259ce0fa96f0ae38f302369e6"
+  },
+  "Чудиловская С А": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "chudilovskaya-s",
+    "hash": "0acd609555c1ae14a6a30fba8c7c6f7d"
+  },
+  "Чухнюк Татьяна Алексеевна": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "chuhnyuk-t",
+    "hash": "ec8162801b30bc839bcac327220876af"
   },
   "Шабакаева Зинаида Якубовна": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "shabakaeva-z",
+    "hash": "b155c23f9d62d190e996af3d2ca792b5"
   },
   "Шабловский Олег Никифорович": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "shablovskiy-o",
+    "hash": "0549d3a5db0314483889e0bcee8bf6b7"
   },
   "Шабловский Я О": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "shablovskiy-ya",
+    "hash": "ddcf9d6072edc922cb8852173e8a5b01"
   },
   "Шаповалов А В": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "shapovalov-a",
+    "hash": "76b8882f00b4b0c14bdd5411a60f88e7"
   },
   "Шаповалов Петр Степанович": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "shapovalov-p",
+    "hash": "5317bcc5e7ceb395a3cde71af3870688"
   },
   "Шваякова Ольга Валерьевна": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "shvayakova-o",
+    "hash": "bf32f1d1aba2509cefd4c3834cfef48b"
   },
   "Шведова Ольга Сергеевна": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "shvedova-o",
+    "hash": "526616bb72766ca71429e8dd4ac2f0ee"
   },
   "Швецов А Н": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "shvecov-a",
+    "hash": "112b2478fa32baa18d9fd7dae254dcbd"
+  },
+  "Шейбак М Р": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "sheybak-m",
+    "hash": "c3488b27a6cc259103148e96d180cc01"
   },
   "Шепелева Ирина Сергеевна": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "shepeleva-i",
+    "hash": "4f0df2222d4002eb9019b1d0d061e119"
   },
   "Шершнев О В": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "shershnev-o",
+    "hash": "b88e60ae0a9da8192b19f700fb2f0040"
+  },
+  "Шестак О Н": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "shestak-o",
+    "hash": "d18565f4354d07dcb4a137e75ce95fce"
   },
   "Шибеко Виктор Николаевич": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "shibeko-v",
+    "hash": "9cc444e7701a43fd137250004ed96612"
   },
   "Широглазова Наталия Владимировна": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "shiroglazova-n",
+    "hash": "9f3b516a0411a86fe4d162fcc46a20fb"
+  },
+  "Широков Г О": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "shirokov-g",
+    "hash": "affbe220d809c592cf4b4c35d4f62573"
   },
   "Широков Олег Геннадьевич": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "shirokov-o",
+    "hash": "287dcc4baee62009258f24be2b6f0916"
   },
   "Шишков Сергей Владимирович": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "shishkov-s",
+    "hash": "c2f6d3b20ad6517cb254721129cee592"
   },
   "Шкабарина Анна Олеговна": {
-    "grades": {
-      "673053733": 5
-    },
-    "average": 5.0
+    "grades": {},
+    "average": 0.0,
+    "slug": "shkabarina-a",
+    "hash": "bbebde8b54bb36b9e4c16c3eadafe2af"
+  },
+  "Шкопа И И": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "shkopa-i",
+    "hash": "09e136e3914ab046da519b638c1787fa"
+  },
+  "Щуплов Вячеслав Валентинович": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "shchuplov-v",
+    "hash": "563d5cbd3597ead934bc2fadc1acc117"
+  },
+  "Эсмантович Е И": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "esmantovich-e",
+    "hash": "b9403d2041950963aa7d140878b656c3"
   },
   "Якимчик Т. С.": {
     "grades": {},
-    "average": 0.0
+    "average": 0.0,
+    "slug": "yakimchik-t",
+    "hash": "94cb7e88c6210d05a56cd60c37c05504"
+  },
+  "Ярчак Е Н": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "yarchak-e",
+    "hash": "be1bb6d1ca88442b42576d43f1eb1003"
+  },
+  "Ястребов А А": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "yastrebov-a",
+    "hash": "7e804fe6b28fb3c1e533eadf26ba0be7"
+  },
+  "Яхно Валентина Николаевна": {
+    "grades": {},
+    "average": 0.0,
+    "slug": "yahno-v",
+    "hash": "12210208a966a728fac890978b5cbaf5"
   }
 }

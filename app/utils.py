@@ -119,14 +119,22 @@ def handle_teacher_inline_search(query: str) -> list[InlineQueryResultArticle]:
 # Получаем клавиатуру для оценки преподавателя
 def get_teacher_rating_keyboard(name: str) -> InlineKeyboardMarkup:
     """
-    Клавиатура для выбора рейтинга преподавателя от 0 до 5 звезд
+    Клавиатура для выбора рейтинга преподавателя от 0 до 5 звезд.
+    Использует хеш из teachers.json для callback_data, чтобы избежать BUTTON_DATA_INVALID.
     """
+    teacher = db.teachers.get(name)
+    if not teacher:
+        # fallback, если нет такого преподавателя
+        short_hash = hashlib.md5(name.encode()).hexdigest()
+    else:
+        short_hash = teacher.get("hash", hashlib.md5(name.encode()).hexdigest())
+
     buttons = []
     for i in range(6):  # 0,1,2,3,4,5
         stars = "⭐" * i if i > 0 else "0️⃣"
         buttons.append(InlineKeyboardButton(
             text=stars,
-            callback_data=f"rate:{name}:{i}"
+            callback_data=f"rate:{short_hash}:{i}"
         ))
 
     # Разбиваем на ряды по 3 кнопки

@@ -1,35 +1,39 @@
 import json
+import hashlib
 from pathlib import Path
 
 teachers_file = Path("teachers.json")
+teachers_link_file = Path("teachers_link.json")
 
-if not teachers_file.exists():
-    print("Файл teachers.json не найден")
+if not teachers_link_file.exists():
+    print("Файл teachers_link.json не найден")
     exit(1)
 
-# загружаем текущий файл
-with open(teachers_file, "r", encoding="utf-8") as f:
+# загружаем teachers_link.json
+with open(teachers_link_file, "r", encoding="utf-8") as f:
     try:
-        data = json.load(f)
+        teachers_link = json.load(f)
     except json.JSONDecodeError:
         print("Ошибка в формате JSON")
         exit(1)
 
-# преобразуем: grades = {}, average = 0.0
+# создаем новый словарь с grades, average, slug и hash
 new_data = {}
-for teacher in data.keys():
-    value = data[teacher]
-    if isinstance(value, list):
-        grades_dict = {str(i): v for i, v in enumerate(value)}  # временные ключи для старых оценок
-    else:
-        grades_dict = {}
+for teacher, slug in teachers_link.items():
+    # создаем полный MD5-хеш (32 символа)
+    full_hash = hashlib.md5(teacher.encode("utf-8")).hexdigest()
     new_data[teacher] = {
-        "grades": grades_dict,
-        "average": sum(grades_dict.values())/len(grades_dict) if grades_dict else 0.0
+        "grades": {},
+        "average": 0.0,
+        "slug": slug,
+        "hash": full_hash
     }
 
-# сохраняем обратно
+# сортируем по алфавиту
+new_data = dict(sorted(new_data.items(), key=lambda x: x[0]))
+
+# сохраняем в teachers.json
 with open(teachers_file, "w", encoding="utf-8") as f:
     json.dump(new_data, f, ensure_ascii=False, indent=2)
 
-print(f"Файл teachers.json успешно обновлён для {len(new_data)} преподавателей")
+print(f"Файл teachers.json создан заново для {len(new_data)} преподавателей с slug и hash")
