@@ -39,7 +39,7 @@ logger.add("bot.log", rotation="10 MB", retention="30 days", level="INFO")
 async def start(message: Message):
     logger.info(f"User {message.from_user.id} started bot")
     await message.answer(
-        text="Привет, выбери группу, чтобы получить расписание.\n(Данный бот с открытым исходным кодом https://github.com/DonTMover/gstu-schedule-bot)",
+        text="Привет, выбери группу, чтобы получить расписание.",
         reply_markup=get_inline_keyboard_select()
     )
 
