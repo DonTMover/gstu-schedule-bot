@@ -7,6 +7,8 @@ from aiogram import types
 from groupes import groups
 import hashlib
 
+from db import db
+
 days_map = {
     "MONDAY": "Понедельник",
     "TUESDAY": "Вторник",
@@ -89,22 +91,51 @@ def handle_group_search(query: str):
         )
     return results
 
+def handle_teacher_inline_search(query: str) -> list[InlineQueryResultArticle]:
+    """
+    Обработка inline поиска преподавателя.
+    Возвращает список InlineQueryResultArticle для inline_query.answer()
+    """
+    results = []
+
+    search = query.strip().lower()
+    if not search:
+        return results
+
+    # Найдём совпадения в базе преподавателей
+    matched = [name for name in db.teachers.keys() if search in name.lower()]
+
+    for name in matched[:50]:  # ограничиваем 50 результатами
+        result_id = hashlib.md5(name.encode()).hexdigest()
+        input_content = InputTextMessageContent(
+            message_text=f"Преподаватель: {name}\n⭐ Рейтинг: {db.get_teacher_rating(name)}/5"
+        )
+
+        results.append(
+            InlineQueryResultArticle(
+                id=result_id,
+                title=name,
+                input_message_content=input_content,
+                description=f"Текущий рейтинг: {db.get_teacher_rating(name)}/5"
+            )
+        )
+
+    return results
+
 # Получаем клавиатуру для оценки преподавателя
 def get_teacher_rating_keyboard(name: str) -> InlineKeyboardMarkup:
     """
-    Генерация inline-кнопок для выставления рейтинга преподавателю от 0 до 5 звезд
+    Клавиатура для выбора рейтинга преподавателя от 0 до 5 звезд
     """
     buttons = []
     for i in range(6):  # 0,1,2,3,4,5
         stars = "⭐" * i if i > 0 else "0️⃣"
-        buttons.append(
-            InlineKeyboardButton(
-                text=stars,
-                callback_data=f"rate:{name}:{i}"
-            )
-        )
+        buttons.append(InlineKeyboardButton(
+            text=stars,
+            callback_data=f"rate:{name}:{i}"
+        ))
 
-    # Разбиваем по 3 кнопки в ряд
+    # Разбиваем на ряды по 3 кнопки
     keyboard = [buttons[i:i+3] for i in range(0, len(buttons), 3)]
     return InlineKeyboardMarkup(inline_keyboard=keyboard)
 

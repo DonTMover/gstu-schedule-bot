@@ -5,11 +5,12 @@ from typing import Optional, Dict, List
 class Database:
     def __init__(self, filename: str = "db.json", teachers_file: str = "teachers.json"):
         self.path = Path(filename)
+        self.teachers_file = Path(teachers_file)
         self._data: Dict[str, str] = {}
         self._load()
-        self.teachers_file = Path(teachers_file)
         self._load_teachers()
 
+    # --- группы ---
     def _load(self) -> None:
         if self.path.exists():
             try:
@@ -24,38 +25,27 @@ class Database:
         with open(self.path, "w", encoding="utf-8") as f:
             json.dump(self._data, f, ensure_ascii=False, indent=2)
 
-    def set_group(self, user_id: int, group: str) -> None:
-        self._data[str(user_id)] = group
-        self._save()
-
-    def get_group(self, user_id: int) -> Optional[str]:
-        return self._data.get(str(user_id))
-
-    def delete_user(self, user_id: int) -> None:
-        if str(user_id) in self._data:
-            del self._data[str(user_id)]
-            self._save()
-
-    def all_users(self) -> Dict[str, str]:
-        return dict(self._data)
-
-    # --- Teachers ---
+    # --- teachers ---
     def _load_teachers(self) -> None:
         if self.teachers_file.exists():
             with open(self.teachers_file, "r", encoding="utf-8") as f:
-                # Изначально рейтинг 0 для всех
-                self.teachers: Dict[str, float] = {t: 0.0 for t in json.load(f)}
+                self.teachers: Dict[str, float] = json.load(f)
         else:
             self.teachers = {}
 
+    def _save_teachers(self) -> None:
+        with open(self.teachers_file, "w", encoding="utf-8") as f:
+            json.dump(self.teachers, f, ensure_ascii=False, indent=2)
+
     def add_teacher_rating(self, name: str, value: int) -> int:
-        """Установить рейтинг от 0 до 5"""
         value = max(0, min(5, value))
         self.teachers[name] = value
+        self._save_teachers()  # сохраняем после изменения
         return self.teachers[name]
 
     def get_teacher_rating(self, name: str) -> int:
         return self.teachers.get(name, 0)
+
 
 # Создаём один экземпляр
 db = Database()
