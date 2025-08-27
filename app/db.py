@@ -48,16 +48,14 @@ class Database:
         else:
             self.teachers = {}
 
-    def get_teacher_rating(self, name: str) -> float:
-        return self.teachers.get(name, 0.0)
-
-    def add_teacher_rating(self, name: str, value: float) -> float:
-        """Добавить рейтинг и вернуть новый средний"""
-        if name not in self.teachers:
-            self.teachers[name] = 0.0
-        self.teachers[name] += value
-        # Можно делить на количество оценок для среднего, если нужно
+    def add_teacher_rating(self, name: str, value: int) -> int:
+        """Установить рейтинг от 0 до 5"""
+        value = max(0, min(5, value))
+        self.teachers[name] = value
         return self.teachers[name]
+
+    def get_teacher_rating(self, name: str) -> int:
+        return self.teachers.get(name, 0)
 
 # Создаём один экземпляр
 db = Database()

@@ -89,6 +89,26 @@ def handle_group_search(query: str):
         )
     return results
 
+# Получаем клавиатуру для оценки преподавателя
+def get_teacher_rating_keyboard(name: str) -> InlineKeyboardMarkup:
+    """
+    Генерация inline-кнопок для выставления рейтинга преподавателю от 0 до 5 звезд
+    """
+    buttons = []
+    for i in range(6):  # 0,1,2,3,4,5
+        stars = "⭐" * i if i > 0 else "0️⃣"
+        buttons.append(
+            InlineKeyboardButton(
+                text=stars,
+                callback_data=f"rate:{name}:{i}"
+            )
+        )
+
+    # Разбиваем по 3 кнопки в ряд
+    keyboard = [buttons[i:i+3] for i in range(0, len(buttons), 3)]
+    return InlineKeyboardMarkup(inline_keyboard=keyboard)
+
+
 
 # --- Обработчик поиска преподавателей ---
 def handle_teacher_search(query: str):
