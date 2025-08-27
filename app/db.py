@@ -25,13 +25,6 @@ class Database:
         with open(self.path, "w", encoding="utf-8") as f:
             json.dump(self._data, f, ensure_ascii=False, indent=2)
 
-    def set_group(self, user_id: int, group: str) -> None:
-        self._data[str(user_id)] = group
-        self._save()
-
-    def get_group(self, user_id: int) -> Optional[str]:
-        return self._data.get(str(user_id))
-
     # --- teachers ---
     def _load_teachers(self) -> None:
         if self.teachers_file.exists():
