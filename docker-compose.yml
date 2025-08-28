@@ -1,3 +1,5 @@
+version: "3.9"
+
 services:
   gstu-bot:
     image: gstu-bot
@@ -8,9 +10,10 @@ services:
     volumes:
       - ./bot.log:/app/bot.log
     depends_on:
-      - postgres  # ждём пока поднимется база
+      - postgres
     environment:
       - DATABASE_URL=postgresql://gstu:gstu@postgres:5432/gstu_db
+    command: bash -c "python app/migrate_to_pg.py && python app/bot.py"
 
   postgres:
     image: postgres:15
@@ -20,6 +23,9 @@ services:
       POSTGRES_USER: gstu
       POSTGRES_PASSWORD: gstu
       POSTGRES_DB: gstu_db
+      # ВРЕМЕННО ДЛЯ ТЕСТА
+    ports:
+      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
