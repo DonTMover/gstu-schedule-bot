@@ -6,6 +6,22 @@ services:
     env_file:
       - app/.env
     volumes:
-      - ./bot.log:/app/bot.log  # Пробрасываем лог-файл наружу
-      - ./db.json:/app/db.json    # проброс базы данных наружу
-      - ./teachers.json:/app/teachers.json    # проброс базы данных преподователей наружу
+      - ./bot.log:/app/bot.log
+    depends_on:
+      - postgres  # ждём пока поднимется база
+    environment:
+      - DATABASE_URL=postgresql://gstu:gstu@postgres:5432/gstu_db
+
+  postgres:
+    image: postgres:15
+    container_name: gstu-postgres
+    restart: always
+    environment:
+      POSTGRES_USER: gstu
+      POSTGRES_PASSWORD: gstu
+      POSTGRES_DB: gstu_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
