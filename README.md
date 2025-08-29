@@ -17,7 +17,7 @@ Telegram-бот для студентов ГГТУ им. П.О. Сухого.
 ### 1. Клонирование репозитория
 
 ```sh
-git clone https://github.com/yourusername/gstu-schedule-bot.git
+git clone https://github.com/DonTMover/gstu-schedule-bot.git
 cd gstu-schedule-bot
 ```
 
