@@ -49,6 +49,7 @@ def get_human_readable_schedule(data):
         day = days_map.get(item['dayOfWeek'])
         if day:
             lesson = {
+                "lessonNumber": item['lessonNumber'],
                 "startTime": item['startTime'],
                 "endTime": item['endTime'],
                 "subject": item['subject']['name'],

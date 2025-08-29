@@ -233,7 +233,7 @@ async def day_schedule(callback: types.CallbackQuery):
         parts = [f"📅 {day_name}\n"]
         for i, lesson in enumerate(lessons, 1):
             parts.append(
-                f"<b>{i}. {lesson['subject']}</b> ({lesson['subjectShort'] or ''})\n"
+                f"<b>{lesson['lessonNumber']}. {lesson['subject']}</b> ({lesson['subjectShort'] or ''})\n"
                 f"🕒 {lesson['startTime']} – {lesson['endTime']}\n"
                 f"👨‍🏫 {lesson['teachers'] or '-'}\n"
                 f"🏫 {lesson['classrooms'] or '-'}\n"
