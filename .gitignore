@@ -6,6 +6,7 @@
 app/__pycache__/
 app/.env
 db.json
+teachers.json
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
