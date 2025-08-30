@@ -61,7 +61,7 @@ async def handler(message: Message):
         group_code = match.group(1)
         
 
-        db.set_group(message.from_user.id, group_code)
+        await db.set_group(message.from_user.id, group_code)
         logger.info(f"Database updated for user {message.from_user.id} with group {group_code}")
         logger.info(f"Set group {group_code} for user {message.from_user.id}")
 
@@ -82,8 +82,8 @@ async def handler(message: Message):
         logger.info(f"User {message.from_user.id} viewing teacher {fullname} with rating {current_rating}")
         # Отправляем сообщение с клавиатурой для оценки
         logger.info(f"Sending rating keyboard for {fullname} to user {message.from_user.id}")
-        if (db.user_exists(message.from_user.id)):
-            db.ensure_user(message.from_user.id)
+        if (await db.user_exists(message.from_user.id)):
+            await db.ensure_user(message.from_user.id)
             logger.info(f"Ensured user {message.from_user.id} exists in database")
             await message.answer(
                 text=f"Преподаватель: {fullname}\n⭐ Текущий рейтинг: {current_rating}/5",
@@ -135,12 +135,12 @@ async def rate_teacher(callback: types.CallbackQuery):
     value = int(value_str)
 
     # Находим имя преподавателя по хешу через новый метод
-    name = db.get_teacher_name_by_hash(hash_id)
+    name = await db.get_teacher_name_by_hash(hash_id)
     if not name:
         await callback.answer("Преподаватель не найден!", show_alert=True)
         return
 
-    avg, count = db.add_teacher_rating(name, value, callback.from_user.id)
+    avg, count = await db.add_teacher_rating(name, value, callback.from_user.id)
 
     text = f"Преподаватель: {name}\n⭐ Рейтинг: {avg:.2f}/5\nКоличество оценок: {count}"
     keyboard = get_teacher_rating_keyboard(name)
@@ -219,7 +219,7 @@ async def day_schedule(callback: types.CallbackQuery):
     code = callback.data.split(":")[1]   # MONDAY, TUESDAY ...
     day_name = days_map[code]
     try:
-        if not db.get_group(callback.from_user.id):
+        if not await db.get_group(callback.from_user.id):
             await callback.message.edit_text(
                 "Сначала выберите группу, используя команду /start",
                 reply_markup=get_inline_keyboard_select()
@@ -235,7 +235,7 @@ async def day_schedule(callback: types.CallbackQuery):
         await callback.answer()
         return
     
-    schedule = get_human_readable_schedule(await fetch_schedule(db.get_group(callback.from_user.id)))  
+    schedule = get_human_readable_schedule(await fetch_schedule(await db.get_group(callback.from_user.id)))  
     lessons = schedule[day_name]
     logger.info(f"Fetched schedule for user {callback.from_user.id} for {day_name}")
 
