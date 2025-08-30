@@ -83,7 +83,7 @@ def handle_group_search(query: str):
         )
     return results
 
-def handle_teacher_inline_search(query: str) -> list[InlineQueryResultArticle]:
+async def handle_teacher_inline_search(query: str) -> list[InlineQueryResultArticle]:
     results = []
     search = query.strip().lower()
     if not search:
@@ -92,12 +92,12 @@ def handle_teacher_inline_search(query: str) -> list[InlineQueryResultArticle]:
     logger.info(f"Searching teachers for query: {search}")
 
     # Поиск преподавателей через новую функцию db.search_teachers
-    matched_teachers = db.search_teachers(search)  # вернёт список dict с full_name, slug, hash
+    matched_teachers = await db.search_teachers(search)  # вернёт список dict с full_name, slug, hash
 
     for teacher in matched_teachers:
         name = teacher["full_name"]
         short_hash = teacher.get("hash") or hashlib.md5(name.encode()).hexdigest()
-        avg, count = db.get_teacher_rating(name)
+        avg, count = await db.get_teacher_rating(name)
         avg_str = f"{avg:.2f}"
 
         input_content = InputTextMessageContent(
@@ -134,12 +134,12 @@ def handle_teacher_inline_search(query: str) -> list[InlineQueryResultArticle]:
 
 
 # Получаем клавиатуру для оценки преподавателя
-def get_teacher_rating_keyboard(name: str) -> InlineKeyboardMarkup:
+async def get_teacher_rating_keyboard(name: str) -> InlineKeyboardMarkup:
     """
     Клавиатура для выбора рейтинга преподавателя от 0 до 5 звезд.
     Использует хеш из teachers.json для callback_data, чтобы избежать BUTTON_DATA_INVALID.
     """
-    teachers = db.search_teachers(name)
+    teachers = await db.search_teachers(name)
     if not teachers:
         # fallback, если нет такого преподавателя
         short_hash = hashlib.md5(name.encode()).hexdigest()
