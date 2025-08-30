@@ -1,103 +1,140 @@
-import json
-from pathlib import Path
-from typing import Optional, Dict
+import os
+import psycopg2
+from psycopg2.extras import DictCursor
+from dotenv import load_dotenv
+from typing import Optional, Tuple, List, Dict
+
+load_dotenv("app/.env")
+DATABASE_URL = os.getenv("DATABASE_URL")
 
 class Database:
-    def __init__(self, filename: str = "db.json", teachers_file: str = "teachers.json"):
-        self.path = Path(filename)
-        self.teachers_file = Path(teachers_file)
-        self._data: Dict[str, str] = {}  # хранение user_id -> group
-        self._load()
-        self._load_teachers()
+    def __init__(self):
+        if not DATABASE_URL:
+            raise RuntimeError("DATABASE_URL не найден в .env")
+        self.conn = psycopg2.connect(DATABASE_URL, cursor_factory=DictCursor)
 
-    # --- группы ---
-    def _load(self) -> None:
-        if self.path.exists():
-            try:
-                with open(self.path, "r", encoding="utf-8") as f:
-                    self._data = json.load(f)
-            except json.JSONDecodeError:
-                self._data = {}
-        else:
-            self._data = {}
-
-    def _save(self) -> None:
-        with open(self.path, "w", encoding="utf-8") as f:
-            json.dump(self._data, f, ensure_ascii=False, indent=2)
-
+    # --- users ---
     def set_group(self, user_id: int, group: str) -> None:
-        self._data[str(user_id)] = group
-        self._save()
+        with self.conn.cursor() as cur:
+            cur.execute(
+                """
+                INSERT INTO users (id, group_name)
+                VALUES (%s, %s)
+                ON CONFLICT (id) DO UPDATE 
+                    SET group_name = EXCLUDED.group_name
+                """,
+                (user_id, group)
+            )
+        self.conn.commit()
+
 
     def get_group(self, user_id: int) -> Optional[str]:
-        return self._data.get(str(user_id))
+        with self.conn.cursor() as cur:
+            cur.execute("SELECT group_name FROM users WHERE id = %s", (user_id,))
+            row = cur.fetchone()
+            return row["group_name"] if row else None
 
     def delete_user(self, user_id: int) -> None:
-        if str(user_id) in self._data:
-            del self._data[str(user_id)]
-            self._save()
+        with self.conn.cursor() as cur:
+            cur.execute("DELETE FROM users WHERE id = %s", (user_id,))
+        self.conn.commit()
 
     def all_users(self) -> Dict[str, str]:
-        return dict(self._data)
-    # --- end группы ---
+        with self.conn.cursor() as cur:
+            cur.execute("SELECT id, group_name FROM users")
+            return {str(row["id"]): row["group_name"] for row in cur.fetchall()}
+        
+    def ensure_user(self, user_id: int, group: str = None) -> None:
+        with self.conn.cursor() as cur:
+            cur.execute(
+                """
+                INSERT INTO users (id, group_name)
+                VALUES (%s, %s)
+                ON CONFLICT (id) DO NOTHING
+                """,
+                (user_id, group)
+            )
+        self.conn.commit()
+
+    def user_exists(self, user_id: int) -> bool:
+        with self.conn.cursor() as cur:
+            cur.execute("SELECT 1 FROM users WHERE id = %s", (user_id,))
+            return cur.fetchone() is not None
+
+
 
     # --- teachers ---
-    def _load_teachers(self) -> None:
-        if self.teachers_file.exists():
-            try:
-                with open(self.teachers_file, "r", encoding="utf-8") as f:
-                    self.teachers: Dict[str, Dict] = json.load(f)
-            except json.JSONDecodeError:
-                self.teachers = {}
-        else:
-            self.teachers = {}
+    def add_teacher_rating(self, full_name: str, grade: int, user_id: int) -> Tuple[float, int]:
+        with self.conn.cursor() as cur:
+            # ищем teacher_id или создаём преподавателя с пустым slug/hash
+            cur.execute("SELECT id FROM teachers WHERE full_name = %s", (full_name,))
+            teacher = cur.fetchone()
+            if not teacher:
+                cur.execute(
+                    "INSERT INTO teachers (full_name, slug, hash) VALUES (%s, '', '') RETURNING id",
+                    (full_name,)
+                )
+                teacher_id = cur.fetchone()["id"]
+            else:
+                teacher_id = teacher["id"]
 
-        # нормализация старого формата
-        for name, info in list(self.teachers.items()):
-            if isinstance(info, list):
-                # старый формат: grades = [int]
-                self.teachers[name] = {
-                    "grades": {str(i): v for i, v in enumerate(info)},
-                    "average": sum(info) / len(info) if info else 0.0,
-                    "slug": "",
-                    "hash": ""
-                }
-            elif isinstance(info, dict):
-                # добавляем недостающие поля
-                self.teachers[name].setdefault("grades", {})
-                self.teachers[name].setdefault("average", 0.0)
-                self.teachers[name].setdefault("slug", "")
-                self.teachers[name].setdefault("hash", "")
+            # вставляем или обновляем оценку
+            cur.execute(
+                """
+                INSERT INTO grades (teacher_id, user_id, grade)
+                VALUES (%s, %s, %s)
+                ON CONFLICT (teacher_id, user_id) DO UPDATE SET grade = EXCLUDED.grade
+                """,
+                (teacher_id, user_id, grade)
+            )
 
-    def _save_teachers(self) -> None:
-        with open(self.teachers_file, "w", encoding="utf-8") as f:
-            json.dump(self.teachers, f, ensure_ascii=False, indent=2)
+            # пересчёт среднего
+            cur.execute(
+                "SELECT AVG(grade) AS avg, COUNT(grade) AS count FROM grades WHERE teacher_id = %s",
+                (teacher_id,)
+            )
+            stats = cur.fetchone()
+            avg = float(stats["avg"] or 0)
+            count = int(stats["count"] or 0)
 
-    def add_teacher_rating(self, name: str, value: int, user_id: int):
-        if name not in self.teachers:
-            self.teachers[name] = {"grades": {}, "average": 0.0, "slug": "", "hash": ""}
-
-        # ставим или заменяем оценку пользователя
-        self.teachers[name]["grades"][str(user_id)] = value
-
-        # пересчёт среднего
-        grades = list(self.teachers[name]["grades"].values())
-        avg = sum(grades) / len(grades)
-        self.teachers[name]["average"] = avg
-
-        self._save_teachers()
-        return avg, len(grades)
-
-    def get_teacher_rating(self, name):
-        teacher = self.teachers.get(name)
-        if not teacher:
-            return 0.0, 0
-        grades = list(teacher.get("grades", {}).values())
-        if not grades:
-            return 0.0, 0
-        avg = sum(grades) / len(grades)
-        count = len(grades)
+        self.conn.commit()
         return avg, count
 
-# Создаём один экземпляр
+    def get_teacher_rating(self, full_name: str) -> Tuple[float, int]:
+        with self.conn.cursor() as cur:
+            cur.execute("SELECT id FROM teachers WHERE full_name = %s", (full_name,))
+            teacher = cur.fetchone()
+            if not teacher:
+                return 0.0, 0
+            teacher_id = teacher["id"]
+            cur.execute(
+                "SELECT AVG(grade) AS avg, COUNT(grade) AS count FROM grades WHERE teacher_id = %s",
+                (teacher_id,)
+            )
+            stats = cur.fetchone()
+            return float(stats["avg"] or 0), int(stats["count"] or 0)
+
+    def search_teachers(self, search: str) -> List[Dict]:
+        """Ищет преподавателей по началу ФИО (LIKE 'search%')"""
+        pattern = f"{search.lower()}%"
+        with self.conn.cursor() as cur:
+            cur.execute(
+                "SELECT full_name, slug, hash FROM teachers WHERE LOWER(full_name) LIKE %s LIMIT 50",
+                (pattern,)
+            )
+            return [dict(row) for row in cur.fetchall()]
+        
+    def get_teacher_name_by_hash(self, hash_id: str) -> Optional[str]:
+        """
+        Возвращает имя преподавателя по hash.
+        """
+        with self.conn.cursor() as cur:
+            cur.execute(
+                "SELECT full_name FROM teachers WHERE hash = %s",
+                (hash_id,)
+            )
+            row = cur.fetchone()
+            return row["full_name"] if row else None
+
+# Экземпляр для использования
 db = Database()
