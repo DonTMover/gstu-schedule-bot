@@ -8,11 +8,16 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 
 class Database:
     def __init__(self):
-        self.pool: Optional[asyncpg.pool.Pool] = None
+        self.pool = None
+
+    async def init(self):
+        """Создаём пул соединений"""
+        self.pool = await asyncpg.create_pool(DATABASE_URL)
 
     async def connect(self):
         if not DATABASE_URL:
             raise RuntimeError("DATABASE_URL не найден в .env")
+        await db.init()
         self.pool = await asyncpg.create_pool(DATABASE_URL)
 
     # --- users ---
