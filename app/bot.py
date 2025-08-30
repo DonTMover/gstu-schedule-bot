@@ -87,7 +87,7 @@ async def handler(message: Message):
             logger.info(f"Ensured user {message.from_user.id} exists in database")
             await message.answer(
                 text=f"Преподаватель: {fullname}\n⭐ Текущий рейтинг: {current_rating}/5",
-             reply_markup=get_teacher_rating_keyboard(fullname)
+             reply_markup=await get_teacher_rating_keyboard(fullname)
             )
             return
         else:
@@ -122,7 +122,7 @@ async def inline_handler(inline_query: types.InlineQuery):
     results = []
 
     if query.startswith("teacher:"):
-        results = handle_teacher_inline_search(query.replace("teacher:", "").strip())
+        results = await handle_teacher_inline_search(query.replace("teacher:", "").strip())
 
     elif query.startswith("group:"):
         results = handle_group_search(query.replace("group:", "").strip())
@@ -143,7 +143,7 @@ async def rate_teacher(callback: types.CallbackQuery):
     avg, count = await db.add_teacher_rating(name, value, callback.from_user.id)
 
     text = f"Преподаватель: {name}\n⭐ Рейтинг: {avg:.2f}/5\nКоличество оценок: {count}"
-    keyboard = get_teacher_rating_keyboard(name)
+    keyboard = await get_teacher_rating_keyboard(name)
 
     if callback.message:  # обычное сообщение
         await callback.message.edit_text(text, reply_markup=keyboard)
