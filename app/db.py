@@ -11,13 +11,8 @@ class Database:
         self.pool = None
 
     async def init(self):
-        """Создаём пул соединений"""
-        self.pool = await asyncpg.create_pool(DATABASE_URL)
-
-    async def connect(self):
         if not DATABASE_URL:
             raise RuntimeError("DATABASE_URL не найден в .env")
-        await db.init()
         self.pool = await asyncpg.create_pool(DATABASE_URL)
 
     # --- users ---

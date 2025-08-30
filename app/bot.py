@@ -268,6 +268,7 @@ async def main():
         token=TOKEN,
         properties=DefaultBotProperties(parse_mode=ParseMode.HTML),
     )
+    await db.init()  # Инициализируем пул соединений с БД
 
     await dp.start_polling(bot)
 
@@ -276,6 +277,7 @@ def run():
     logger.info("Starting bot...")
     load_dotenv()
     #print(getenv("BOT_TOKEN"))
+    
     asyncio.run(main())
     
 
