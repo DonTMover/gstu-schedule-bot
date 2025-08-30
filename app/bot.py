@@ -49,6 +49,11 @@ async def handler(message: Message):
     text = message.text.strip()
     logger.info(f"Received message: {text} from user {message.from_user.id}")
 
+    # test
+    if(text.lower() == "/test_get_id"):
+        await message.answer(f"Ваш ID: {message.from_user.id}")
+        return
+
 
     match = re.search(r"Вы выбрали группу: (\S+)", text)
     logger.info(f"Regex match for group: {match}")
@@ -57,6 +62,7 @@ async def handler(message: Message):
         
 
         db.set_group(message.from_user.id, group_code)
+        logger.info(f"Database updated for user {message.from_user.id} with group {group_code}")
         logger.info(f"Set group {group_code} for user {message.from_user.id}")
 
         if group_code in groups:
@@ -76,12 +82,20 @@ async def handler(message: Message):
         logger.info(f"User {message.from_user.id} viewing teacher {fullname} with rating {current_rating}")
         # Отправляем сообщение с клавиатурой для оценки
         logger.info(f"Sending rating keyboard for {fullname} to user {message.from_user.id}")
-        
-        await message.answer(
-            text=f"Преподаватель: {fullname}\n⭐ Текущий рейтинг: {current_rating}/5",
-            reply_markup=get_teacher_rating_keyboard(fullname)
-        )
-        return
+        if (db.user_exists(message.from_user.id)):
+            db.ensure_user(message.from_user.id)
+            logger.info(f"Ensured user {message.from_user.id} exists in database")
+            await message.answer(
+                text=f"Преподаватель: {fullname}\n⭐ Текущий рейтинг: {current_rating}/5",
+             reply_markup=get_teacher_rating_keyboard(fullname)
+            )
+            return
+        else:
+            await message.answer(
+                text="Сначала выберите группу, используя команду /start",
+                reply_markup=get_inline_keyboard_select()
+            )
+            return
 
 
 @dp.callback_query(lambda c: c.data == "search")
@@ -91,13 +105,16 @@ async def process_search(callback_query):
     
 
 
-@dp.message(Command("schedule"))
-async def schedule_cmd(message: types.Message):
-    await message.answer(
-        "Выберите день недели:",
-        reply_markup=get_days_keyboard()
-    )
+# @dp.message(Command("schedule"))
+# async def schedule_cmd(message: types.Message):
+#     await message.answer(
+#         "Выберите день недели:",
+#         reply_markup=get_days_keyboard()
+#     )
 
+@dp.message(Command("test_get_id"))
+async def schedule_cmd(message: types.Message):
+    await message.answer(f"Ваш ID: {message.from_user.id}")
 
 @dp.inline_query()
 async def inline_handler(inline_query: types.InlineQuery):
@@ -117,13 +134,8 @@ async def rate_teacher(callback: types.CallbackQuery):
     _, hash_id, value_str = callback.data.split(":")
     value = int(value_str)
 
-    # Находим имя преподавателя по хешу
-    name = None
-    for t_name, info in db.teachers.items():
-        if info.get("hash") == hash_id:
-            name = t_name
-            break
-
+    # Находим имя преподавателя по хешу через новый метод
+    name = db.get_teacher_name_by_hash(hash_id)
     if not name:
         await callback.answer("Преподаватель не найден!", show_alert=True)
         return

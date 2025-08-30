@@ -5,28 +5,29 @@ from psycopg2.extras import execute_values
 from dotenv import load_dotenv
 from pathlib import Path
 
-# Загружаем переменные окружения
+# --- Загрузка переменных окружения ---
 load_dotenv("app/.env")
-
 DATABASE_URL = os.getenv("DATABASE_URL")
 if not DATABASE_URL:
     raise RuntimeError("DATABASE_URL не найден в .env")
 
-# Файлы с данными
+# --- Пути к файлам ---
 teachers_file = Path("teachers.json")
 users_file = Path("db.json")
 
-# Подключение к PostgreSQL
+# --- Подключение к PostgreSQL ---
 conn = psycopg2.connect(DATABASE_URL)
 cur = conn.cursor()
 
-# --- Создание таблиц ---
+# --- Создание таблиц с уникальными ограничениями ---
 cur.execute("""
+-- Таблица пользователей
 CREATE TABLE IF NOT EXISTS users (
     id BIGINT PRIMARY KEY,
     group_name TEXT
 );
 
+-- Таблица преподавателей
 CREATE TABLE IF NOT EXISTS teachers (
     id SERIAL PRIMARY KEY,
     full_name TEXT NOT NULL,
@@ -35,13 +36,13 @@ CREATE TABLE IF NOT EXISTS teachers (
     average REAL DEFAULT 0.0
 );
 
+-- Таблица оценок
 CREATE TABLE IF NOT EXISTS grades (
     id SERIAL PRIMARY KEY,
-    teacher_id INT NOT NULL,
-    user_id BIGINT NOT NULL,
+    teacher_id INT NOT NULL REFERENCES teachers(id) ON DELETE CASCADE,
+    user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     grade INT NOT NULL,
-    FOREIGN KEY (teacher_id) REFERENCES teachers(id) ON DELETE CASCADE,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    CONSTRAINT grades_teacher_user_unique UNIQUE (teacher_id, user_id)
 );
 """)
 
@@ -51,7 +52,7 @@ if teachers_file.exists():
         teachers = json.load(f)
 
     teachers_data = [
-        (name, data["slug"], data["hash"], data["average"])
+        (name, data["slug"], data["hash"], data.get("average", 0.0))
         for name, data in teachers.items()
     ]
 
@@ -80,7 +81,7 @@ if users_file.exists():
         """
         INSERT INTO users (id, group_name)
         VALUES %s
-        ON CONFLICT (id) DO UPDATE SET group_name = excluded.group_name
+        ON CONFLICT (id) DO UPDATE SET group_name = EXCLUDED.group_name
         """,
         users_data
     )

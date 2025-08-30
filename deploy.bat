@@ -41,4 +41,4 @@ IF ERRORLEVEL 1 (
 )
 
 echo ✅ Bot updated successfully!
-pause
+

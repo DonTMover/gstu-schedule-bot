@@ -139,11 +139,12 @@ def get_teacher_rating_keyboard(name: str) -> InlineKeyboardMarkup:
     Клавиатура для выбора рейтинга преподавателя от 0 до 5 звезд.
     Использует хеш из teachers.json для callback_data, чтобы избежать BUTTON_DATA_INVALID.
     """
-    teacher = db.search_teachers(name)
-    if not teacher:
+    teachers = db.search_teachers(name)
+    if not teachers:
         # fallback, если нет такого преподавателя
         short_hash = hashlib.md5(name.encode()).hexdigest()
     else:
+        teacher = teachers[0]  # берем первый результат
         short_hash = teacher.get("hash", hashlib.md5(name.encode()).hexdigest())
 
     buttons = []
