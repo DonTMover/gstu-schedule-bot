@@ -47,6 +47,9 @@ def get_days_keyboard() -> InlineKeyboardMarkup:
         [
             InlineKeyboardButton(text="Пятница", callback_data="day:FRIDAY"),
             InlineKeyboardButton(text="Суббота", callback_data="day:SATURDAY")
+        ],
+        [
+            InlineKeyboardButton(text="Вернуться", callback_data="comeback")
         ]
     ]
     return InlineKeyboardMarkup(inline_keyboard=buttons)

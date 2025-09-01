@@ -213,6 +213,14 @@ async def rate_teacher(callback: types.CallbackQuery):
 #         ).send(callback.bot)
 
 #     await callback.answer(f"Вы установили {new_rating}⭐!")
+@dp.callback_query(lambda c: c.data == "comeback")
+async def comeback(callback: types.CallbackQuery):
+    await callback.message.edit_text(
+        text="Выберите группу снова или перейдите в другой раздел.",
+        reply_markup=get_inline_keyboard_select()
+    )
+    await callback.answer()
+
 
 @dp.callback_query(F.data.startswith("day:"))
 async def day_schedule(callback: types.CallbackQuery):
