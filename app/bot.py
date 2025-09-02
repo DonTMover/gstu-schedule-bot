@@ -24,8 +24,9 @@ from aiogram.methods import EditMessageText
 # from packages
 from utils import (get_inline_keyboard_select, get_days_keyboard, days_map,
                    handle_group_search, handle_teacher_inline_search,get_teacher_rating_keyboard)
-from api import get_human_readable_schedule, fetch_schedule
+from api import get_human_readable_schedule, fetch_schedule_cached
 from db import db
+from cache import cache
 
 
 load_dotenv()
@@ -243,7 +244,7 @@ async def day_schedule(callback: types.CallbackQuery):
         await callback.answer()
         return
     
-    schedule = get_human_readable_schedule(await fetch_schedule(await db.get_group(callback.from_user.id)))  
+    schedule = get_human_readable_schedule(await fetch_schedule_cached(await db.get_group(callback.from_user.id)))  
     lessons = schedule[day_name]
     logger.info(f"Fetched schedule for user {callback.from_user.id} for {day_name}")
 
@@ -276,7 +277,8 @@ async def main():
         token=TOKEN,
         properties=DefaultBotProperties(parse_mode=ParseMode.HTML),
     )
-    await db.init()  # Инициализируем пул соединений с БД
+    await db.init()
+    await cache.init()  # Инициализируем пул соединений с БД
 
     await dp.start_polling(bot)
 
