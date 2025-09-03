@@ -37,8 +37,16 @@ async def fetch_schedule(group_name: str) -> dict:
 async def fetch_schedule_cached(group_name: str) -> dict:
     key = f"schedule:{group_name}"
     data = await cache.get_json(key)
-    if data:
-        return data
+    try:
+        fresh = await fetch_schedule(group_name)
+        await cache.set_json(key, fresh, expire=60 * 60 * 24 * 7)
+        return fresh
+    except HTTPStatusError as e:
+        if e.response.status_code == 403 and data:
+            # отдаём старое расписание, чтобы бот не падал
+            return data
+        raise
+
 
     # если нет в кеше — ходим в API
     data = await fetch_schedule(group_name)

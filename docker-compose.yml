@@ -10,7 +10,10 @@ services:
     volumes:
       - ./bot.log:/app/bot.log
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     environment:
       - DATABASE_URL=postgresql://gstu:gstu@postgres:5432/gstu_db
       - REDIS_URL=redis://redis:6379/0
@@ -28,6 +31,11 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U gstu"]
+      interval: 5s
+      retries: 5
+      timeout: 5s
 
   redis:
     image: redis:7
@@ -35,6 +43,11 @@ services:
     restart: always
     ports:
       - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
 volumes:
   postgres_data:
