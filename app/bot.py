@@ -37,7 +37,7 @@ dp = Dispatcher()
 #add logging
 logger.add("bot.log", rotation="10 MB", retention="30 days", level="INFO")
 
-@dp.message(CommandStart())
+@dp.message(CommandStart()) # Обрабатываем старт бота и записываем чела в группу
 async def start(message: Message):
     logger.info(f"User {message.from_user.id} started bot")
     await message.answer(
@@ -45,7 +45,7 @@ async def start(message: Message):
         reply_markup=get_inline_keyboard_select()
     )
 
-@dp.message()
+@dp.message() # Главный обработчик который распределяет все
 async def handler(message: Message):
     text = message.text.strip()
     logger.info(f"Received message: {text} from user {message.from_user.id}")
@@ -99,7 +99,7 @@ async def handler(message: Message):
             return
 
 
-@dp.callback_query(lambda c: c.data == "search")
+@dp.callback_query(lambda c: c.data == "search") # Для InlineSearch поиска группы
 async def process_search(callback_query):
     await callback_query.message.answer("Please enter the group code (e.g., АП-11):")
     await callback_query.answer()
@@ -113,7 +113,7 @@ async def process_search(callback_query):
 #         reply_markup=get_days_keyboard()
 #     )
 
-@dp.message(Command("test_get_id"))
+@dp.message(Command("test_get_id")) # тестовая команда попавшая на прод :3
 async def schedule_cmd(message: types.Message):
     await message.answer(f"Ваш ID: {message.from_user.id}")
 
@@ -130,7 +130,7 @@ async def inline_handler(inline_query: types.InlineQuery):
 
     await inline_query.answer(results, cache_time=1)
 
-@dp.callback_query(F.data.startswith("rate:"))
+@dp.callback_query(F.data.startswith("rate:")) # Обработка оценок
 async def rate_teacher(callback: types.CallbackQuery):
     _, hash_id, value_str = callback.data.split(":")
     value = int(value_str)
@@ -159,62 +159,7 @@ async def rate_teacher(callback: types.CallbackQuery):
     await callback.answer(f"Вы установили {value}⭐!")
 
 
-# @dp.callback_query(lambda c: c.data.startswith("rate:"))
-# async def rate_teacher(callback: types.CallbackQuery):
-#     _, name, value_str = callback.data.split(":")
-#     value = int(value_str)
-#     avg, count = db.add_teacher_rating(name, value)
-
-#     text = f"Преподаватель: {name}\n⭐ Рейтинг: {avg:.2f}/5\nКоличество оценок: {count}"
-#     keyboard = get_teacher_rating_keyboard(name)
-
-#     if callback.message:  # обычное сообщение
-#         await callback.message.edit_text(text, reply_markup=keyboard)
-#     elif callback.inline_message_id:  # inline-сообщение
-#         await EditMessageText(
-#             text=text,
-#             inline_message_id=callback.inline_message_id,
-#             reply_markup=keyboard,
-#             parse_mode="HTML"
-#         ).send(callback.bot)
-
-#     await callback.answer(f"Вы установили {value}⭐!")
-
-# @dp.callback_query(lambda c: c.data.startswith("rate:"))
-# async def rate_teacher(callback: types.CallbackQuery):
-#     data = callback.data.split(":")  # ["rate", "Имя", "звезды"]
-#     name = data[1]
-#     value = int(data[2])
-#     avg, count = db.add_teacher_rating(name, value)
-#     await callback.message.edit_text(
-#         f"Преподаватель: {name}\n⭐ Рейтинг: {avg:.2f}/5\nКоличество оценок: {count}",
-#         reply_markup=get_teacher_rating_keyboard(name)
-#     )
-
-#     await callback.answer(f"Вы установили {new_rating}⭐!")
-
-# @dp.callback_query(lambda c: c.data.startswith("rate:"))
-# async def rate_teacher(callback: types.CallbackQuery):
-#     data = callback.data.split(":")  # ["rate", "Имя", "звезды"]
-#     name = data[1]
-#     value = int(data[2])
-#     new_rating = db.add_teacher_rating(name, value)
-
-#     text = f"Преподаватель: {name}\n⭐ Рейтинг: {new_rating}/5"
-#     keyboard = get_teacher_rating_keyboard(name)
-
-#     if callback.message:  # обычное сообщение в чате
-#         await callback.message.edit_text(text, reply_markup=keyboard)
-#     elif callback.inline_message_id:  # inline-сообщение
-#         await EditMessageText(
-#             text=text,
-#             inline_message_id=callback.inline_message_id,
-#             reply_markup=keyboard,
-#             parse_mode="HTML"
-#         ).send(callback.bot)
-
-#     await callback.answer(f"Вы установили {new_rating}⭐!")
-@dp.callback_query(lambda c: c.data == "comeback")
+@dp.callback_query(lambda c: c.data == "comeback") # Возврат к началу
 async def comeback(callback: types.CallbackQuery):
     await callback.message.edit_text(
         text="Выберите группу снова или перейдите в другой раздел.",
@@ -223,7 +168,7 @@ async def comeback(callback: types.CallbackQuery):
     await callback.answer()
 
 
-@dp.callback_query(F.data.startswith("day:"))
+@dp.callback_query(F.data.startswith("day:")) # Получение расписания на определенный день недели и его форматирование
 async def day_schedule(callback: types.CallbackQuery):
     code = callback.data.split(":")[1]   # MONDAY, TUESDAY ...
     day_name = days_map[code]

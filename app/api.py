@@ -64,14 +64,15 @@ async def fetch_schedule_cached(group_name: str) -> dict: # Снаачало п�
         raise 
 
 
-def get_headers():
+def get_headers(): # Рандомизируем хедерсы
     return {
         "User-Agent": random.choice(USER_AGENTS),
         "Accept": "application/json, text/plain, */*",
         "Accept-Language": random.choice(["ru-RU,ru;q=0.9", "ru,en;q=0.8", "en-US,en;q=0.7"]),
         "Connection": "keep-alive",
     }
-def get_human_readable_schedule(data):
+
+def get_human_readable_schedule(data): #Форматирование расписания под более читаемый вариант
     days_map = {
         "MONDAY": "Понедельник",
         "TUESDAY": "Вторник",
@@ -104,7 +105,7 @@ def get_human_readable_schedule(data):
     
     return schedule_by_day
 
-def pretty_schedule_str(data: dict) -> str:
+def pretty_schedule_str(data: dict) -> str: # Тестовое форматирования для cli режима
     entity = data.get("data", {}).get("entity", {}) if isinstance(data, dict) else {}
     items = data.get("data", {}).get("scheduleItems", []) if isinstance(data, dict) else []
     order = {"MONDAY":0,"TUESDAY":1,"WEDNESDAY":2,"THURSDAY":3,"FRIDAY":4,"SATURDAY":5,"SUNDAY":6}
@@ -136,7 +137,7 @@ def pretty_schedule_str(data: dict) -> str:
 
     return "\n".join(lines)
 
-async def get_schedule(group_name: str) -> str:
+async def get_schedule(group_name: str) -> str: # Удобная абстракция для получения расписания
     print(f"Fetching schedule for group: {group_name}")
     data = await fetch_schedule_cached(group_name)
     lines = pretty_schedule_str(data)
@@ -144,7 +145,7 @@ async def get_schedule(group_name: str) -> str:
 
 
 
-# Example usage
+# Пример использования
 async def main():
     
     data = await fetch_schedule_cached("АП-11")
