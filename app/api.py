@@ -3,6 +3,7 @@ import asyncio
 from collections import defaultdict
 from groupes import groups
 import uuid
+from cache import cache
 
 BASE_URL = "https://sc.gstu.by/api/schedules/group"
 
@@ -32,6 +33,18 @@ async def fetch_schedule(group_name: str) -> dict:
         async with session.get(f"{BASE_URL}/{groups[group_name]}", timeout=15) as resp:
             resp.raise_for_status()
             return await resp.json()
+        
+async def fetch_schedule_cached(group_name: str) -> dict:
+    key = f"schedule:{group_name}"
+    data = await cache.get_json(key)
+    if data:
+        return data
+
+    # если нет в кеше — ходим в API
+    data = await fetch_schedule(group_name)
+    await cache.set_json(key, data, expire=60 * 60 * 24 * 7)
+    return data
+
 
 def get_human_readable_schedule(data):
     days_map = {
@@ -100,7 +113,7 @@ def pretty_schedule_str(data: dict) -> str:
 
 async def get_schedule(group_name: str) -> str:
     print(f"Fetching schedule for group: {group_name}")
-    data = await fetch_schedule(group_name)
+    data = await fetch_schedule_cached(group_name)
     lines = pretty_schedule_str(data)
     return lines
 
@@ -109,7 +122,7 @@ async def get_schedule(group_name: str) -> str:
 # Example usage
 async def main():
     
-    data = await fetch_schedule("АП-11")
+    data = await fetch_schedule_cached("АП-11")
     #pprint(data)
     print(pretty_schedule_str(data))
 
