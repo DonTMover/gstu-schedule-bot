@@ -4,27 +4,35 @@ from collections import defaultdict
 from groupes import groups
 import uuid
 from cache import cache
+import random
 
 BASE_URL = "https://sc.gstu.by/api/schedules/group"
 
-COMMON_HEADERS = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:142.0) Gecko/20100101 Firefox/142.0",
-    "Accept": "application/json, text/plain, */*",
-    "Accept-Language": "ru-RU,ru;q=0.8,en-US;q=0.5,en;q=0.3",
-    "Accept-Encoding": "gzip, deflate",
-    "DNT": "1",
-    "Connection": "keep-alive",
-    "Sec-Fetch-Dest": "empty",
-    "Sec-Fetch-Mode": "cors",
-    "Sec-Fetch-Site": "same-origin",
-    "Sec-GPC": "1",
-}
+# COMMON_HEADERS = {
+#     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:142.0) Gecko/20100101 Firefox/142.0",
+#     "Accept": "application/json, text/plain, */*",
+#     "Accept-Language": "ru-RU,ru;q=0.8,en-US;q=0.5,en;q=0.3",
+#     "Accept-Encoding": "gzip, deflate",
+#     "DNT": "1",
+#     "Connection": "keep-alive",
+#     "Sec-Fetch-Dest": "empty",
+#     "Sec-Fetch-Mode": "cors",
+#     "Sec-Fetch-Site": "same-origin",
+#     "Sec-GPC": "1",
+# }
+
+
+USER_AGENTS = [
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:142.0) Gecko/20100101 Firefox/142.0",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36",
+    "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:115.0) Gecko/20100101 Firefox/115.0",
+]
 
 
 async def fetch_schedule(group_name: str) -> dict:
     # генерируем новый tid для каждого запроса
     tid = uuid.uuid4().hex
-    headers = COMMON_HEADERS.copy()
+    headers = get_headers()
     headers["X-Id"] = tid
     headers["Cookie"] = f"_tid={tid}"
     headers["Referer"] = f"https://sc.gstu.by/group/{groups[group_name]}"
@@ -45,7 +53,13 @@ async def fetch_schedule_cached(group_name: str) -> dict:
     await cache.set_json(key, data, expire=60 * 60 * 24 * 7)
     return data
 
-
+def get_headers():
+    return {
+        "User-Agent": random.choice(USER_AGENTS),
+        "Accept": "application/json, text/plain, */*",
+        "Accept-Language": random.choice(["ru-RU,ru;q=0.9", "ru,en;q=0.8", "en-US,en;q=0.7"]),
+        "Connection": "keep-alive",
+    }
 def get_human_readable_schedule(data):
     days_map = {
         "MONDAY": "Понедельник",
