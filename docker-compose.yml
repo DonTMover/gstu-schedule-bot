@@ -14,6 +14,8 @@ services:
     environment:
       - DATABASE_URL=postgresql://gstu:gstu@postgres:5432/gstu_db
       - REDIS_URL=redis://redis:6379/0
+    networks:
+      - gstu-net
     command: bash -c "python app/migrate_to_pg.py && python app/bot.py"
 
   postgres:
@@ -28,6 +30,8 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - gstu-net
 
   redis:
     image: redis:7
@@ -35,6 +39,13 @@ services:
     restart: always
     ports:
       - "6379:6379"
+    networks:
+      - gstu-net
 
 volumes:
   postgres_data:
+
+
+networks:
+  gstu-net:
+    driver: bridge
