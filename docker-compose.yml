@@ -13,6 +13,7 @@ services:
       - postgres
     environment:
       - DATABASE_URL=postgresql://gstu:gstu@postgres:5432/gstu_db
+      - REDIS_URL=redis://redis:6379/0
     command: bash -c "python app/migrate_to_pg.py && python app/bot.py"
 
   postgres:
