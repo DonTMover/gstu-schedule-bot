@@ -5,9 +5,11 @@ from groupes import groups
 import uuid
 from cache import cache
 import random
+from proxies import get_random_proxy
 
 BASE_URL = "https://sc.gstu.by/api/schedules/group"
 
+#OLD HEADERS - remove later
 # COMMON_HEADERS = {
 #     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:142.0) Gecko/20100101 Firefox/142.0",
 #     "Accept": "application/json, text/plain, */*",
@@ -38,7 +40,10 @@ async def fetch_schedule(group_name: str) -> dict:
     headers["Referer"] = f"https://sc.gstu.by/group/{groups[group_name]}"
 
     async with aiohttp.ClientSession(headers=headers) as session:
-        async with session.get(f"{BASE_URL}/{groups[group_name]}", timeout=15) as resp:
+        async with session.get(f"{BASE_URL}/{groups[group_name]}", 
+                               timeout=15,
+                               proxy=get_random_proxy() # get proxy from file
+                               ) as resp:
             resp.raise_for_status()
             return await resp.json()
         

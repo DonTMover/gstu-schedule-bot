@@ -8,15 +8,16 @@ services:
     env_file:
       - app/.env
     volumes:
-      - ./bot.log:/app/bot.log
+      - ./bot.log:/app/bot.log # логи наружу
+      - ./proxies.txt:/app/proxies.txt # проксю парсим тоже снаружи
     depends_on:
       postgres:
-        condition: service_healthy
+        condition: service_healthy # жива ли бд
       redis:
-        condition: service_healthy
+        condition: service_healthy # жива ли редиска?
     environment:
-      - DATABASE_URL=postgresql://gstu:gstu@postgres:5432/gstu_db
-      - REDIS_URL=redis://redis:6379/0
+      - DATABASE_URL=postgresql://gstu:gstu@postgres:5432/gstu_db #пробрасываем на всякий бд внутрь
+      - REDIS_URL=redis://redis:6379/0 # Как и редиску
     networks:
       - gstu-net
     command: bash -c "python app/migrate_to_pg.py && python app/bot.py"
@@ -30,10 +31,10 @@ services:
       POSTGRES_PASSWORD: gstu
       POSTGRES_DB: gstu_db
     ports:
-      - "5432:5432"
+      - "5432:5432" # в локалке всеравно никто не достучится :3 
     volumes:
-      - postgres_data:/var/lib/postgresql/data
-    healthcheck:
+      - postgres_data:/var/lib/postgresql/data # Данные БД
+    healthcheck: # Тест жива ли бд
       test: ["CMD-SHELL", "pg_isready -U gstu"]
       interval: 5s
       retries: 5
@@ -46,8 +47,8 @@ services:
     container_name: gstu-redis
     restart: always
     ports:
-      - "6379:6379"
-    healthcheck:
+      - "6379:6379" # аналогично тому что выше
+    healthcheck: # проверяем на живость
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s
       timeout: 5s
@@ -59,6 +60,6 @@ volumes:
   postgres_data:
 
 
-networks:
+networks: # Сеть прокладываем как настоящие инжинеры
   gstu-net:
     driver: bridge
