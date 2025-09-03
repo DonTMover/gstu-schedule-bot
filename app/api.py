@@ -31,7 +31,7 @@ USER_AGENTS = [
 ]
 
 
-async def fetch_schedule(group_name: str) -> dict:
+async def fetch_schedule(group_name: str) -> dict: # тут запрашиваем
     # генерируем новый tid для каждого запроса
     tid = uuid.uuid4().hex
     headers = get_headers()
@@ -47,24 +47,22 @@ async def fetch_schedule(group_name: str) -> dict:
             resp.raise_for_status()
             return await resp.json()
         
-async def fetch_schedule_cached(group_name: str) -> dict:
+async def fetch_schedule_cached(group_name: str) -> dict: # Снаачало проверяем есть ли в кеше, потом уже запрашиваем
     key = f"schedule:{group_name}"
     data = await cache.get_json(key)
+    
+    if data:
+        return data
+    
     try:
-        fresh = await fetch_schedule(group_name)
-        await cache.set_json(key, fresh, expire=60 * 60 * 24 * 7)
+        fresh = fetch_schedule(group_name)
+        await cache.set_json(key, fresh, expire=60 * 60 * 24 * 2) 
         return fresh
     except HTTPStatusError as e:
-        if e.response.status_code == 403 and data:
-            # отдаём старое расписание, чтобы бот не падал
-            return data
-        raise
+        if cached and e.responce.status_code == 403:
+            return cached
+        raise 
 
-
-    # если нет в кеше — ходим в API
-    data = await fetch_schedule(group_name)
-    await cache.set_json(key, data, expire=60 * 60 * 24 * 7)
-    return data
 
 def get_headers():
     return {
