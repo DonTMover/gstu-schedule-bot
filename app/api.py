@@ -55,12 +55,12 @@ async def fetch_schedule_cached(group_name: str) -> dict: # Снаачало п�
         return data
     
     try:
-        fresh = fetch_schedule(group_name)
+        fresh = await fetch_schedule(group_name)
         await cache.set_json(key, fresh, expire=60 * 60 * 24 * 2) 
         return fresh
     except HTTPStatusError as e:
-        if cached and e.responce.status_code == 403:
-            return cached
+        if data and e.responce.status_code == 403:
+            return data
         raise 
 
 
