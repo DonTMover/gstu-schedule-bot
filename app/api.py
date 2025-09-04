@@ -7,6 +7,7 @@ from cache import cache
 import random
 from os import getenv
 from dotenv import load_dotenv
+from datetime import datetime, date, timedelta
 
 BASE_URL = "https://sc.gstu.by/api/schedules/group"
 
@@ -74,7 +75,7 @@ def get_headers(): # Рандомизируем хедерсы
         "Connection": "keep-alive",
     }
 
-def get_human_readable_schedule(data): #Форматирование расписания под более читаемый вариант
+def get_human_readable_schedule(data):
     days_map = {
         "MONDAY": "Понедельник",
         "TUESDAY": "Вторник",
@@ -83,29 +84,106 @@ def get_human_readable_schedule(data): #Форматирование распи�
         "FRIDAY": "Пятница",
         "SATURDAY": "Суббота"
     }
-    
+
+    today = date.today()
+
+    # Границы текущей недели
+    monday = today - timedelta(days=today.weekday())
+    sunday = monday + timedelta(days=6)
+
+    # Даты этой недели по ключу dayOfWeek
+    week_day_dates = {
+        "MONDAY": monday,
+        "TUESDAY": monday + timedelta(days=1),
+        "WEDNESDAY": monday + timedelta(days=2),
+        "THURSDAY": monday + timedelta(days=3),
+        "FRIDAY": monday + timedelta(days=4),
+        "SATURDAY": monday + timedelta(days=5),
+        "SUNDAY": monday + timedelta(days=6),
+    }
+
+    # Чётность недели
+    week_type = "EVEN" if today.isocalendar().week % 2 == 0 else "ODD"
+
     schedule_by_day = {name: [] for name in days_map.values()}
-    
-    for item in data['data']['scheduleItems']:
-        day = days_map.get(item['dayOfWeek'])
-        if day:
-            lesson = {
-                "lessonNumber": item['lessonNumber'],
-                "startTime": item['startTime'],
-                "endTime": item['endTime'],
-                "subject": item['subject']['name'],
-                "subjectShort": item['subject'].get('shortName'),
-                "teachers": ", ".join(t['fullName'] for t in item.get('teachers', [])) or None,
-                "classrooms": ", ".join(c['roomNumber'] for c in item.get('classrooms', [])) or None,
-                "groups": ", ".join(g['name'] for g in item.get('groups', [])) or None
-            }
-            schedule_by_day[day].append(lesson)
-    
+
+    for item in data.get('data', {}).get('scheduleItems', []):
+        day_key = item.get('dayOfWeek')
+        day_ru = days_map.get(day_key)
+        if not day_ru:
+            continue
+
+        # проверяем, что startDate в пределах текущей недели
+        start_date_str = item.get('startDate')
+        if not start_date_str:
+            continue
+        try:
+            start_date = datetime.strptime(start_date_str, "%Y-%m-%d").date()
+        except ValueError:
+            continue
+
+        if not (monday <= start_date <= sunday):
+            continue
+
+        lesson_date = week_day_dates.get(day_key)
+        if not lesson_date:
+            continue
+
+        subject = item.get('subject', {})
+        lesson = {
+            "lessonNumber": item.get('lessonNumber'),
+            "startTime": item.get('startTime'),
+            "endTime": item.get('endTime'),
+            "startDate": start_date_str,
+            "date": lesson_date.isoformat(),
+            "weekType": week_type,
+            "subject": subject.get('name'),
+            "subjectShort": subject.get('shortName'),
+            "teachers": ", ".join(t.get('fullName') for t in item.get('teachers', []) if t.get('fullName')) or None,
+            "classrooms": ", ".join(c.get('roomNumber') for c in item.get('classrooms', []) if c.get('roomNumber')) or None,
+            "groups": ", ".join(g.get('name') for g in item.get('groups', []) if g.get('name')) or None
+        }
+        schedule_by_day[day_ru].append(lesson)
+
     # сортировка по времени
     for lessons in schedule_by_day.values():
-        lessons.sort(key=lambda x: x['startTime'])
-    
+        lessons.sort(key=lambda x: x['startTime'] or "")
+
     return schedule_by_day
+
+# def get_human_readable_schedule(data): #Форматирование расписания под более читаемый вариант
+#     days_map = {
+#         "MONDAY": "Понедельник",
+#         "TUESDAY": "Вторник",
+#         "WEDNESDAY": "Среда",
+#         "THURSDAY": "Четверг",
+#         "FRIDAY": "Пятница",
+#         "SATURDAY": "Суббота"
+#     }
+    
+#     schedule_by_day = {name: [] for name in days_map.values()}
+    
+#     for item in data['data']['scheduleItems']:
+#         day = days_map.get(item['dayOfWeek'])
+#         if day:
+#             lesson = {
+#                 "lessonNumber": item['lessonNumber'],
+#                 "startTime": item['startTime'],
+#                 "endTime": item['endTime'],
+#                 "startDate": item['startDate'],
+#                 "subject": item['subject']['name'],
+#                 "subjectShort": item['subject'].get('shortName'),
+#                 "teachers": ", ".join(t['fullName'] for t in item.get('teachers', [])) or None,
+#                 "classrooms": ", ".join(c['roomNumber'] for c in item.get('classrooms', [])) or None,
+#                 "groups": ", ".join(g['name'] for g in item.get('groups', [])) or None
+#             }
+#             schedule_by_day[day].append(lesson)
+    
+#     # сортировка по времени
+#     for lessons in schedule_by_day.values():
+#         lessons.sort(key=lambda x: x['startTime'])
+    
+#     return schedule_by_day
 
 def pretty_schedule_str(data: dict) -> str: # Тестовое форматирования для cli режима
     entity = data.get("data", {}).get("entity", {}) if isinstance(data, dict) else {}
