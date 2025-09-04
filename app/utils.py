@@ -18,6 +18,16 @@ days_map = { # дни
     "SATURDAY": "Суббота"
 }
 
+def get_inline_keyboard_disclaimer() -> InlineKeyboardMarkup:
+    disclaimer_button = InlineKeyboardButton(
+        text="Принять",
+        callback_data="disclaimer:accept"
+    )
+    keyboard = InlineKeyboardMarkup(
+        inline_keyboard=[[disclaimer_button]]
+    )
+    return keyboard
+
 
 def get_inline_keyboard_select() -> InlineKeyboardMarkup:
     select_group_button = InlineKeyboardButton(
