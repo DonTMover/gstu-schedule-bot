@@ -24,8 +24,9 @@ from aiogram.methods import EditMessageText
 # from packages
 from utils import (get_inline_keyboard_select, get_days_keyboard, days_map,
                    handle_group_search, handle_teacher_inline_search,get_teacher_rating_keyboard)
-from api import get_human_readable_schedule, fetch_schedule
+from api import get_human_readable_schedule, fetch_schedule_cached
 from db import db
+from cache import cache
 
 
 load_dotenv()
@@ -36,7 +37,7 @@ dp = Dispatcher()
 #add logging
 logger.add("bot.log", rotation="10 MB", retention="30 days", level="INFO")
 
-@dp.message(CommandStart())
+@dp.message(CommandStart()) # Обрабатываем старт бота и записываем чела в группу
 async def start(message: Message):
     logger.info(f"User {message.from_user.id} started bot")
     await message.answer(
@@ -44,7 +45,7 @@ async def start(message: Message):
         reply_markup=get_inline_keyboard_select()
     )
 
-@dp.message()
+@dp.message() # Главный обработчик который распределяет все
 async def handler(message: Message):
     text = message.text.strip()
     logger.info(f"Received message: {text} from user {message.from_user.id}")
@@ -98,7 +99,7 @@ async def handler(message: Message):
             return
 
 
-@dp.callback_query(lambda c: c.data == "search")
+@dp.callback_query(lambda c: c.data == "search") # Для InlineSearch поиска группы
 async def process_search(callback_query):
     await callback_query.message.answer("Please enter the group code (e.g., АП-11):")
     await callback_query.answer()
@@ -112,7 +113,7 @@ async def process_search(callback_query):
 #         reply_markup=get_days_keyboard()
 #     )
 
-@dp.message(Command("test_get_id"))
+@dp.message(Command("test_get_id")) # тестовая команда попавшая на прод :3
 async def schedule_cmd(message: types.Message):
     await message.answer(f"Ваш ID: {message.from_user.id}")
 
@@ -129,7 +130,7 @@ async def inline_handler(inline_query: types.InlineQuery):
 
     await inline_query.answer(results, cache_time=1)
 
-@dp.callback_query(F.data.startswith("rate:"))
+@dp.callback_query(F.data.startswith("rate:")) # Обработка оценок
 async def rate_teacher(callback: types.CallbackQuery):
     _, hash_id, value_str = callback.data.split(":")
     value = int(value_str)
@@ -158,68 +159,79 @@ async def rate_teacher(callback: types.CallbackQuery):
     await callback.answer(f"Вы установили {value}⭐!")
 
 
-# @dp.callback_query(lambda c: c.data.startswith("rate:"))
-# async def rate_teacher(callback: types.CallbackQuery):
-#     _, name, value_str = callback.data.split(":")
-#     value = int(value_str)
-#     avg, count = db.add_teacher_rating(name, value)
+@dp.callback_query(lambda c: c.data == "comeback") # Возврат к началу
+async def comeback(callback: types.CallbackQuery):
+    await callback.message.edit_text(
+        text="Выберите группу снова или перейдите в другой раздел.",
+        reply_markup=get_inline_keyboard_select()
+    )
+    await callback.answer()
 
-#     text = f"Преподаватель: {name}\n⭐ Рейтинг: {avg:.2f}/5\nКоличество оценок: {count}"
-#     keyboard = get_teacher_rating_keyboard(name)
 
-#     if callback.message:  # обычное сообщение
-#         await callback.message.edit_text(text, reply_markup=keyboard)
-#     elif callback.inline_message_id:  # inline-сообщение
-#         await EditMessageText(
-#             text=text,
-#             inline_message_id=callback.inline_message_id,
-#             reply_markup=keyboard,
-#             parse_mode="HTML"
-#         ).send(callback.bot)
+# @dp.callback_query(F.data.startswith("day:")) # Получение расписания на определенный день недели и его форматирование
+# async def day_schedule(callback: types.CallbackQuery):
+#     code = callback.data.split(":")[1]   # MONDAY, TUESDAY ...
+#     day_name = days_map[code]
+#     try:
+#         if not await db.get_group(callback.from_user.id):
+#             await callback.message.edit_text(
+#                 "Сначала выберите группу, используя команду /start",
+#                 reply_markup=get_inline_keyboard_select()
+#             )
+#             await callback.answer()
+#             return
+#     except Exception as e:
+#         logger.error(f"Error fetching group for user {callback.from_user.id}: {e}")
+#         await callback.message.edit_text(
+#             "Произошла ошибка при получении вашей группы. Пожалуйста, попробуйте снова.",
+#             reply_markup=get_inline_keyboard_select()
+#         )
+#         await callback.answer()
+#         return
+    
+#     schedule = get_human_readable_schedule(await fetch_schedule_cached(await db.get_group(callback.from_user.id)))  
+#     lessons = schedule[day_name]
+#     logger.info(f"Fetched schedule for user {callback.from_user.id} for {day_name}")
 
-#     await callback.answer(f"Вы установили {value}⭐!")
+#     if not lessons:
+#         text = f"📅 {day_name}\n\nЗанятий нет 🎉"
+#     else:
+#         parts = [f"📅 {day_name}\n"]
+#         for i, lesson in enumerate(lessons, 1):
+#             parts.append(
+#                 f"<b>{lesson['lessonNumber']}. {lesson['subject']}</b> ({lesson['subjectShort'] or ''})\n"
+#                 f"🕒 {lesson['startTime']} – {lesson['endTime']}\n"
+#                 f"👨‍🏫 {lesson['teachers'] or '-'}\n"
+#                 f"🏫 {lesson['classrooms'] or '-'}\n"
+#                 f"👥 {lesson['groups'] or '-'}\n"
+#             )
+#         text = "\n".join(parts)
 
-# @dp.callback_query(lambda c: c.data.startswith("rate:"))
-# async def rate_teacher(callback: types.CallbackQuery):
-#     data = callback.data.split(":")  # ["rate", "Имя", "звезды"]
-#     name = data[1]
-#     value = int(data[2])
-#     avg, count = db.add_teacher_rating(name, value)
 #     await callback.message.edit_text(
-#         f"Преподаватель: {name}\n⭐ Рейтинг: {avg:.2f}/5\nКоличество оценок: {count}",
-#         reply_markup=get_teacher_rating_keyboard(name)
+#         text,
+#         reply_markup=get_days_keyboard(),
+#         parse_mode="HTML"
 #     )
+#     await callback.answer()
 
-#     await callback.answer(f"Вы установили {new_rating}⭐!")
 
-# @dp.callback_query(lambda c: c.data.startswith("rate:"))
-# async def rate_teacher(callback: types.CallbackQuery):
-#     data = callback.data.split(":")  # ["rate", "Имя", "звезды"]
-#     name = data[1]
-#     value = int(data[2])
-#     new_rating = db.add_teacher_rating(name, value)
-
-#     text = f"Преподаватель: {name}\n⭐ Рейтинг: {new_rating}/5"
-#     keyboard = get_teacher_rating_keyboard(name)
-
-#     if callback.message:  # обычное сообщение в чате
-#         await callback.message.edit_text(text, reply_markup=keyboard)
-#     elif callback.inline_message_id:  # inline-сообщение
-#         await EditMessageText(
-#             text=text,
-#             inline_message_id=callback.inline_message_id,
-#             reply_markup=keyboard,
-#             parse_mode="HTML"
-#         ).send(callback.bot)
-
-#     await callback.answer(f"Вы установили {new_rating}⭐!")
-
-@dp.callback_query(F.data.startswith("day:"))
+@dp.callback_query(F.data.startswith("day:"))  # Получение расписания на определенный день недели и его форматирование
 async def day_schedule(callback: types.CallbackQuery):
-    code = callback.data.split(":")[1]   # MONDAY, TUESDAY ...
-    day_name = days_map[code]
+    code = callback.data.split(":")[1]   # 'MONDAY', 'TUESDAY', ...
+    days_map = {
+        "MONDAY": "Понедельник",
+        "TUESDAY": "Вторник",
+        "WEDNESDAY": "Среда",
+        "THURSDAY": "Четверг",
+        "FRIDAY": "Пятница",
+        "SATURDAY": "Суббота",
+        "SUNDAY": "Воскресенье",
+    }
+    day_name = days_map.get(code, code)
+
     try:
-        if not await db.get_group(callback.from_user.id):
+        user_group = await db.get_group(callback.from_user.id)
+        if not user_group:
             await callback.message.edit_text(
                 "Сначала выберите группу, используя команду /start",
                 reply_markup=get_inline_keyboard_select()
@@ -234,22 +246,52 @@ async def day_schedule(callback: types.CallbackQuery):
         )
         await callback.answer()
         return
-    
-    schedule = get_human_readable_schedule(await fetch_schedule(await db.get_group(callback.from_user.id)))  
-    lessons = schedule[day_name]
+
+    # Получаем расписание на ТЕКУЩУЮ неделю (функция уже фильтрует по startDate этой недели и добавляет date/weekType)
+    raw = await fetch_schedule_cached(user_group)
+    schedule = get_human_readable_schedule(raw)
+    lessons = schedule.get(day_name, [])
     logger.info(f"Fetched schedule for user {callback.from_user.id} for {day_name}")
 
-    if not lessons:
-        text = f"📅 {day_name}\n\nЗанятий нет 🎉"
+    # Определим дату выбранного дня и чётность недели для заголовка
+    # (берём из первой пары; если пар нет — вычислим дату этого дня недели от сегодняшнего понедельника)
+    from datetime import date, timedelta
+    if lessons:
+        day_date_iso = lessons[0].get("date")  # 'YYYY-MM-DD'
+        week_type = lessons[0].get("weekType") or "-"
     else:
-        parts = [f"📅 {day_name}\n"]
+        today = date.today()
+        monday = today - timedelta(days=today.weekday())
+        shift = ["MONDAY","TUESDAY","WEDNESDAY","THURSDAY","FRIDAY","SATURDAY","SUNDAY"].index(code)
+        day_date_iso = (monday + timedelta(days=shift)).isoformat()
+        week_type = "EVEN" if today.isocalendar().week % 2 == 0 else "ODD"
+
+    # Красивое отображение даты
+    try:
+        from datetime import datetime as _dt
+        day_date_str = _dt.fromisoformat(day_date_iso).strftime("%d.%m.%Y")
+    except Exception:
+        day_date_str = day_date_iso
+
+    # Вспомогатель для времени
+    def t(v: str | None) -> str:
+        # ожидаем 'HH:MM:SS' или 'HH:MM'
+        if not v:
+            return "-"
+        return v[:5]  # 'HH:MM'
+
+    if not lessons:
+        text = f"📅 {day_name}, {day_date_str}  •  Неделя: <b>{week_type}</b>\n\nЗанятий нет 🎉"
+    else:
+        parts = [f"📅 {day_name}, {day_date_str}  •  Неделя: <b>{week_type}</b>\n"]
         for i, lesson in enumerate(lessons, 1):
             parts.append(
-                f"<b>{lesson['lessonNumber']}. {lesson['subject']}</b> ({lesson['subjectShort'] or ''})\n"
-                f"🕒 {lesson['startTime']} – {lesson['endTime']}\n"
-                f"👨‍🏫 {lesson['teachers'] or '-'}\n"
-                f"🏫 {lesson['classrooms'] or '-'}\n"
-                f"👥 {lesson['groups'] or '-'}\n"
+                f"<b>{lesson.get('lessonNumber')}. {lesson.get('subject') or '—'}</b>"
+                f" ({lesson.get('subjectShort') or ''})\n"
+                f"🕒 {t(lesson.get('startTime'))} – {t(lesson.get('endTime'))}\n"
+                f"👨‍🏫 {lesson.get('teachers') or '-'}\n"
+                f"🏫 {lesson.get('classrooms') or '-'}\n"
+                f"👥 {lesson.get('groups') or '-'}\n"
             )
         text = "\n".join(parts)
 
@@ -262,13 +304,15 @@ async def day_schedule(callback: types.CallbackQuery):
 
 
 
+
 async def main():
     logger.info("Bot is starting polling...")
     bot = Bot(
         token=TOKEN,
         properties=DefaultBotProperties(parse_mode=ParseMode.HTML),
     )
-    await db.init()  # Инициализируем пул соединений с БД
+    await db.init()
+    await cache.init()  # Инициализируем пул соединений с БД
 
     await dp.start_polling(bot)
 

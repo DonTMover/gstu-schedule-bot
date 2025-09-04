@@ -5,6 +5,9 @@ from psycopg2.extras import execute_values
 from dotenv import load_dotenv
 from pathlib import Path
 
+# Хрень сгенереная чатом гпт, работает и слава богу
+
+
 # --- Загрузка переменных окружения ---
 load_dotenv("app/.env")
 DATABASE_URL = os.getenv("DATABASE_URL")

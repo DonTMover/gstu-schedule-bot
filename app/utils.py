@@ -9,7 +9,7 @@ import hashlib
 
 from db import db
 
-days_map = {
+days_map = { # дни
     "MONDAY": "Понедельник",
     "TUESDAY": "Вторник",
     "WEDNESDAY": "Среда",
@@ -47,11 +47,14 @@ def get_days_keyboard() -> InlineKeyboardMarkup:
         [
             InlineKeyboardButton(text="Пятница", callback_data="day:FRIDAY"),
             InlineKeyboardButton(text="Суббота", callback_data="day:SATURDAY")
+        ],
+        [
+            InlineKeyboardButton(text="Вернуться", callback_data="comeback")
         ]
     ]
     return InlineKeyboardMarkup(inline_keyboard=buttons)
 
-def handle_group_search(query: str):
+def handle_group_search(query: str): # Ищем группу по первым буквам
     results = []
     if query:
         for key, value in groups.items():
@@ -83,7 +86,7 @@ def handle_group_search(query: str):
         )
     return results
 
-async def handle_teacher_inline_search(query: str) -> list[InlineQueryResultArticle]:
+async def handle_teacher_inline_search(query: str) -> list[InlineQueryResultArticle]: #Перехватываем поиск преподавателей и отдаем первые 50 совпадений
     results = []
     search = query.strip().lower()
     if not search:
@@ -91,8 +94,7 @@ async def handle_teacher_inline_search(query: str) -> list[InlineQueryResultArti
 
     logger.info(f"Searching teachers for query: {search}")
 
-    # Поиск преподавателей через новую функцию db.search_teachers
-    matched_teachers = await db.search_teachers(search)  # вернёт список dict с full_name, slug, hash
+    matched_teachers = await db.search_teachers(search)  
 
     for teacher in matched_teachers:
         name = teacher["full_name"]
@@ -133,11 +135,9 @@ async def handle_teacher_inline_search(query: str) -> list[InlineQueryResultArti
 
 
 
-# Получаем клавиатуру для оценки преподавателя
-async def get_teacher_rating_keyboard(name: str) -> InlineKeyboardMarkup:
+async def get_teacher_rating_keyboard(name: str) -> InlineKeyboardMarkup: 
     """
-    Клавиатура для выбора рейтинга преподавателя от 0 до 5 звезд.
-    Использует хеш из teachers.json для callback_data, чтобы избежать BUTTON_DATA_INVALID.
+    Клавиатура для выбора рейтинга преподавателя от 0 до 5 звезд..
     """
     teachers = await db.search_teachers(name)
     if not teachers:
@@ -148,7 +148,7 @@ async def get_teacher_rating_keyboard(name: str) -> InlineKeyboardMarkup:
         short_hash = teacher.get("hash", hashlib.md5(name.encode()).hexdigest())
 
     buttons = []
-    for i in range(6):  # 0,1,2,3,4,5
+    for i in range(6):  # 0,1,2,3,4,5 звезд
         stars = "⭐" * i if i > 0 else "0️⃣"
         buttons.append(InlineKeyboardButton(
             text=stars,

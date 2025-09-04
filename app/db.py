@@ -6,7 +6,7 @@ from typing import Optional, Tuple, List, Dict
 load_dotenv("app/.env")
 DATABASE_URL = os.getenv("DATABASE_URL")
 
-class Database:
+class Database: # Класс бд для работы с студентами и преподавателями и их оцценками
     def __init__(self):
         self.pool = None
 
