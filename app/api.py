@@ -5,7 +5,8 @@ from groupes import groups
 import uuid
 from cache import cache
 import random
-from proxies import get_random_proxy
+from os import getenv
+from dotenv import load_dotenv
 
 BASE_URL = "https://sc.gstu.by/api/schedules/group"
 
@@ -39,10 +40,11 @@ async def fetch_schedule(group_name: str) -> dict: # тут запрашивае
     headers["Cookie"] = f"_tid={tid}"
     headers["Referer"] = f"https://sc.gstu.by/group/{groups[group_name]}"
 
+    load_dotenv()
     async with aiohttp.ClientSession(headers=headers) as session:
         async with session.get(f"{BASE_URL}/{groups[group_name]}", 
                                timeout=15,
-                               proxy=get_random_proxy() # get proxy from file
+                                proxy=getenv('PROXY') # get proxy from env
                                ) as resp:
             resp.raise_for_status()
             return await resp.json()

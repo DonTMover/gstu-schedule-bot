@@ -9,7 +9,7 @@ services:
       - app/.env
     volumes:
       - ./bot.log:/app/bot.log # логи наружу
-      - ./proxies.txt:/app/proxies.txt # проксю парсим тоже снаружи
+      # - ./proxies.txt:/app/proxies.txt # проксю парсим тоже снаружи
     depends_on:
       postgres:
         condition: service_healthy # жива ли бд
@@ -48,6 +48,8 @@ services:
     restart: always
     ports:
       - "6379:6379" # аналогично тому что выше
+    volumes:
+      - redis_data:/data
     healthcheck: # проверяем на живость
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s
@@ -58,6 +60,7 @@ services:
 
 volumes:
   postgres_data:
+  redis_data:
 
 
 networks: # Сеть прокладываем как настоящие инжинеры
