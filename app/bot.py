@@ -22,7 +22,7 @@ from aiogram.types import InlineQuery
 from aiogram.methods import EditMessageText
 
 # from packages
-from utils import (get_inline_keyboard_select, get_days_keyboard, days_map,
+from utils import (get_inline_keyboard_select, get_days_keyboard, get_inline_keyboard_disclaimer,
                    handle_group_search, handle_teacher_inline_search,get_teacher_rating_keyboard)
 from api import get_human_readable_schedule, fetch_schedule_cached
 from db import db
@@ -41,8 +41,8 @@ logger.add("bot.log", rotation="10 MB", retention="30 days", level="INFO")
 async def start(message: Message):
     logger.info(f"User {message.from_user.id} started bot")
     await message.answer(
-        text="Привет, выбери группу, чтобы получить расписание.",
-        reply_markup=get_inline_keyboard_select()
+        text="Привет, сначала прочти дисклеймер. \n\nЭтот бот не является официальным приложением ГГТУ и не связан с университетом. \n\nАвтор не несет ответственности за возможные ошибки в расписании. \n\nИспользуя этот бот, вы соглашаетесь с тем, что вся информация предоставляется 'как есть' без каких-либо гарантий. \n\nЕсли вы не согласны с этими условиями, пожалуйста, не используйте этот бот.",
+        reply_markup=get_inline_keyboard_disclaimer()
     )
 
 @dp.message() # Главный обработчик который распределяет все
@@ -104,7 +104,13 @@ async def process_search(callback_query):
     await callback_query.message.answer("Please enter the group code (e.g., АП-11):")
     await callback_query.answer()
     
-
+@dp.callback_query(lambda c: c.data == "disclaimer:accept") # Обработка принятия дисклеймера
+async def process_disclaimer(callback_query: types.CallbackQuery):
+    await callback_query.message.edit_text(
+        text="Спасибо за принятие условий. Теперь вы можете выбрать группу.",
+        reply_markup=get_inline_keyboard_select()
+    )
+    await callback_query.answer("Вы приняли условия.")
 
 # @dp.message(Command("schedule"))
 # async def schedule_cmd(message: types.Message):
@@ -166,6 +172,8 @@ async def comeback(callback: types.CallbackQuery):
         reply_markup=get_inline_keyboard_select()
     )
     await callback.answer()
+
+
 
 
 # @dp.callback_query(F.data.startswith("day:")) # Получение расписания на определенный день недели и его форматирование
