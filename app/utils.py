@@ -34,12 +34,16 @@ def get_inline_keyboard_select() -> InlineKeyboardMarkup:
         text="Поиск группы",
         switch_inline_query_current_chat="group:",
     )
+    select_teacher_for_schedule = InlineKeyboardButton(
+        text="Поиск расписания преподавателя",
+        switch_inline_query_current_chat="teacher_schedule:",
+    )
     select_teacher_button = InlineKeyboardButton(
         text="Рейтинг преподавателей",
         switch_inline_query_current_chat="teacher:",
     )
     keyboard = InlineKeyboardMarkup(
-        inline_keyboard=[[select_group_button], [select_teacher_button]]
+        inline_keyboard=[[select_group_button], [select_teacher_button], [select_teacher_for_schedule]]
     )
     return keyboard
 

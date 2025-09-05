@@ -67,6 +67,24 @@ async def fetch_schedule_cached(group_name: str) -> dict: # Снаачало п�
         raise 
 
 
+async def fetch_teacher_schedule(teacher_name: str) -> dict: # Запрос расписания преподавателя
+    pass
+
+async def get_teacher_schedule_cached(teacher_name: str) -> dict: # кеш для расписания преподавателя
+    pass
+    key = f"teacher_schedule:{teacher_name}"
+    data = await cache.get_json(key)
+    if data:
+        return data
+    try:
+        fresh = await fetch_teacher_schedule(teacher_name)
+        await cache.set_json(key, fresh, expire=60 * 60 * 24 * 2) 
+        return fresh
+    except HTTPStatusError as e:
+        if data and e.responce.status_code == 403:
+            return data
+        raise
+
 def get_headers(): # Рандомизируем хедерсы
     return {
         "User-Agent": random.choice(USER_AGENTS),

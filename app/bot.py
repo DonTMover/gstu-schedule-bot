@@ -23,8 +23,8 @@ from aiogram.methods import EditMessageText
 
 # from packages
 from utils import (get_inline_keyboard_select, get_days_keyboard, get_inline_keyboard_disclaimer,
-                   handle_group_search, handle_teacher_inline_search,get_teacher_rating_keyboard)
-from api import get_human_readable_schedule, fetch_schedule_cached
+                   handle_group_search, handle_teacher_inline_search,get_teacher_rating_keyboard, handle_teacher_inline_search_names)
+from api import get_human_readable_schedule, fetch_schedule_cached, get_teacher_schedule_cached
 from db import db
 from cache import cache
 
@@ -40,63 +40,90 @@ logger.add("bot.log", rotation="10 MB", retention="30 days", level="INFO")
 @dp.message(CommandStart()) # Обрабатываем старт бота и записываем чела в группу
 async def start(message: Message):
     logger.info(f"User {message.from_user.id} started bot")
-    await message.answer(
+    await message.answer( # TODO: добавить в дикслеймер еще ссылку на гитхаб
         text="Привет, сначала прочти дисклеймер. \n\nЭтот бот не является официальным приложением ГГТУ и не связан с университетом. \n\nАвтор не несет ответственности за возможные ошибки в расписании. \n\nИспользуя этот бот, вы соглашаетесь с тем, что вся информация предоставляется 'как есть' без каких-либо гарантий. \n\nЕсли вы не согласны с этими условиями, пожалуйста, не используйте этот бот.",
         reply_markup=get_inline_keyboard_disclaimer()
     )
 
-@dp.message() # Главный обработчик который распределяет все
+@dp.message()  # Главный обработчик который распределяет все
 async def handler(message: Message):
     text = message.text.strip()
     logger.info(f"Received message: {text} from user {message.from_user.id}")
 
-    # test
-    if(text.lower() == "/test_get_id"):
+    # тестовая команда
+    if text.lower() == "/test_get_id":
         await message.answer(f"Ваш ID: {message.from_user.id}")
         return
 
-
-    match = re.search(r"Вы выбрали группу: (\S+)", text)
-    logger.info(f"Regex match for group: {match}")
-    if match:
-        group_code = match.group(1)
-        
+    # 1. ГРУППЫ
+    match_group = re.search(r"Вы выбрали группу: (\S+)", text)
+    logger.info(f"Regex match for group: {match_group}")
+    if match_group:
+        group_code = match_group.group(1)
 
         await db.set_group(message.from_user.id, group_code)
         logger.info(f"Database updated for user {message.from_user.id} with group {group_code}")
-        logger.info(f"Set group {group_code} for user {message.from_user.id}")
 
         if group_code in groups:
             logger.info(f"User {message.from_user.id} selected valid group {group_code}")
             await message.answer(
-                text="Выберете день недели, чтобы увидеть расписание.",
+                text="Выберите день недели, чтобы увидеть расписание.",
                 reply_markup=get_days_keyboard()
             )
-    match_teacher = re.search(
-    r"Преподаватель: (.+)\n⭐\s*Рейтинг: ([0-5](?:\.[0-9]{1,2})?)/5",
-    text
-    )
+        return
 
-    if match_teacher:
-        fullname = match_teacher.group(1)
-        current_rating = match_teacher.group(2)
+    # 2. РЕЙТИНГ ПРЕПОДАВАТЕЛЕЙ
+    match_teacher_rating = re.search(
+        r"Преподаватель: (.+)\n⭐\s*Рейтинг: ([0-5](?:\.[0-9]{1,2})?)/5",
+        text
+    )
+    if match_teacher_rating:
+        fullname = match_teacher_rating.group(1)
+        current_rating = match_teacher_rating.group(2)
         logger.info(f"User {message.from_user.id} viewing teacher {fullname} with rating {current_rating}")
-        # Отправляем сообщение с клавиатурой для оценки
-        logger.info(f"Sending rating keyboard for {fullname} to user {message.from_user.id}")
-        if (await db.user_exists(message.from_user.id)):
+
+        if await db.user_exists(message.from_user.id):
             await db.ensure_user(message.from_user.id)
-            logger.info(f"Ensured user {message.from_user.id} exists in database")
             await message.answer(
                 text=f"Преподаватель: {fullname}\n⭐ Текущий рейтинг: {current_rating}/5",
-             reply_markup=await get_teacher_rating_keyboard(fullname)
+                reply_markup=await get_teacher_rating_keyboard(fullname)
             )
-            return
         else:
             await message.answer(
                 text="Сначала выберите группу, используя команду /start",
                 reply_markup=get_inline_keyboard_select()
             )
-            return
+        return
+
+    # 3. РАСПИСАНИЕ ПРЕПОДАВАТЕЛЕЙ
+    match_teacher_schedule = re.search(
+        r"Преподаватель: (.+)$",  # только ФИО
+        text
+    )
+    if match_teacher_schedule:
+        fullname = match_teacher_schedule.group(1)
+        logger.info(f"User {message.from_user.id} selected teacher {fullname} to view schedule")
+
+        if await db.user_exists(message.from_user.id):
+            await db.ensure_user(message.from_user.id)
+
+            # заглушка под будущую функцию
+            try:
+                teacher_schedule = await get_teacher_schedule_cached(fullname)  # TODO: реализовать позже
+            except NameError:
+                teacher_schedule = "📅 Расписание пока недоступно."
+
+            await message.answer(
+                text=f"Преподаватель: {fullname}\n\n{teacher_schedule}",
+                parse_mode="HTML"
+            )
+        else:
+            await message.answer(
+                text="Сначала выберите группу, используя команду /start",
+                reply_markup=get_inline_keyboard_select()
+            )
+        return
+
 
 
 @dp.callback_query(lambda c: c.data == "search") # Для InlineSearch поиска группы
@@ -133,6 +160,9 @@ async def inline_handler(inline_query: types.InlineQuery):
 
     elif query.startswith("group:"):
         results = handle_group_search(query.replace("group:", "").strip())
+
+    elif query.startswith("teacher_schedule:"):
+        results = await handle_teacher_inline_search_names(query.replace("teacher_schedule:", "").strip())
 
     await inline_query.answer(results, cache_time=1)
 
