@@ -48,7 +48,7 @@ def get_inline_keyboard_select() -> InlineKeyboardMarkup:
     return keyboard
 
 
-def get_days_keyboard() -> InlineKeyboardMarkup:
+def get_days_students_keyboard() -> InlineKeyboardMarkup:
     buttons = [
         [
             InlineKeyboardButton(text="Понедельник", callback_data="day:MONDAY"),
@@ -67,6 +67,27 @@ def get_days_keyboard() -> InlineKeyboardMarkup:
         ]
     ]
     return InlineKeyboardMarkup(inline_keyboard=buttons)
+
+def get_days_teacher_keyboard() -> InlineKeyboardMarkup:
+    buttons = [
+        [
+            InlineKeyboardButton(text="Понедельник", callback_data="day:MONDAY"),
+            InlineKeyboardButton(text="Вторник", callback_data="day:TUESDAY")
+        ],
+        [
+            InlineKeyboardButton(text="Среда", callback_data="day:WEDNESDAY"),
+            InlineKeyboardButton(text="Четверг", callback_data="day:THURSDAY")
+        ],
+        [
+            InlineKeyboardButton(text="Пятница", callback_data="day:FRIDAY"),
+            InlineKeyboardButton(text="Суббота", callback_data="day:SATURDAY")
+        ],
+        [
+            InlineKeyboardButton(text="Вернуться", callback_data="comeback")
+        ]
+    ]
+    return InlineKeyboardMarkup(inline_keyboard=buttons)
+
 
 def handle_group_search(query: str): # Ищем группу по первым буквам
     results = []
@@ -217,3 +238,181 @@ async def get_teacher_rating_keyboard(name: str) -> InlineKeyboardMarkup:
     # Разбиваем на ряды по 3 кнопки
     keyboard = [buttons[i:i+3] for i in range(0, len(buttons), 3)]
     return InlineKeyboardMarkup(inline_keyboard=keyboard)
+
+
+def get_human_readable_schedule(data):
+    days_map = {
+        "MONDAY": "Понедельник",
+        "TUESDAY": "Вторник",
+        "WEDNESDAY": "Среда",
+        "THURSDAY": "Четверг",
+        "FRIDAY": "Пятница",
+        "SATURDAY": "Суббота"
+    }
+
+    today = date.today()
+
+    # Границы текущей недели
+    monday = today - timedelta(days=today.weekday())
+    sunday = monday + timedelta(days=6)
+
+    # Даты этой недели по ключу dayOfWeek
+    week_day_dates = {
+        "MONDAY": monday,
+        "TUESDAY": monday + timedelta(days=1),
+        "WEDNESDAY": monday + timedelta(days=2),
+        "THURSDAY": monday + timedelta(days=3),
+        "FRIDAY": monday + timedelta(days=4),
+        "SATURDAY": monday + timedelta(days=5),
+        "SUNDAY": monday + timedelta(days=6),
+    }
+
+    # Чётность недели
+    week_type = "EVEN" if today.isocalendar().week % 2 == 0 else "ODD"
+
+    schedule_by_day = {name: [] for name in days_map.values()}
+
+    for item in data.get('data', {}).get('scheduleItems', []):
+        day_key = item.get('dayOfWeek')
+        day_ru = days_map.get(day_key)
+        if not day_ru:
+            continue
+
+        # проверяем, что startDate в пределах текущей недели
+        start_date_str = item.get('startDate')
+        if not start_date_str:
+            continue
+        try:
+            start_date = datetime.strptime(start_date_str, "%Y-%m-%d").date()
+        except ValueError:
+            continue
+
+        if not (monday <= start_date <= sunday):
+            continue
+
+        lesson_date = week_day_dates.get(day_key)
+        if not lesson_date:
+            continue
+
+        subject = item.get('subject', {})
+        lesson = {
+            "lessonNumber": item.get('lessonNumber'),
+            "startTime": item.get('startTime'),
+            "endTime": item.get('endTime'),
+            "startDate": start_date_str,
+            "date": lesson_date.isoformat(),
+            "weekType": week_type,
+            "subject": subject.get('name'),
+            "subjectShort": subject.get('shortName'),
+            "teachers": ", ".join(t.get('fullName') for t in item.get('teachers', []) if t.get('fullName')) or None,
+            "classrooms": ", ".join(c.get('roomNumber') for c in item.get('classrooms', []) if c.get('roomNumber')) or None,
+            "groups": ", ".join(g.get('name') for g in item.get('groups', []) if g.get('name')) or None
+        }
+        schedule_by_day[day_ru].append(lesson)
+
+    # сортировка по времени
+    for lessons in schedule_by_day.values():
+        lessons.sort(key=lambda x: x['startTime'] or "")
+
+    return schedule_by_day
+
+def get_human_readable_teacher_schedule(data):
+    days_map = {
+        "MONDAY": "Понедельник",
+        "TUESDAY": "Вторник",
+        "WEDNESDAY": "Среда",
+        "THURSDAY": "Четверг",
+        "FRIDAY": "Пятница",
+        "SATURDAY": "Суббота"
+    }
+
+    today = date.today()
+    monday = today - timedelta(days=today.weekday())
+    sunday = monday + timedelta(days=6)
+
+    week_day_dates = {
+        "MONDAY": monday,
+        "TUESDAY": monday + timedelta(days=1),
+        "WEDNESDAY": monday + timedelta(days=2),
+        "THURSDAY": monday + timedelta(days=3),
+        "FRIDAY": monday + timedelta(days=4),
+        "SATURDAY": monday + timedelta(days=5),
+        "SUNDAY": monday + timedelta(days=6),
+    }
+
+    week_type = "EVEN" if today.isocalendar().week % 2 == 0 else "ODD"
+
+    schedule_by_day = {name: [] for name in days_map.values()}
+
+    for item in data.get('data', {}).get('scheduleItems', []):
+        day_key = item.get('dayOfWeek')
+        day_ru = days_map.get(day_key)
+        if not day_ru:
+            continue
+
+        start_date_str = item.get('startDate')
+        if not start_date_str:
+            continue
+        try:
+            start_date = datetime.strptime(start_date_str, "%Y-%m-%d").date()
+        except ValueError:
+            continue
+
+        if not (monday <= start_date <= sunday):
+            continue
+
+        lesson_date = week_day_dates.get(day_key)
+        subject = item.get('subject', {})
+
+        lesson = {
+            "lessonNumber": item.get('lessonNumber'),
+            "startTime": item.get('startTime'),
+            "endTime": item.get('endTime'),
+            "startDate": start_date_str,
+            "date": lesson_date.isoformat(),
+            "weekType": week_type,
+            "subject": subject.get('name'),
+            "subjectShort": subject.get('shortName'),
+            "groups": ", ".join(g.get('name') for g in item.get('groups', []) if g.get('name')) or None,
+            "classrooms": ", ".join(c.get('roomNumber') for c in item.get('classrooms', []) if c.get('roomNumber')) or None
+        }
+
+        schedule_by_day[day_ru].append(lesson)
+
+    for lessons in schedule_by_day.values():
+        lessons.sort(key=lambda x: x['startTime'] or "")
+
+    return schedule_by_day
+
+
+def pretty_schedule_str(data: dict) -> str: # Тестовое форматирования для cli режима
+    entity = data.get("data", {}).get("entity", {}) if isinstance(data, dict) else {}
+    items = data.get("data", {}).get("scheduleItems", []) if isinstance(data, dict) else []
+    order = {"MONDAY":0,"TUESDAY":1,"WEDNESDAY":2,"THURSDAY":3,"FRIDAY":4,"SATURDAY":5,"SUNDAY":6}
+    ru = {"MONDAY":"Понедельник","TUESDAY":"Вторник","WEDNESDAY":"Среда",
+          "THURSDAY":"Четверг","FRIDAY":"Пятница","SATURDAY":"Суббота","SUNDAY":"Воскресенье"}
+
+    lines = []
+    lines.append(f"{entity.get('facultyShort','')} — {entity.get('faculty','')}")
+    lines.append(f"Группа: {entity.get('name','—')} | Курс: {entity.get('course','—')}")
+    spec = entity.get('specialty') or {}
+    lines.append(f"Специальность: {spec.get('code','—')} {spec.get('name','—')}")
+    lines.append("="*80)
+
+    by_day = defaultdict(list)
+    for it in items:
+        by_day[it.get("dayOfWeek","UNKNOWN")].append(it)
+
+    for day in sorted(by_day.keys(), key=lambda k: order.get(k, 99)):
+        lines.append(f"\n--- {ru.get(day, day)} ---")
+        for it in sorted(by_day[day], key=lambda x: x.get("startTime","")):
+            st = (it.get("startTime","")[:5] or "??:??")
+            en = (it.get("endTime","")[:5] or "??:??")
+            num = it.get("lessonNumber","-")
+            subj = (it.get("subject") or {}).get("name","—")
+            rooms = ", ".join(c.get("roomNumber","") for c in it.get("classrooms",[])) or "—"
+            teachers = ", ".join(t.get("shortName","") for t in it.get("teachers",[])) or "—"
+            groups = ", ".join(g.get("name","") for g in it.get("groups",[])) or "—"
+            lines.append(f"{st}-{en} | №{num} | {subj} | Группы: {groups} | Каб.: {rooms} | Преп.: {teachers}")
+
+    return "\n".join(lines)

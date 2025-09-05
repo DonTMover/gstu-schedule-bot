@@ -4,7 +4,6 @@ from os import getenv
 
 # other imports
 import re
-from api import get_schedule
 from groupes import groups
 from loguru import logger
 import hashlib
@@ -22,9 +21,10 @@ from aiogram.types import InlineQuery
 from aiogram.methods import EditMessageText
 
 # from packages
-from utils import (get_inline_keyboard_select, get_days_keyboard, get_inline_keyboard_disclaimer,
-                   handle_group_search, handle_teacher_inline_search,get_teacher_rating_keyboard, handle_teacher_inline_search_names)
-from api import get_human_readable_schedule, fetch_schedule_cached, get_teacher_schedule_cached
+from utils import (get_inline_keyboard_select, get_days_students_keyboard, get_inline_keyboard_disclaimer,
+                   handle_group_search, handle_teacher_inline_search,get_teacher_rating_keyboard, 
+                   handle_teacher_inline_search_names, get_human_readable_schedule, get_human_readable_teacher_schedule)
+from api import fetch_schedule_cached, get_teacher_schedule_cached
 from db import db
 from cache import cache
 
@@ -68,7 +68,7 @@ async def handler(message: Message):
             logger.info(f"User {message.from_user.id} selected valid group {group_code}")
             await message.answer(
                 text="Выберите день недели, чтобы увидеть расписание.",
-                reply_markup=get_days_keyboard()
+                reply_markup=get_days_students_keyboard()
             )
         return
 
@@ -138,13 +138,6 @@ async def process_disclaimer(callback_query: types.CallbackQuery):
         reply_markup=get_inline_keyboard_select()
     )
     await callback_query.answer("Вы приняли условия.")
-
-# @dp.message(Command("schedule"))
-# async def schedule_cmd(message: types.Message):
-#     await message.answer(
-#         "Выберите день недели:",
-#         reply_markup=get_days_keyboard()
-#     )
 
 @dp.message(Command("test_get_id")) # тестовая команда попавшая на прод :3
 async def schedule_cmd(message: types.Message):
@@ -287,7 +280,7 @@ async def day_schedule(callback: types.CallbackQuery):
 
     await callback.message.edit_text(
         text,
-        reply_markup=get_days_keyboard(),
+        reply_markup=get_days_students_keyboard(),
         parse_mode="HTML"
     )
     await callback.answer()
