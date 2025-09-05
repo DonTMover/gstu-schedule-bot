@@ -21,10 +21,11 @@ from aiogram.types import InlineQuery
 from aiogram.methods import EditMessageText
 
 # from packages
-from utils import (get_inline_keyboard_select, get_inline_keyboard_disclaimer,get_teacher_rating_keyboard,
-                   handle_group_search, handle_teacher_inline_search, get_days_keyboard,
-                   get_human_readable_schedule, get_human_readable_teacher_schedule,get_subgroup_keyboard)
-from api import fetch_schedule_subgroup_cached, get_teacher_schedule_cached
+from utils import (get_inline_keyboard_select, get_days_students_keyboard, get_inline_keyboard_disclaimer,
+                   handle_group_search, handle_teacher_inline_search,get_teacher_rating_keyboard, 
+                   handle_teacher_inline_search_names, get_human_readable_schedule, get_human_readable_teacher_schedule,
+                   get_days_teacher_keyboard)
+from api import fetch_schedule_cached, get_teacher_schedule_cached
 from db import db
 from cache import cache
 
@@ -75,8 +76,8 @@ async def handler(message: Message):
         if group_code in groups:
             logger.info(f"User {message.from_user.id} selected valid group {group_code}")
             await message.answer(
-                text="Выберите подгруппу чтобы увидеть расписание.",
-                reply_markup=get_subgroup_keyboard()
+                text="Выберите день недели, чтобы увидеть расписание.",
+                reply_markup=get_days_students_keyboard()
             )
         return
 
@@ -133,7 +134,7 @@ async def handler(message: Message):
             # data = get_human_readable_teacher_schedule(teacher_schedule)
             await message.answer(
                 text="Выберите день недели, чтобы увидеть расписание.",
-                reply_markup=get_days_keyboard(for_teacher=True)
+                reply_markup=get_days_teacher_keyboard()
             )
         else:
             await message.answer(
@@ -141,20 +142,6 @@ async def handler(message: Message):
                 reply_markup=get_inline_keyboard_select()
             )
         return
-
-@dp.callback_query(F.data.startswith("subgroup:"))
-async def process_subgroup(callback: types.CallbackQuery):
-    subgroup = int(callback.data.split(":")[1])
-    
-    # сохраняем в БД выбор пользователя
-    await db.set_subgroup(callback.from_user.id, subgroup)
-    logger.info(f"User {callback.from_user.id} selected subgroup {subgroup}")
-
-    await callback.message.edit_text(
-        f"✅ Ваша подгруппа: {subgroup}\nТеперь выберите день недели:",
-        reply_markup=get_days_keyboard(for_teacher=False)
-    )
-    await callback.answer()
 
 
 
@@ -187,7 +174,7 @@ async def inline_handler(inline_query: types.InlineQuery):
         results = handle_group_search(query.replace("group:", "").strip())
 
     elif query.startswith("teacher_schedule:"):
-        results = await handle_teacher_inline_search(query.replace("teacher_schedule:", "").strip(),names_only=True)
+        results = await handle_teacher_inline_search_names(query.replace("teacher_schedule:", "").strip())
 
     await inline_query.answer(results, cache_time=1)
 
@@ -302,7 +289,7 @@ async def teacher_day_schedule(callback: types.CallbackQuery):
 
     await callback.message.edit_text(
         text,
-        reply_markup=get_days_keyboard(for_teacher=True),
+        reply_markup=get_days_teacher_keyboard(),
         parse_mode="HTML"
     )
     await callback.answer()
@@ -344,7 +331,7 @@ async def day_schedule(callback: types.CallbackQuery):
         return
 
     # Получаем расписание на ТЕКУЩУЮ неделю (функция уже фильтрует по startDate этой недели и добавляет date/weekType)
-    raw = await fetch_schedule_subgroup_cached(user_group, subgroup=await db.get_subgroup(callback.from_user.id) or 1)
+    raw = await fetch_schedule_cached(user_group)
     schedule = get_human_readable_schedule(raw)
     lessons = schedule.get(day_name, [])
     logger.info(f"Fetched schedule for user {callback.from_user.id} for {day_name}")
@@ -393,7 +380,7 @@ async def day_schedule(callback: types.CallbackQuery):
 
     await callback.message.edit_text(
         text,
-        reply_markup=get_days_keyboard(for_teacher=False),
+        reply_markup=get_days_students_keyboard(),
         parse_mode="HTML"
     )
     await callback.answer()
