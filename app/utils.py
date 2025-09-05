@@ -9,6 +9,9 @@ import hashlib
 
 from db import db
 
+from datetime import datetime, date, timedelta
+from collections import defaultdict
+
 days_map = { # дни
     "MONDAY": "Понедельник",
     "TUESDAY": "Вторник",

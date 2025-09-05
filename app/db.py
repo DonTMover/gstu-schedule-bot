@@ -124,6 +124,12 @@ class Database: # Класс бд для работы с студентами и
                 hash_id
             )
             return dict(row) if row else None
+        
+    async def get_teacher_by_name(self, fullname: str) -> str | None:
+        async with self.pool.acquire() as conn:
+            row = await conn.fetchrow("SELECT slug FROM teachers WHERE full_name = $1", fullname)
+            return row["slug"] if row else None
+
 
 
 

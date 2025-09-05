@@ -23,7 +23,8 @@ from aiogram.methods import EditMessageText
 # from packages
 from utils import (get_inline_keyboard_select, get_days_students_keyboard, get_inline_keyboard_disclaimer,
                    handle_group_search, handle_teacher_inline_search,get_teacher_rating_keyboard, 
-                   handle_teacher_inline_search_names, get_human_readable_schedule, get_human_readable_teacher_schedule)
+                   handle_teacher_inline_search_names, get_human_readable_schedule, get_human_readable_teacher_schedule,
+                   get_days_teacher_keyboard)
 from api import fetch_schedule_cached, get_teacher_schedule_cached
 from db import db
 from cache import cache
@@ -36,6 +37,8 @@ dp = Dispatcher()
 
 #add logging
 logger.add("bot.log", rotation="10 MB", retention="30 days", level="INFO")
+
+user_teacher = {} # временное хранилище для выбранного преподавателя пользователем
 
 @dp.message(CommandStart()) # Обрабатываем старт бота и записываем чела в группу
 async def start(message: Message):
@@ -101,21 +104,31 @@ async def handler(message: Message):
         text
     )
     if match_teacher_schedule:
+
         fullname = match_teacher_schedule.group(1)
         logger.info(f"User {message.from_user.id} selected teacher {fullname} to view schedule")
+        slug = await db.get_teacher_by_name(fullname)
+        if not slug:
+            await message.answer("Преподаватель не найден в базе.")
+            return
+        
+        user_teacher[message.from_user.id] = {
+        "full_name": fullname,
+        "slug": slug
+        }
 
         if await db.user_exists(message.from_user.id):
             await db.ensure_user(message.from_user.id)
 
-            # заглушка под будущую функцию
-            try:
-                teacher_schedule = await get_teacher_schedule_cached(fullname)  # TODO: реализовать позже
-            except NameError:
-                teacher_schedule = "📅 Расписание пока недоступно."
+            # try:
+            #     teacher_schedule = await get_teacher_schedule_cached(slug)  
+            # except NameError:
+            #     teacher_schedule = "📅 Расписание пока недоступно."
 
+            # data = get_human_readable_teacher_schedule(teacher_schedule)
             await message.answer(
-                text=f"Преподаватель: {fullname}\n\n{teacher_schedule}",
-                parse_mode="HTML"
+                text="Выберите день недели, чтобы увидеть расписание.",
+                reply_markup=get_days_teacher_keyboard()
             )
         else:
             await message.answer(
@@ -195,6 +208,87 @@ async def comeback(callback: types.CallbackQuery):
         reply_markup=get_inline_keyboard_select()
     )
     await callback.answer()
+
+@dp.callback_query(F.data.startswith("teacher_day:"))
+async def teacher_day_schedule(callback: types.CallbackQuery):
+    code = callback.data.split(":")[1]  # 'MONDAY', 'TUESDAY', ...
+    days_map = {
+        "MONDAY": "Понедельник",
+        "TUESDAY": "Вторник",
+        "WEDNESDAY": "Среда",
+        "THURSDAY": "Четверг",
+        "FRIDAY": "Пятница",
+        "SATURDAY": "Суббота",
+    }
+    day_name = days_map.get(code, code)
+
+    # Получаем выбранного пользователем преподавателя из user_teacher
+    teacher_info = user_teacher.get(callback.from_user.id)
+    if not teacher_info:
+        await callback.message.edit_text(
+            "Сначала выберите преподавателя.",
+            reply_markup=get_inline_keyboard_select()
+        )
+        await callback.answer()
+        return
+
+    teacher_slug = teacher_info.get("slug")
+    teacher_fullname = teacher_info.get("full_name")
+
+    try:
+        data = await get_teacher_schedule_cached(teacher_slug)
+        schedule = get_human_readable_teacher_schedule(data)
+        lessons = schedule.get(day_name, [])
+    except Exception as e:
+        logger.error(f"Error fetching schedule for {teacher_fullname}: {e}")
+        await callback.message.edit_text("📅 Расписание пока недоступно.")
+        await callback.answer()
+        return
+
+    # Вспомогатель для времени
+    def t(v: str | None) -> str:
+        if not v:
+            return "-"
+        return v[:5]  # 'HH:MM'
+
+    from datetime import date, timedelta, datetime as _dt
+    if lessons:
+        day_date_iso = lessons[0].get("date")
+        week_type = lessons[0].get("weekType") or "-"
+    else:
+        today = date.today()
+        monday = today - timedelta(days=today.weekday())
+        shift = ["MONDAY","TUESDAY","WEDNESDAY","THURSDAY","FRIDAY","SATURDAY","SUNDAY"].index(code)
+        day_date_iso = (monday + timedelta(days=shift)).isoformat()
+        week_type = "EVEN" if today.isocalendar().week % 2 == 0 else "ODD"
+
+    try:
+        day_date_str = _dt.fromisoformat(day_date_iso).strftime("%d.%m.%Y")
+    except Exception:
+        day_date_str = day_date_iso
+
+    if not lessons:
+        text = f"📅 {day_name}, {day_date_str}  •  Неделя: <b>{week_type}</b>\n\nЗанятий нет 🎉"
+    else:
+        parts = [f"📅 {day_name}, {day_date_str}  •  Неделя: <b>{week_type}</b>\n"]
+        for i, lesson in enumerate(lessons, 1):
+            parts.append(
+                f"<b>{lesson.get('lessonNumber')}. {lesson.get('subject') or '—'}</b>"
+                f" ({lesson.get('subjectShort') or ''})\n"
+                f"🕒 {t(lesson.get('startTime'))} – {t(lesson.get('endTime'))}\n"
+                f"👥 Группы: {lesson.get('groups') or '-'}\n"
+                f"🏫 Кабинет: {lesson.get('classrooms') or '-'}\n"
+            )
+        text = "\n".join(parts)
+
+    await callback.message.edit_text(
+        text,
+        reply_markup=get_days_teacher_keyboard(),
+        parse_mode="HTML"
+    )
+    await callback.answer()
+
+
 
 
 
