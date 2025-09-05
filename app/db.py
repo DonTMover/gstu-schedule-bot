@@ -73,6 +73,7 @@ class Database: # Класс бд для работы с студентами и
             row = await conn.fetchrow("SELECT subgroup FROM users WHERE id = $1", user_id)
             return row["subgroup"] if row else None
 
+
     # --- teachers ---
     async def add_teacher_rating(self, full_name: str, grade: int, user_id: int) -> Tuple[float, int]:
         async with self.pool.acquire() as conn:
