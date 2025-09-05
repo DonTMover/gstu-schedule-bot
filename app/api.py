@@ -11,21 +11,6 @@ from datetime import datetime, date, timedelta
 
 BASE_URL = "https://sc.gstu.by/api/schedules/group"
 
-#OLD HEADERS - remove later
-# COMMON_HEADERS = {
-#     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:142.0) Gecko/20100101 Firefox/142.0",
-#     "Accept": "application/json, text/plain, */*",
-#     "Accept-Language": "ru-RU,ru;q=0.8,en-US;q=0.5,en;q=0.3",
-#     "Accept-Encoding": "gzip, deflate",
-#     "DNT": "1",
-#     "Connection": "keep-alive",
-#     "Sec-Fetch-Dest": "empty",
-#     "Sec-Fetch-Mode": "cors",
-#     "Sec-Fetch-Site": "same-origin",
-#     "Sec-GPC": "1",
-# }
-
-
 USER_AGENTS = [
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:142.0) Gecko/20100101 Firefox/142.0",
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36",
@@ -67,23 +52,33 @@ async def fetch_schedule_cached(group_name: str) -> dict: # Снаачало п�
         raise 
 
 
-async def fetch_teacher_schedule(teacher_name: str) -> dict: # Запрос расписания преподавателя
-    pass
+async def fetch_teacher_schedule(slug: str) -> dict:
+    """Запрос расписания преподавателя напрямую из API ГГТУ."""
+    tid = uuid.uuid4().hex
+    headers = get_headers()
+    headers["X-Id"] = tid
+    headers["Cookie"] = f"_tid={tid}"
+    headers["Referer"] = f"https://sc.gstu.by/teacher/{slug}"
 
-async def get_teacher_schedule_cached(teacher_name: str) -> dict: # кеш для расписания преподавателя
-    pass
-    key = f"teacher_schedule:{teacher_name}"
+    async with aiohttp.ClientSession(headers=headers) as session:
+        async with session.get(f"https://sc.gstu.by/api/schedules/teacher/{slug}",
+                               timeout=15,
+                               proxy=getenv("PROXY")) as resp:
+            resp.raise_for_status()
+            return await resp.json()
+
+
+async def get_teacher_schedule_cached(slug: str) -> dict:
+    """Кэшируем расписание преподавателя."""
+    key = f"teacher_schedule:{slug}"
     data = await cache.get_json(key)
     if data:
         return data
-    try:
-        fresh = await fetch_teacher_schedule(teacher_name)
-        await cache.set_json(key, fresh, expire=60 * 60 * 24 * 2) 
-        return fresh
-    except HTTPStatusError as e:
-        if data and e.responce.status_code == 403:
-            return data
-        raise
+
+    fresh = await fetch_teacher_schedule(slug)
+    if fresh:
+        await cache.set_json(key, fresh, expire=60 * 60 * 24 * 2)  # 2 дня
+    return fresh
 
 def get_headers(): # Рандомизируем хедерсы
     return {
@@ -93,6 +88,7 @@ def get_headers(): # Рандомизируем хедерсы
         "Connection": "keep-alive",
     }
 
+# TODO: Перенести методы которые не относятся к запросам к API в utils
 def get_human_readable_schedule(data):
     days_map = {
         "MONDAY": "Понедельник",
@@ -169,39 +165,74 @@ def get_human_readable_schedule(data):
 
     return schedule_by_day
 
-# def get_human_readable_schedule(data): #Форматирование расписания под более читаемый вариант
-#     days_map = {
-#         "MONDAY": "Понедельник",
-#         "TUESDAY": "Вторник",
-#         "WEDNESDAY": "Среда",
-#         "THURSDAY": "Четверг",
-#         "FRIDAY": "Пятница",
-#         "SATURDAY": "Суббота"
-#     }
-    
-#     schedule_by_day = {name: [] for name in days_map.values()}
-    
-#     for item in data['data']['scheduleItems']:
-#         day = days_map.get(item['dayOfWeek'])
-#         if day:
-#             lesson = {
-#                 "lessonNumber": item['lessonNumber'],
-#                 "startTime": item['startTime'],
-#                 "endTime": item['endTime'],
-#                 "startDate": item['startDate'],
-#                 "subject": item['subject']['name'],
-#                 "subjectShort": item['subject'].get('shortName'),
-#                 "teachers": ", ".join(t['fullName'] for t in item.get('teachers', [])) or None,
-#                 "classrooms": ", ".join(c['roomNumber'] for c in item.get('classrooms', [])) or None,
-#                 "groups": ", ".join(g['name'] for g in item.get('groups', [])) or None
-#             }
-#             schedule_by_day[day].append(lesson)
-    
-#     # сортировка по времени
-#     for lessons in schedule_by_day.values():
-#         lessons.sort(key=lambda x: x['startTime'])
-    
-#     return schedule_by_day
+def get_human_readable_teacher_schedule(data):
+    days_map = {
+        "MONDAY": "Понедельник",
+        "TUESDAY": "Вторник",
+        "WEDNESDAY": "Среда",
+        "THURSDAY": "Четверг",
+        "FRIDAY": "Пятница",
+        "SATURDAY": "Суббота"
+    }
+
+    today = date.today()
+    monday = today - timedelta(days=today.weekday())
+    sunday = monday + timedelta(days=6)
+
+    week_day_dates = {
+        "MONDAY": monday,
+        "TUESDAY": monday + timedelta(days=1),
+        "WEDNESDAY": monday + timedelta(days=2),
+        "THURSDAY": monday + timedelta(days=3),
+        "FRIDAY": monday + timedelta(days=4),
+        "SATURDAY": monday + timedelta(days=5),
+        "SUNDAY": monday + timedelta(days=6),
+    }
+
+    week_type = "EVEN" if today.isocalendar().week % 2 == 0 else "ODD"
+
+    schedule_by_day = {name: [] for name in days_map.values()}
+
+    for item in data.get('data', {}).get('scheduleItems', []):
+        day_key = item.get('dayOfWeek')
+        day_ru = days_map.get(day_key)
+        if not day_ru:
+            continue
+
+        start_date_str = item.get('startDate')
+        if not start_date_str:
+            continue
+        try:
+            start_date = datetime.strptime(start_date_str, "%Y-%m-%d").date()
+        except ValueError:
+            continue
+
+        if not (monday <= start_date <= sunday):
+            continue
+
+        lesson_date = week_day_dates.get(day_key)
+        subject = item.get('subject', {})
+
+        lesson = {
+            "lessonNumber": item.get('lessonNumber'),
+            "startTime": item.get('startTime'),
+            "endTime": item.get('endTime'),
+            "startDate": start_date_str,
+            "date": lesson_date.isoformat(),
+            "weekType": week_type,
+            "subject": subject.get('name'),
+            "subjectShort": subject.get('shortName'),
+            "groups": ", ".join(g.get('name') for g in item.get('groups', []) if g.get('name')) or None,
+            "classrooms": ", ".join(c.get('roomNumber') for c in item.get('classrooms', []) if c.get('roomNumber')) or None
+        }
+
+        schedule_by_day[day_ru].append(lesson)
+
+    for lessons in schedule_by_day.values():
+        lessons.sort(key=lambda x: x['startTime'] or "")
+
+    return schedule_by_day
+
 
 def pretty_schedule_str(data: dict) -> str: # Тестовое форматирования для cli режима
     entity = data.get("data", {}).get("entity", {}) if isinstance(data, dict) else {}

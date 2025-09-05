@@ -205,54 +205,6 @@ async def comeback(callback: types.CallbackQuery):
 
 
 
-
-# @dp.callback_query(F.data.startswith("day:")) # Получение расписания на определенный день недели и его форматирование
-# async def day_schedule(callback: types.CallbackQuery):
-#     code = callback.data.split(":")[1]   # MONDAY, TUESDAY ...
-#     day_name = days_map[code]
-#     try:
-#         if not await db.get_group(callback.from_user.id):
-#             await callback.message.edit_text(
-#                 "Сначала выберите группу, используя команду /start",
-#                 reply_markup=get_inline_keyboard_select()
-#             )
-#             await callback.answer()
-#             return
-#     except Exception as e:
-#         logger.error(f"Error fetching group for user {callback.from_user.id}: {e}")
-#         await callback.message.edit_text(
-#             "Произошла ошибка при получении вашей группы. Пожалуйста, попробуйте снова.",
-#             reply_markup=get_inline_keyboard_select()
-#         )
-#         await callback.answer()
-#         return
-    
-#     schedule = get_human_readable_schedule(await fetch_schedule_cached(await db.get_group(callback.from_user.id)))  
-#     lessons = schedule[day_name]
-#     logger.info(f"Fetched schedule for user {callback.from_user.id} for {day_name}")
-
-#     if not lessons:
-#         text = f"📅 {day_name}\n\nЗанятий нет 🎉"
-#     else:
-#         parts = [f"📅 {day_name}\n"]
-#         for i, lesson in enumerate(lessons, 1):
-#             parts.append(
-#                 f"<b>{lesson['lessonNumber']}. {lesson['subject']}</b> ({lesson['subjectShort'] or ''})\n"
-#                 f"🕒 {lesson['startTime']} – {lesson['endTime']}\n"
-#                 f"👨‍🏫 {lesson['teachers'] or '-'}\n"
-#                 f"🏫 {lesson['classrooms'] or '-'}\n"
-#                 f"👥 {lesson['groups'] or '-'}\n"
-#             )
-#         text = "\n".join(parts)
-
-#     await callback.message.edit_text(
-#         text,
-#         reply_markup=get_days_keyboard(),
-#         parse_mode="HTML"
-#     )
-#     await callback.answer()
-
-
 @dp.callback_query(F.data.startswith("day:"))  # Получение расписания на определенный день недели и его форматирование
 async def day_schedule(callback: types.CallbackQuery):
     code = callback.data.split(":")[1]   # 'MONDAY', 'TUESDAY', ...
