@@ -95,6 +95,31 @@ def get_days_teacher_keyboard() -> InlineKeyboardMarkup:
     ]
     return InlineKeyboardMarkup(inline_keyboard=buttons)
 
+async def get_teacher_rating_keyboard(name: str) -> InlineKeyboardMarkup: 
+    """
+    Клавиатура для выбора рейтинга преподавателя от 0 до 5 звезд..
+    """
+    teachers = await db.search_teachers(name)
+    if not teachers:
+        # fallback, если нет такого преподавателя
+        short_hash = hashlib.md5(name.encode()).hexdigest()
+    else:
+        teacher = teachers[0]  # берем первый результат
+        short_hash = teacher.get("hash", hashlib.md5(name.encode()).hexdigest())
+
+    buttons = []
+    for i in range(6):  # 0,1,2,3,4,5 звезд
+        stars = "⭐" * i if i > 0 else "0️⃣"
+        buttons.append(InlineKeyboardButton(
+            text=stars,
+            callback_data=f"rate:{short_hash}:{i}"
+        ))
+
+    # Разбиваем на ряды по 3 кнопки
+    keyboard = [buttons[i:i+3] for i in range(0, len(buttons), 3)]
+    return InlineKeyboardMarkup(inline_keyboard=keyboard)
+
+
 
 def handle_group_search(query: str): # Ищем группу по первым буквам
     results = []
