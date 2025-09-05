@@ -71,16 +71,16 @@ def get_days_students_keyboard() -> InlineKeyboardMarkup:
 def get_days_teacher_keyboard() -> InlineKeyboardMarkup:
     buttons = [
         [
-            InlineKeyboardButton(text="Понедельник", callback_data="day:MONDAY"),
-            InlineKeyboardButton(text="Вторник", callback_data="day:TUESDAY")
+            InlineKeyboardButton(text="Понедельник", callback_data="teacher_day:MONDAY"),
+            InlineKeyboardButton(text="Вторник", callback_data="teacher_day:TUESDAY")
         ],
         [
-            InlineKeyboardButton(text="Среда", callback_data="day:WEDNESDAY"),
-            InlineKeyboardButton(text="Четверг", callback_data="day:THURSDAY")
+            InlineKeyboardButton(text="Среда", callback_data="teacher_day:WEDNESDAY"),
+            InlineKeyboardButton(text="Четверг", callback_data="teacher_day:THURSDAY")
         ],
         [
-            InlineKeyboardButton(text="Пятница", callback_data="day:FRIDAY"),
-            InlineKeyboardButton(text="Суббота", callback_data="day:SATURDAY")
+            InlineKeyboardButton(text="Пятница", callback_data="teacher_day:FRIDAY"),
+            InlineKeyboardButton(text="Суббота", callback_data="teacher_day:SATURDAY")
         ],
         [
             InlineKeyboardButton(text="Вернуться", callback_data="comeback")
