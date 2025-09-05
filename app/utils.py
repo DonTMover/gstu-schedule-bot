@@ -9,7 +9,7 @@ import hashlib
 
 from db import db
 
-days_map = {
+days_map = { # дни
     "MONDAY": "Понедельник",
     "TUESDAY": "Вторник",
     "WEDNESDAY": "Среда",
@@ -17,6 +17,16 @@ days_map = {
     "FRIDAY": "Пятница",
     "SATURDAY": "Суббота"
 }
+
+def get_inline_keyboard_disclaimer() -> InlineKeyboardMarkup:
+    disclaimer_button = InlineKeyboardButton(
+        text="Принять",
+        callback_data="disclaimer:accept"
+    )
+    keyboard = InlineKeyboardMarkup(
+        inline_keyboard=[[disclaimer_button]]
+    )
+    return keyboard
 
 
 def get_inline_keyboard_select() -> InlineKeyboardMarkup:
@@ -47,11 +57,14 @@ def get_days_keyboard() -> InlineKeyboardMarkup:
         [
             InlineKeyboardButton(text="Пятница", callback_data="day:FRIDAY"),
             InlineKeyboardButton(text="Суббота", callback_data="day:SATURDAY")
+        ],
+        [
+            InlineKeyboardButton(text="Вернуться", callback_data="comeback")
         ]
     ]
     return InlineKeyboardMarkup(inline_keyboard=buttons)
 
-def handle_group_search(query: str):
+def handle_group_search(query: str): # Ищем группу по первым буквам
     results = []
     if query:
         for key, value in groups.items():
@@ -83,54 +96,69 @@ def handle_group_search(query: str):
         )
     return results
 
-def handle_teacher_inline_search(query: str) -> list[InlineQueryResultArticle]:
+async def handle_teacher_inline_search(query: str) -> list[InlineQueryResultArticle]: #Перехватываем поиск преподавателей и отдаем первые 50 совпадений
     results = []
-
     search = query.strip().lower()
     if not search:
         return results
-    
-    print("IN UTILS")
-    logger.info("IN UTILS")
 
-    # Найдём совпадения в базе преподавателей
-    matched = [name for name in db.teachers.keys() if search in name.lower()]
+    logger.info(f"Searching teachers for query: {search}")
 
-    for name in matched[:50]:  # ограничиваем 50 результатами
-        avg, count = db.get_teacher_rating(name)
-        avg_str = f"{avg:.2f}"  # среднее с 2 знаками после запятой
-        result_id = hashlib.md5(name.encode()).hexdigest()
+    matched_teachers = await db.search_teachers(search)  
+
+    for teacher in matched_teachers:
+        name = teacher["full_name"]
+        short_hash = teacher.get("hash") or hashlib.md5(name.encode()).hexdigest()
+        avg, count = await db.get_teacher_rating(name)
+        avg_str = f"{avg:.2f}"
+
         input_content = InputTextMessageContent(
             message_text=f"Преподаватель: {name}\n⭐ Рейтинг: {avg_str}/5\nКоличество оценок: {count}"
         )
 
         results.append(
             InlineQueryResultArticle(
-                id=result_id,
+                id=short_hash,
                 title=name,
                 input_message_content=input_content,
                 description=f"Рейтинг: {avg_str}/5, оценок: {count}"
             )
         )
 
+    # fallback, если ничего не найдено
+    if not results:
+        result_id = hashlib.md5(query.encode()).hexdigest()
+        input_content = InputTextMessageContent(
+            message_text="Преподаватель не найден. Пожалуйста, введите корректное имя."
+        )
+        results.append(
+            InlineQueryResultArticle(
+                id=result_id,
+                title="Преподаватель не найден",
+                input_message_content=input_content,
+                description="Нет совпадений"
+            )
+        )
+
     return results
 
 
-# Получаем клавиатуру для оценки преподавателя
-def get_teacher_rating_keyboard(name: str) -> InlineKeyboardMarkup:
+
+
+async def get_teacher_rating_keyboard(name: str) -> InlineKeyboardMarkup: 
     """
-    Клавиатура для выбора рейтинга преподавателя от 0 до 5 звезд.
-    Использует хеш из teachers.json для callback_data, чтобы избежать BUTTON_DATA_INVALID.
+    Клавиатура для выбора рейтинга преподавателя от 0 до 5 звезд..
     """
-    teacher = db.teachers.get(name)
-    if not teacher:
+    teachers = await db.search_teachers(name)
+    if not teachers:
         # fallback, если нет такого преподавателя
         short_hash = hashlib.md5(name.encode()).hexdigest()
     else:
+        teacher = teachers[0]  # берем первый результат
         short_hash = teacher.get("hash", hashlib.md5(name.encode()).hexdigest())
 
     buttons = []
-    for i in range(6):  # 0,1,2,3,4,5
+    for i in range(6):  # 0,1,2,3,4,5 звезд
         stars = "⭐" * i if i > 0 else "0️⃣"
         buttons.append(InlineKeyboardButton(
             text=stars,
