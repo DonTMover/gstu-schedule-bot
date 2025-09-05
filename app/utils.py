@@ -86,6 +86,10 @@ def get_days_teacher_keyboard() -> InlineKeyboardMarkup:
             InlineKeyboardButton(text="Суббота", callback_data="teacher_day:SATURDAY")
         ],
         [
+            InlineKeyboardButton(text="Прошлая неделя <--", callback_data="week:prev"),
+            InlineKeyboardButton(text="Следующая неделя -->", callback_data="week:next")
+        ],
+        [
             InlineKeyboardButton(text="Вернуться", callback_data="comeback")
         ]
     ]
@@ -215,63 +219,15 @@ async def handle_teacher_inline_search_names(query: str) -> list[InlineQueryResu
 
     return results
 
-
-
-
-async def get_teacher_rating_keyboard(name: str) -> InlineKeyboardMarkup: 
-    """
-    Клавиатура для выбора рейтинга преподавателя от 0 до 5 звезд..
-    """
-    teachers = await db.search_teachers(name)
-    if not teachers:
-        # fallback, если нет такого преподавателя
-        short_hash = hashlib.md5(name.encode()).hexdigest()
-    else:
-        teacher = teachers[0]  # берем первый результат
-        short_hash = teacher.get("hash", hashlib.md5(name.encode()).hexdigest())
-
-    buttons = []
-    for i in range(6):  # 0,1,2,3,4,5 звезд
-        stars = "⭐" * i if i > 0 else "0️⃣"
-        buttons.append(InlineKeyboardButton(
-            text=stars,
-            callback_data=f"rate:{short_hash}:{i}"
-        ))
-
-    # Разбиваем на ряды по 3 кнопки
-    keyboard = [buttons[i:i+3] for i in range(0, len(buttons), 3)]
-    return InlineKeyboardMarkup(inline_keyboard=keyboard)
-
-
-def get_human_readable_schedule(data):
-    days_map = {
-        "MONDAY": "Понедельник",
-        "TUESDAY": "Вторник",
-        "WEDNESDAY": "Среда",
-        "THURSDAY": "Четверг",
-        "FRIDAY": "Пятница",
-        "SATURDAY": "Суббота"
-    }
-
-    today = date.today()
-
-    # Границы текущей недели
-    monday = today - timedelta(days=today.weekday())
+# =================== Расписание ===================
+def get_human_readable_schedule_generic(data, for_teacher=False, monday: date = None):
+    # Если monday не передан — используем текущую неделю
+    if monday is None:
+        today = date.today()
+        monday = today - timedelta(days=today.weekday())
     sunday = monday + timedelta(days=6)
+    week_type = "EVEN" if monday.isocalendar().week % 2 == 0 else "ODD"
 
-    # Даты этой недели по ключу dayOfWeek
-    week_day_dates = {
-        "MONDAY": monday,
-        "TUESDAY": monday + timedelta(days=1),
-        "WEDNESDAY": monday + timedelta(days=2),
-        "THURSDAY": monday + timedelta(days=3),
-        "FRIDAY": monday + timedelta(days=4),
-        "SATURDAY": monday + timedelta(days=5),
-        "SUNDAY": monday + timedelta(days=6),
-    }
-
-    # Чётность недели
-    week_type = "EVEN" if today.isocalendar().week % 2 == 0 else "ODD"
 
     schedule_by_day = {name: [] for name in days_map.values()}
 
@@ -290,6 +246,7 @@ def get_human_readable_schedule(data):
         except ValueError:
             continue
 
+        # Теперь фильтруем по переданной неделе
         if not (monday <= start_date <= sunday):
             continue
 
@@ -385,7 +342,12 @@ def get_human_readable_teacher_schedule(data):
     for lessons in schedule_by_day.values():
         lessons.sort(key=lambda x: x['startTime'] or "")
 
-    return schedule_by_day
+
+def get_human_readable_schedule(data, monday: date = None):
+    return get_human_readable_schedule_generic(data, for_teacher=False, monday=monday)
+
+def get_human_readable_teacher_schedule(data, monday: date = None):
+    return get_human_readable_schedule_generic(data, for_teacher=True, monday=monday)
 
 
 def pretty_schedule_str(data: dict) -> str: # Тестовое форматирования для cli режима
