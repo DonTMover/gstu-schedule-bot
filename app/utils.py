@@ -36,20 +36,29 @@ def get_inline_keyboard_select() -> InlineKeyboardMarkup:
         ]
     )
 
+def get_subgroup_keyboard():
+    return InlineKeyboardMarkup(inline_keyboard=[
+        [
+            InlineKeyboardButton(text="Подгруппа 1", callback_data="subgroup:1"),
+            InlineKeyboardButton(text="Подгруппа 2", callback_data="subgroup:2"),
+        ]
+    ])
+
+
 def get_days_keyboard(for_teacher=False) -> InlineKeyboardMarkup:
     prefix = "teacher_day:" if for_teacher else "day:"
     buttons = [
         [
-            InlineKeyboardButton(text="Понедельник", callback_data="day:MONDAY"),
-            InlineKeyboardButton(text="Вторник", callback_data="day:TUESDAY")
+            InlineKeyboardButton(text="Понедельник", callback_data=f"{prefix}MONDAY"),
+            InlineKeyboardButton(text="Вторник", callback_data=f"{prefix}TUESDAY")
         ],
         [
-            InlineKeyboardButton(text="Среда", callback_data="day:WEDNESDAY"),
-            InlineKeyboardButton(text="Четверг", callback_data="day:THURSDAY")
+            InlineKeyboardButton(text="Среда", callback_data=f"{prefix}WEDNESDAY"),
+            InlineKeyboardButton(text="Четверг", callback_data=f"{prefix}THURSDAY")
         ],
         [
-            InlineKeyboardButton(text="Пятница", callback_data="day:FRIDAY"),
-            InlineKeyboardButton(text="Суббота", callback_data="day:SATURDAY")
+            InlineKeyboardButton(text="Пятница", callback_data=f"{prefix}FRIDAY"),
+            InlineKeyboardButton(text="Суббота", callback_data=f"{prefix}SATURDAY")
         ],
         [
             InlineKeyboardButton(text="Вернуться", callback_data="comeback")
@@ -57,12 +66,28 @@ def get_days_keyboard(for_teacher=False) -> InlineKeyboardMarkup:
     ]
     return InlineKeyboardMarkup(inline_keyboard=buttons)
 
-def get_days_teacher_keyboard() -> InlineKeyboardMarkup:
-    buttons = [
-        InlineKeyboardButton(text=("⭐" * i if i > 0 else "0️⃣"), callback_data=f"rate:{short_hash}:{i}")
-        for i in range(6)
-    ]
-    # Разбиваем по 3 кнопки в ряд
+
+async def get_teacher_rating_keyboard(name: str) -> InlineKeyboardMarkup: 
+    """
+    Клавиатура для выбора рейтинга преподавателя от 0 до 5 звезд..
+    """
+    teachers = await db.search_teachers(name)
+    if not teachers:
+        # fallback, если нет такого преподавателя
+        short_hash = hashlib.md5(name.encode()).hexdigest()
+    else:
+        teacher = teachers[0]  # берем первый результат
+        short_hash = teacher.get("hash", hashlib.md5(name.encode()).hexdigest())
+
+    buttons = []
+    for i in range(6):  # 0,1,2,3,4,5 звезд
+        stars = "⭐" * i if i > 0 else "0️⃣"
+        buttons.append(InlineKeyboardButton(
+            text=stars,
+            callback_data=f"rate:{short_hash}:{i}"
+        ))
+
+    # Разбиваем на ряды по 3 кнопки
     keyboard = [buttons[i:i+3] for i in range(0, len(buttons), 3)]
     return InlineKeyboardMarkup(inline_keyboard=keyboard)
 

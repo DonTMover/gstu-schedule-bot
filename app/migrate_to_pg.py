@@ -5,9 +5,6 @@ from psycopg2.extras import execute_values
 from dotenv import load_dotenv
 from pathlib import Path
 
-# Хрень сгенереная чатом гпт, работает и слава богу
-
-
 # --- Загрузка переменных окружения ---
 load_dotenv("app/.env")
 DATABASE_URL = os.getenv("DATABASE_URL")
@@ -27,7 +24,8 @@ cur.execute("""
 -- Таблица пользователей
 CREATE TABLE IF NOT EXISTS users (
     id BIGINT PRIMARY KEY,
-    group_name TEXT
+    group_name TEXT,
+    subgroup INT DEFAULT 1
 );
 
 -- Таблица преподавателей
@@ -47,6 +45,20 @@ CREATE TABLE IF NOT EXISTS grades (
     grade INT NOT NULL,
     CONSTRAINT grades_teacher_user_unique UNIQUE (teacher_id, user_id)
 );
+""")
+
+# --- Добавление недостающей колонки subgroup (если её нет) ---
+cur.execute("""
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM information_schema.columns
+        WHERE table_name = 'users' AND column_name = 'subgroup'
+    ) THEN
+        ALTER TABLE users ADD COLUMN subgroup INT DEFAULT 1;
+        UPDATE users SET subgroup = 1; -- выставляем всем существующим
+    END IF;
+END$$;
 """)
 
 # --- Загрузка teachers.json ---
@@ -77,14 +89,16 @@ if users_file.exists():
     with open(users_file, "r", encoding="utf-8") as f:
         users = json.load(f)
 
-    users_data = [(int(uid), group) for uid, group in users.items()]
+    users_data = [(int(uid), group, 1) for uid, group in users.items()]
 
     execute_values(
         cur,
         """
-        INSERT INTO users (id, group_name)
+        INSERT INTO users (id, group_name, subgroup)
         VALUES %s
-        ON CONFLICT (id) DO UPDATE SET group_name = EXCLUDED.group_name
+        ON CONFLICT (id) DO UPDATE 
+        SET group_name = EXCLUDED.group_name,
+            subgroup = COALESCE(users.subgroup, EXCLUDED.subgroup)
         """,
         users_data
     )
