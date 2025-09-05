@@ -60,6 +60,18 @@ class Database: # Класс бд для работы с студентами и
         async with self.pool.acquire() as conn:
             row = await conn.fetchrow("SELECT 1 FROM users WHERE id = $1", user_id)
             return row is not None
+        
+    async def set_subgroup(self, user_id: int, subgroup: int) -> None:
+        async with self.pool.acquire() as conn:
+            await conn.execute(
+                "UPDATE users SET subgroup = $2 WHERE id = $1",
+                user_id, str(subgroup)
+            )
+
+    async def get_subgroup(self, user_id: int) -> Optional[int]:
+        async with self.pool.acquire() as conn:
+            row = await conn.fetchrow("SELECT subgroup FROM users WHERE id = $1", user_id)
+            return row["subgroup"] if row else None
 
     # --- teachers ---
     async def add_teacher_rating(self, full_name: str, grade: int, user_id: int) -> Tuple[float, int]:

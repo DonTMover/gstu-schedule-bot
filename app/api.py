@@ -10,11 +10,14 @@ from dotenv import load_dotenv
 from datetime import datetime, date, timedelta
 
 BASE_URL = "https://sc.gstu.by/api/schedules/group"
+BASE_URL_SUBGROUP = "https://sc.gstu.by/api/schedules/subgroup"
 
 USER_AGENTS = [
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:142.0) Gecko/20100101 Firefox/142.0",
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36",
     "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:115.0) Gecko/20100101 Firefox/115.0",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.5 Safari/605.1.15",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
 ]
 
 
@@ -51,6 +54,32 @@ async def fetch_schedule_cached(group_name: str) -> dict: # Снаачало п�
             return data
         raise 
 
+async def fetch_schedule_subgroup(group_name: str, subgroup: int) -> dict:
+    """Запрос расписания группы с подгруппой напрямую из API ГГТУ."""
+    tid = uuid.uuid4().hex
+    headers = get_headers()
+    headers["X-Id"] = tid
+    headers["Cookie"] = f"_tid={tid}"
+    headers["Referer"] = f"https://sc.gstu.by/schedules/subgroup/{groups[group_name]}-{subgroup}"
+
+    async with aiohttp.ClientSession(headers=headers) as session:
+        async with session.get(f"{BASE_URL_SUBGROUP}/{groups[group_name]}-{subgroup}",
+                               timeout=15,
+                               proxy=getenv("PROXY")) as resp:
+            resp.raise_for_status()
+            return await resp.json()
+        
+async def fetch_schedule_subgroup_cached(group_name: str, subgroup: int) -> dict:
+    """Кэшируем расписание группы с подгруппой."""
+    key = f"schedule:{group_name}:subgroup:{subgroup}"
+    data = await cache.get_json(key)
+    if data:
+        return data
+
+    fresh = await fetch_schedule_subgroup(group_name, subgroup)
+    if fresh:
+        await cache.set_json(key, fresh, expire=60 * 60 * 24 * 2)  # 2 дня
+    return fresh
 
 async def fetch_teacher_schedule(slug: str) -> dict:
     """Запрос расписания преподавателя напрямую из API ГГТУ."""
@@ -88,7 +117,6 @@ def get_headers(): # Рандомизируем хедерсы
         "Connection": "keep-alive",
     }
 
-# TODO: Перенести методы которые не относятся к запросам к API в utils
 
 
 
