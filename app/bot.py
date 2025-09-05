@@ -25,7 +25,7 @@ from utils import (get_inline_keyboard_select, get_days_students_keyboard, get_i
                    handle_group_search, handle_teacher_inline_search,get_teacher_rating_keyboard, 
                    handle_teacher_inline_search_names, get_human_readable_schedule, get_human_readable_teacher_schedule,
                    get_days_teacher_keyboard)
-from api import fetch_schedule_cached, get_teacher_schedule_cached
+from api import fetch_schedule_subgroup_cached, get_teacher_schedule_cached
 from db import db
 from cache import cache
 
