@@ -116,6 +116,15 @@ class Database: # Класс бд для работы с студентами и
         async with self.pool.acquire() as conn:
             row = await conn.fetchrow("SELECT full_name FROM teachers WHERE hash = $1", hash_id)
             return row["full_name"] if row else None
+        
+    async def get_teacher_by_hash(self, hash_id: str) -> Optional[Dict]:
+        async with self.pool.acquire() as conn:
+            row = await conn.fetchrow(
+                "SELECT id, full_name, slug, hash FROM teachers WHERE hash = $1",
+                hash_id
+            )
+            return dict(row) if row else None
+
 
 
 # Экземпляр для использования
