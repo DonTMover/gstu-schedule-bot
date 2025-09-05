@@ -143,6 +143,51 @@ async def handle_teacher_inline_search(query: str) -> list[InlineQueryResultArti
     return results
 
 
+async def handle_teacher_inline_search_names(query: str) -> list[InlineQueryResultArticle]:
+    results = []
+    search = query.strip().lower()
+    if not search:
+        return results
+
+    logger.info(f"Searching teachers (names only) for query: {search}")
+
+    matched_teachers = await db.search_teachers(search)
+
+    for teacher in matched_teachers:
+        name = teacher["full_name"]
+        short_hash = teacher.get("hash") or hashlib.md5(name.encode()).hexdigest()
+
+        input_content = InputTextMessageContent(
+            message_text=f"Преподаватель: {name}"
+        )
+
+        results.append(
+            InlineQueryResultArticle(
+                id=short_hash,
+                title=name,  # в выдаче будет только ФИО
+                input_message_content=input_content,
+                description="Преподаватель"  # можно убрать или заменить
+            )
+        )
+
+    # fallback, если ничего не найдено
+    if not results:
+        result_id = hashlib.md5(query.encode()).hexdigest()
+        input_content = InputTextMessageContent(
+            message_text="Преподаватель не найден. Пожалуйста, введите корректное имя."
+        )
+        results.append(
+            InlineQueryResultArticle(
+                id=result_id,
+                title="Преподаватель не найден",
+                input_message_content=input_content,
+                description="Нет совпадений"
+            )
+        )
+
+    return results
+
+
 
 
 async def get_teacher_rating_keyboard(name: str) -> InlineKeyboardMarkup: 
