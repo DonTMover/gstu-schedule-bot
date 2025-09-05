@@ -21,10 +21,9 @@ from aiogram.types import InlineQuery
 from aiogram.methods import EditMessageText
 
 # from packages
-from utils import (get_inline_keyboard_select, get_days_students_keyboard, get_inline_keyboard_disclaimer,
-                   handle_group_search, handle_teacher_inline_search,get_teacher_rating_keyboard, 
-                   handle_teacher_inline_search_names, get_human_readable_schedule, get_human_readable_teacher_schedule,
-                   get_days_teacher_keyboard)
+from utils import (get_inline_keyboard_select, get_inline_keyboard_disclaimer,get_teacher_rating_keyboard,
+                   handle_group_search, handle_teacher_inline_search, get_days_keyboard,
+                   get_human_readable_schedule, get_human_readable_teacher_schedule,get_subgroup_keyboard)
 from api import fetch_schedule_subgroup_cached, get_teacher_schedule_cached
 from db import db
 from cache import cache
@@ -78,8 +77,8 @@ async def handler(message: Message):
         if group_code in groups:
             logger.info(f"User {message.from_user.id} selected valid group {group_code}")
             await message.answer(
-                text="Выберите день недели, чтобы увидеть расписание.",
-                reply_markup=get_days_students_keyboard()
+                text="Выберите подгруппу чтобы увидеть расписание.",
+                reply_markup=get_subgroup_keyboard()
             )
         return
 
@@ -136,7 +135,7 @@ async def handler(message: Message):
             # data = get_human_readable_teacher_schedule(teacher_schedule)
             await message.answer(
                 text="Выберите день недели, чтобы увидеть расписание.",
-                reply_markup=get_days_teacher_keyboard()
+                reply_markup=get_days_keyboard(for_teacher=True)
             )
         else:
             await message.answer(
@@ -163,7 +162,6 @@ async def process_subgroup(callback: types.CallbackQuery):
 async def select_week(callback: types.CallbackQuery):
     user_id = callback.from_user.id
     action = callback.data.split(":")[1]  # prev или next
-
 
     from datetime import date, timedelta
     today = date.today()
@@ -222,7 +220,7 @@ async def inline_handler(inline_query: types.InlineQuery):
         results = handle_group_search(query.replace("group:", "").strip())
 
     elif query.startswith("teacher_schedule:"):
-        results = await handle_teacher_inline_search_names(query.replace("teacher_schedule:", "").strip())
+        results = await handle_teacher_inline_search(query.replace("teacher_schedule:", "").strip(),names_only=True)
 
     await inline_query.answer(results, cache_time=1)
 
@@ -337,7 +335,7 @@ async def teacher_day_schedule(callback: types.CallbackQuery):
 
     await callback.message.edit_text(
         text,
-        reply_markup=get_days_teacher_keyboard(),
+        reply_markup=get_days_keyboard(for_teacher=True),
         parse_mode="HTML"
     )
     await callback.answer()
@@ -380,10 +378,8 @@ async def day_schedule(callback: types.CallbackQuery):
         return
 
     # Получаем расписание на ТЕКУЩУЮ неделю (функция уже фильтрует по startDate этой недели и добавляет date/weekType)
-
     raw = await fetch_schedule_subgroup_cached(user_group, subgroup=await db.get_subgroup(callback.from_user.id) or 1)
     schedule = get_human_readable_schedule(raw,monday=user_week.get(callback.from_user.id))
-
     lessons = schedule.get(day_name, [])
     logger.info(f"Fetched schedule for user {callback.from_user.id} for {day_name}")
 

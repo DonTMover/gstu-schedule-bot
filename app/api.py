@@ -117,7 +117,6 @@ def get_headers(): # Рандомизируем хедерсы
         "Connection": "keep-alive",
     }
 
-# TODO: Перенести методы которые не относятся к запросам к API в utils
 
 
 
