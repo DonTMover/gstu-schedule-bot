@@ -61,6 +61,10 @@ def get_days_keyboard(for_teacher=False) -> InlineKeyboardMarkup:
             InlineKeyboardButton(text="Суббота", callback_data=f"{prefix}SATURDAY")
         ],
         [
+            InlineKeyboardButton(text="Прошлая неделя <--", callback_data="week:prev"),
+            InlineKeyboardButton(text="Следующая неделя -->", callback_data="week:next")
+        ],
+        [
             InlineKeyboardButton(text="Вернуться", callback_data="comeback")
         ]
     ]
@@ -163,11 +167,13 @@ async def handle_teacher_inline_search(query: str, names_only=False):
     return results
 
 # =================== Расписание ===================
-def get_human_readable_schedule_generic(data, for_teacher=False):
-    today = date.today()
-    monday = today - timedelta(days=today.weekday())
+def get_human_readable_schedule_generic(data, for_teacher=False, monday: date = None):
+    # Если monday не передан — используем текущую неделю
+    if monday is None:
+        today = date.today()
+        monday = today - timedelta(days=today.weekday())
     sunday = monday + timedelta(days=6)
-    week_type = "EVEN" if today.isocalendar().week % 2 == 0 else "ODD"
+    week_type = "EVEN" if monday.isocalendar().week % 2 == 0 else "ODD"
 
     schedule_by_day = {name: [] for name in DAYS_MAP.values()}
     week_day_dates = {k: monday + timedelta(days=i) for i, k in enumerate(DAYS_MAP)}
@@ -186,6 +192,7 @@ def get_human_readable_schedule_generic(data, for_teacher=False):
         except ValueError:
             continue
 
+        # Теперь фильтруем по переданной неделе
         if not (monday <= start_date <= sunday):
             continue
 
@@ -212,11 +219,11 @@ def get_human_readable_schedule_generic(data, for_teacher=False):
         lessons.sort(key=lambda x: x['startTime'] or "")
     return schedule_by_day
 
-def get_human_readable_schedule(data):
-    return get_human_readable_schedule_generic(data, for_teacher=False)
+def get_human_readable_schedule(data, monday: date = None):
+    return get_human_readable_schedule_generic(data, for_teacher=False, monday=monday)
 
-def get_human_readable_teacher_schedule(data):
-    return get_human_readable_schedule_generic(data, for_teacher=True)
+def get_human_readable_teacher_schedule(data, monday: date = None):
+    return get_human_readable_schedule_generic(data, for_teacher=True, monday=monday)
 
 # =================== CLI форматирование ===================
 def pretty_schedule_str(data: dict) -> str:

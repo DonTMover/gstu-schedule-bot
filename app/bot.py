@@ -38,6 +38,8 @@ dp = Dispatcher()
 logger.add("bot.log", rotation="10 MB", retention="30 days", level="INFO")
 
 user_teacher = {} # временное хранилище для выбранного преподавателя пользователем
+user_week = {}    # временное хранилище для выбранной недели пользователем
+user_day = {}     # временное хранилище для выбранного дня недели пользователем
 
 @dp.message(CommandStart()) # Обрабатываем старт бота и записываем чела в группу
 async def start(message: Message):
@@ -156,7 +158,38 @@ async def process_subgroup(callback: types.CallbackQuery):
     )
     await callback.answer()
 
+@dp.callback_query(lambda c: c.data.startswith("week:"))
+async def select_week(callback: types.CallbackQuery):
+    user_id = callback.from_user.id
+    action = callback.data.split(":")[1]  # prev или next
 
+    from datetime import date, timedelta
+    today = date.today()
+    monday = today - timedelta(days=today.weekday())
+    if user_id not in user_week:
+        user_week[user_id] = monday
+    else:
+        monday = user_week[user_id]
+
+    # Сдвигаем неделю
+    if action == "prev":
+        monday -= timedelta(days=7)
+    elif action == "next":
+        monday += timedelta(days=7)
+    user_week[user_id] = monday
+
+    # Используем последний выбранный день пользователя, если есть
+    selected_day_code = user_day.get(user_id, "MONDAY")
+
+    class FakeCallback:
+        def __init__(self, from_user, message, data):
+            self.from_user = from_user
+            self.message = message
+            self.data = data
+        async def answer(self):
+            pass
+    fake_callback = FakeCallback(callback.from_user, callback.message, f"day:{selected_day_code}")
+    await day_schedule(fake_callback)
 
 @dp.callback_query(lambda c: c.data == "search") # Для InlineSearch поиска группы
 async def process_search(callback_query):
@@ -314,6 +347,7 @@ async def teacher_day_schedule(callback: types.CallbackQuery):
 @dp.callback_query(F.data.startswith("day:"))  # Получение расписания на определенный день недели и его форматирование
 async def day_schedule(callback: types.CallbackQuery):
     code = callback.data.split(":")[1]   # 'MONDAY', 'TUESDAY', ...
+    user_day[callback.from_user.id] = code
     days_map = {
         "MONDAY": "Понедельник",
         "TUESDAY": "Вторник",
@@ -345,7 +379,7 @@ async def day_schedule(callback: types.CallbackQuery):
 
     # Получаем расписание на ТЕКУЩУЮ неделю (функция уже фильтрует по startDate этой недели и добавляет date/weekType)
     raw = await fetch_schedule_subgroup_cached(user_group, subgroup=await db.get_subgroup(callback.from_user.id) or 1)
-    schedule = get_human_readable_schedule(raw)
+    schedule = get_human_readable_schedule(raw,monday=user_week.get(callback.from_user.id))
     lessons = schedule.get(day_name, [])
     logger.info(f"Fetched schedule for user {callback.from_user.id} for {day_name}")
 
@@ -391,9 +425,17 @@ async def day_schedule(callback: types.CallbackQuery):
             )
         text = "\n".join(parts)
 
+    # Проверка: если текст и кнопки не изменились, не вызываем edit_text
+    current_text = callback.message.text or ""
+    current_markup = callback.message.reply_markup
+    new_markup = get_days_keyboard(for_teacher=False)
+    if text == current_text and (current_markup == new_markup or current_markup is None):
+        await callback.answer()
+        return
+
     await callback.message.edit_text(
         text,
-        reply_markup=get_days_keyboard(for_teacher=False),
+        reply_markup=new_markup,
         parse_mode="HTML"
     )
     await callback.answer()

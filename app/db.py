@@ -61,7 +61,7 @@ class Database: # Класс бд для работы с студентами и
             row = await conn.fetchrow("SELECT 1 FROM users WHERE id = $1", user_id)
             return row is not None
         
-    async def set_subgroup(self, user_id: int, subgroup: int) -> None:
+    async def set_subgroup(self, user_id: int, subgroup) -> None:
         async with self.pool.acquire() as conn:
             await conn.execute(
                 "UPDATE users SET subgroup = $2 WHERE id = $1",
