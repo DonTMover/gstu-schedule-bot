@@ -24,7 +24,7 @@ from aiogram.methods import EditMessageText
 from utils import (get_inline_keyboard_select, get_inline_keyboard_disclaimer,get_teacher_rating_keyboard,
                    handle_group_search, handle_teacher_inline_search, get_days_keyboard,
                    get_human_readable_schedule, get_human_readable_teacher_schedule,get_subgroup_keyboard)
-from api import fetch_schedule_subgroup_cached, get_teacher_schedule_cached
+from api import fetch_schedule_subgroup_cached, get_teacher_schedule_cached, fetch_schedule_cached
 from db import db
 from cache import cache
 
@@ -378,7 +378,11 @@ async def day_schedule(callback: types.CallbackQuery):
         return
 
     # Получаем расписание на ТЕКУЩУЮ неделю (функция уже фильтрует по startDate этой недели и добавляет date/weekType)
-    raw = await fetch_schedule_subgroup_cached(user_group, subgroup=await db.get_subgroup(callback.from_user.id) or 1)
+    subgroup = await db.get_subgroup(callback.from_user.id)
+    if subgroup == 0:
+        raw = await fetch_schedule_cached(user_group)
+    else:
+        raw = await fetch_schedule_subgroup_cached(user_group, subgroup=subgroup or 1)
     schedule = get_human_readable_schedule(raw,monday=user_week.get(callback.from_user.id))
     lessons = schedule.get(day_name, [])
     logger.info(f"Fetched schedule for user {callback.from_user.id} for {day_name}")
