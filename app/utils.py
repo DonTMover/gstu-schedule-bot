@@ -41,6 +41,7 @@ def get_subgroup_keyboard():
         [
             InlineKeyboardButton(text="Подгруппа 1", callback_data="subgroup:1"),
             InlineKeyboardButton(text="Подгруппа 2", callback_data="subgroup:2"),
+            InlineKeyboardButton(text="Без подгруппы", callback_data="subgroup:0")
         ]
     ])
 
