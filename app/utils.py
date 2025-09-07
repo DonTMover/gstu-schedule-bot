@@ -198,6 +198,7 @@ def get_human_readable_schedule_generic(data, for_teacher=False, monday: date = 
             continue
 
         subject = item.get('subject', {})
+        lesson_type = item.get('lessonType') or {}
         lesson = {
             "lessonNumber": item.get('lessonNumber'),
             "startTime": item.get('startTime'),
@@ -207,6 +208,8 @@ def get_human_readable_schedule_generic(data, for_teacher=False, monday: date = 
             "weekType": week_type,
             "subject": subject.get('name'),
             "subjectShort": subject.get('shortName'),
+            "lessonType": lesson_type.get('name'),
+            "lessonTypeShort": lesson_type.get('shortName'),
             "groups": ", ".join(g.get('name') for g in item.get('groups', []) if g.get('name')) or None
         }
 

@@ -324,9 +324,13 @@ async def teacher_day_schedule(callback: types.CallbackQuery):
     else:
         parts = [f"📅 {day_name}, {day_date_str}  •  Неделя: <b>{week_type}</b>\n"]
         for i, lesson in enumerate(lessons, 1):
+            lt = lesson.get('lessonType')
+            lt_short = lesson.get('lessonTypeShort')
+            lt_str = f"{lt} ({lt_short})\n" if lt and lt_short else (f"{lt}\n" if lt else "")
             parts.append(
                 f"<b>{lesson.get('lessonNumber')}. {lesson.get('subject') or '—'}</b>"
                 f" ({lesson.get('subjectShort') or ''})\n"
+                f"📚 Тип занятия: {lt_str}"
                 f"🕒 {t(lesson.get('startTime'))} – {t(lesson.get('endTime'))}\n"
                 f"👥 Группы: {lesson.get('groups') or '-'}\n"
                 f"🏫 Кабинет: {lesson.get('classrooms') or '-'}\n"
@@ -419,9 +423,13 @@ async def day_schedule(callback: types.CallbackQuery):
     else:
         parts = [f"📅 {day_name}, {day_date_str}  •  Неделя: <b>{week_type}</b>\n"]
         for i, lesson in enumerate(lessons, 1):
+            lt = lesson.get('lessonType')
+            lt_short = lesson.get('lessonTypeShort')
+            lt_str = f"{lt} ({lt_short})\n" if lt and lt_short else (f"{lt}\n" if lt else "-\n")
             parts.append(
                 f"<b>{lesson.get('lessonNumber')}. {lesson.get('subject') or '—'}</b>"
                 f" ({lesson.get('subjectShort') or ''})\n"
+                f"📚 Тип занятия: {lt_str}"
                 f"🕒 {t(lesson.get('startTime'))} – {t(lesson.get('endTime'))}\n"
                 f"👨‍🏫 {lesson.get('teachers') or '-'}\n"
                 f"🏫 {lesson.get('classrooms') or '-'}\n"

@@ -24,10 +24,10 @@ cur = conn.cursor()
 
 # --- Создание таблиц с уникальными ограничениями ---
 cur.execute("""
--- Таблица пользователей
 CREATE TABLE IF NOT EXISTS users (
     id BIGINT PRIMARY KEY,
-    group_name TEXT
+    group_name TEXT,
+    subgroup INTEGER
 );
 
 -- Таблица преподавателей
