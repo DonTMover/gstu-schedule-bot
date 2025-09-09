@@ -197,6 +197,19 @@ def get_human_readable_schedule_generic(data, for_teacher=False, monday: date = 
         if not (monday <= start_date <= sunday):
             continue
 
+        # Фильтрация по weekType
+        item_week_type = item.get('weekType', 'ALL')
+        # Если ALL или None — показываем всегда
+        if item_week_type in ('ALL', None):
+            pass
+        # Если ODD/EVEN — сравниваем с текущей неделей
+        elif item_week_type in ('ODD', 'EVEN'):
+            if item_week_type != week_type:
+                continue
+        # Если что-то другое — пропускаем
+        else:
+            continue
+
         subject = item.get('subject', {})
         lesson_type = item.get('lessonType') or {}
         lesson = {
