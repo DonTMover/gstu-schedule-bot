@@ -56,6 +56,10 @@ async def fetch_schedule_cached(group_name: str) -> dict: # Снаачало п�
 
 async def fetch_schedule_subgroup(group_name: str, subgroup: int) -> dict:
     """Запрос расписания группы с подгруппой напрямую из API ГГТУ."""
+
+    if str(subgroup) == "0":
+        return await fetch_schedule_cached(group_name)
+
     tid = uuid.uuid4().hex
     headers = get_headers()
     headers["X-Id"] = tid
