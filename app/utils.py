@@ -185,16 +185,23 @@ def get_human_readable_schedule_generic(data, for_teacher=False, monday: date = 
         if not day_ru:
             continue
 
+        # Получаем даты начала и окончания занятия
         start_date_str = item.get('startDate')
-        if not start_date_str:
+        end_date_str = item.get('endDate')
+        if not start_date_str or not end_date_str:
             continue
+        
         try:
             start_date = datetime.strptime(start_date_str, "%Y-%m-%d").date()
+            end_date = datetime.strptime(end_date_str, "%Y-%m-%d").date()
         except ValueError:
             continue
 
-        # Теперь фильтруем по переданной неделе
-        if not (monday <= start_date <= sunday):
+        # Получаем дату текущего дня недели
+        current_day_date = week_day_dates.get(day_key)
+        
+        # Проверяем, что текущий день недели попадает в интервал занятия
+        if not (start_date <= current_day_date <= end_date):
             continue
 
         # Фильтрация по weekType
@@ -217,7 +224,8 @@ def get_human_readable_schedule_generic(data, for_teacher=False, monday: date = 
             "startTime": item.get('startTime'),
             "endTime": item.get('endTime'),
             "startDate": start_date_str,
-            "date": week_day_dates.get(day_key).isoformat(),
+            "endDate": end_date_str,
+            "date": current_day_date.isoformat(),
             "weekType": week_type,
             "subject": subject.get('name'),
             "subjectShort": subject.get('shortName'),
@@ -234,7 +242,7 @@ def get_human_readable_schedule_generic(data, for_teacher=False, monday: date = 
 
     for lessons in schedule_by_day.values():
         lessons.sort(key=lambda x: x['startTime'] or "")
-    return schedule_by_day
+    return schedule_by_day 
 
 def get_human_readable_schedule(data, monday: date = None):
     return get_human_readable_schedule_generic(data, for_teacher=False, monday=monday)
