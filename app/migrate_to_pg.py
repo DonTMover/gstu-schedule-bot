@@ -26,9 +26,9 @@ cur = conn.cursor()
 cur.execute("""
 CREATE TABLE IF NOT EXISTS users (
     id BIGINT PRIMARY KEY,
-    group_name TEXT,
-    subgroup INTEGER
+    group_name TEXT
 );
+ALTER TABLE users ADD COLUMN IF NOT EXISTS subgroup INTEGER;
 
 -- Таблица преподавателей
 CREATE TABLE IF NOT EXISTS teachers (
