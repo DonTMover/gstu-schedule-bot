@@ -8,7 +8,7 @@ services:
     env_file:
       - app/.env
     volumes:
-      - ./bot.log:/app/bot.log # логи наружу
+      - ./logs:/app/logs # логи наружу
       # - ./proxies.txt:/app/proxies.txt # проксю парсим тоже снаружи
     depends_on:
       postgres:
@@ -18,6 +18,7 @@ services:
     environment:
       - DATABASE_URL=postgresql://gstu:gstu@postgres:5432/gstu_db #пробрасываем на всякий бд внутрь
       - REDIS_URL=redis://redis:6379/0 # Как и редиску
+      - BOT_LOG_PATH=/app/logs/bot.log # логи в отдельной папке, чтобы не занимать файл/директорию
     networks:
       - gstu-net
     command: bash -c "python app/migrate_to_pg.py && python app/bot.py"

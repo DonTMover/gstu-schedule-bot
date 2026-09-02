@@ -1,4 +1,5 @@
 # load environment variables
+from pathlib import Path
 from dotenv import load_dotenv
 from os import getenv
 
@@ -32,10 +33,18 @@ from cache import cache
 load_dotenv()
 TOKEN = getenv("BOT_TOKEN")
 
-dp = Dispatcher()
+LOG_PATH = Path(getenv("BOT_LOG_PATH", "/tmp/bot.log"))
+if LOG_PATH.exists() and LOG_PATH.is_dir():
+    fallback = LOG_PATH.parent / "bot.log"
+    if fallback.exists() and fallback.is_dir():
+        fallback = Path("/tmp/bot.log")
+    LOG_PATH = fallback
+LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
 
-#add logging
-logger.add("bot.log", rotation="10 MB", retention="30 days", level="INFO")
+# add logging
+logger.add(str(LOG_PATH), rotation="10 MB", retention="30 days", level="INFO")
+
+dp = Dispatcher()
 
 user_teacher = {} # временное хранилище для выбранного преподавателя пользователем
 user_week = {}    # временное хранилище для выбранной недели пользователем
