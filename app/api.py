@@ -33,7 +33,7 @@ async def fetch_schedule(group_name: str) -> dict: # тут запрашивае
     async with aiohttp.ClientSession(headers=headers) as session:
         async with session.get(f"{BASE_URL}/{groups[group_name]}", 
                                timeout=15,
-                                proxy=getenv('PROXY') # get proxy from env
+                                #proxy=getenv('PROXY') # get proxy from env
                                ) as resp:
             resp.raise_for_status()
             return await resp.json()
@@ -69,7 +69,8 @@ async def fetch_schedule_subgroup(group_name: str, subgroup: int) -> dict:
     async with aiohttp.ClientSession(headers=headers) as session:
         async with session.get(f"{BASE_URL_SUBGROUP}/{groups[group_name]}-{subgroup}",
                                timeout=15,
-                               proxy=getenv("PROXY")) as resp:
+                               #proxy=getenv("PROXY")
+                               ) as resp:
             resp.raise_for_status()
             return await resp.json()
         
@@ -96,7 +97,8 @@ async def fetch_teacher_schedule(slug: str) -> dict:
     async with aiohttp.ClientSession(headers=headers) as session:
         async with session.get(f"https://sc.gstu.by/api/schedules/teacher/{slug}",
                                timeout=15,
-                               proxy=getenv("PROXY")) as resp:
+                               #proxy=getenv("PROXY")
+                               ) as resp:
             resp.raise_for_status()
             return await resp.json()
 
