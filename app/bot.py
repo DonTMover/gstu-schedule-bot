@@ -24,7 +24,8 @@ from aiogram.methods import EditMessageText
 # from packages
 from utils import (get_inline_keyboard_select, get_inline_keyboard_disclaimer,get_teacher_rating_keyboard,
                    handle_group_search, handle_teacher_inline_search, get_days_keyboard,
-                   get_human_readable_schedule, get_human_readable_teacher_schedule,get_subgroup_keyboard)
+                   get_human_readable_schedule, get_human_readable_teacher_schedule,get_subgroup_keyboard,
+                   get_interface_keyboard, get_interface_settings_keyboard, format_minimal_schedule)
 from api import fetch_schedule_subgroup_cached, get_teacher_schedule_cached, fetch_schedule_cached
 from db import db
 from cache import cache
@@ -170,6 +171,26 @@ async def process_subgroup(callback: types.CallbackQuery):
     )
     await callback.answer()
 
+@dp.callback_query(F.data.startswith("interface:"))
+async def process_interface(callback: types.CallbackQuery):
+    interface = callback.data.split(":")[1]
+    await db.ensure_user(callback.from_user.id)
+    await db.set_interface(callback.from_user.id, interface)
+    label = "подробный" if interface == "classic" else "минималистичный"
+    await callback.message.edit_text(
+        f"✅ Выбран {label} интерфейс.\nТеперь вы можете выбрать группу.",
+        reply_markup=get_inline_keyboard_select()
+    )
+    await callback.answer()
+
+@dp.message(Command("interface"))
+async def interface_command(message: types.Message):
+    await db.ensure_user(message.from_user.id)
+    await message.answer(
+        "Выберите интерфейс расписания:",
+        reply_markup=get_interface_settings_keyboard()
+    )
+
 @dp.callback_query(lambda c: c.data.startswith("week:"))
 async def select_week(callback: types.CallbackQuery):
     user_id = callback.from_user.id
@@ -211,8 +232,8 @@ async def process_search(callback_query):
 @dp.callback_query(lambda c: c.data == "disclaimer:accept") # Обработка принятия дисклеймера
 async def process_disclaimer(callback_query: types.CallbackQuery):
     await callback_query.message.edit_text(
-        text="Спасибо за принятие условий. Теперь вы можете выбрать группу.",
-        reply_markup=get_inline_keyboard_select()
+        text="Спасибо за принятие условий.\n\nВыберите интерфейс расписания:",
+        reply_markup=get_interface_keyboard()
     )
     await callback_query.answer("Вы приняли условия.")
 
@@ -401,6 +422,7 @@ async def day_schedule(callback: types.CallbackQuery):
         raw = await fetch_schedule_subgroup_cached(user_group, subgroup=subgroup or 1)
     schedule = get_human_readable_schedule(raw,monday=user_week.get(callback.from_user.id))
     lessons = schedule.get(day_name, [])
+    interface = await db.get_interface(callback.from_user.id)
     logger.info(f"Fetched schedule for user {callback.from_user.id} for {day_name}")
 
     # Определим дату выбранного дня и чётность недели для заголовка
@@ -430,7 +452,9 @@ async def day_schedule(callback: types.CallbackQuery):
             return "-"
         return v[:5]  # 'HH:MM'
 
-    if not lessons:
+    if interface == "minimal":
+        text = format_minimal_schedule(lessons, day_name, day_date_str, week_type)
+    elif not lessons:
         text = f"📅 {day_name}, {day_date_str}  •  Неделя: <b>{week_type}</b>\n\nЗанятий нет 🎉"
     else:
         parts = [f"📅 {day_name}, {day_date_str}  •  Неделя: <b>{week_type}</b>\n"]

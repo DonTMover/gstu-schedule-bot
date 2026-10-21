@@ -274,7 +274,7 @@ wheels = [
 
 [[package]]
 name = "gstu-schedule-bot"
-version = "2.5.1"
+version = "2.6.0"
 source = { virtual = "." }
 dependencies = [
     { name = "aiogram" },

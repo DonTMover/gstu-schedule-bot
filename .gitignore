@@ -8,6 +8,7 @@ app/.env
 db.json
 teachers.json
 proxies.txt
+backups/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

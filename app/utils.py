@@ -36,6 +36,20 @@ def get_inline_keyboard_select() -> InlineKeyboardMarkup:
         ]
     )
 
+def get_interface_keyboard() -> InlineKeyboardMarkup:
+    return InlineKeyboardMarkup(inline_keyboard=[
+        [
+            InlineKeyboardButton(text="Подробный интерфейс", callback_data="interface:classic"),
+            InlineKeyboardButton(text="Минималистичный", callback_data="interface:minimal"),
+        ]
+    ])
+
+def get_interface_settings_keyboard() -> InlineKeyboardMarkup:
+    return InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="Подробный интерфейс", callback_data="interface:classic")],
+        [InlineKeyboardButton(text="Минималистичный", callback_data="interface:minimal")],
+    ])
+
 def get_subgroup_keyboard():
     return InlineKeyboardMarkup(inline_keyboard=[
         [
@@ -249,6 +263,22 @@ def get_human_readable_schedule(data, monday: date = None):
 
 def get_human_readable_teacher_schedule(data, monday: date = None):
     return get_human_readable_schedule_generic(data, for_teacher=True, monday=monday)
+
+def format_minimal_schedule(lessons: list, day_name: str, day_date_str: str, week_type: str) -> str:
+    if not lessons:
+        return f"📅 <b>{day_name}, {day_date_str}</b>\nЗанятий нет 🎉"
+
+    parts = [f"📅 <b>{day_name}, {day_date_str}</b>  •  {week_type}"]
+    for lesson in lessons:
+        start = (lesson.get("startTime") or "-")[:5]
+        end = (lesson.get("endTime") or "-")[:5]
+        subject = lesson.get("subject") or "Без названия"
+        room = lesson.get("classrooms") or "кабинет не указан"
+        parts.append(
+            f"\n<b>{start}–{end}</b>  {subject}\n"
+            f"🏫 {room}  •  👥 {lesson.get('groups') or '-'}"
+        )
+    return "\n".join(parts)
 
 # =================== CLI форматирование ===================
 def pretty_schedule_str(data: dict) -> str:

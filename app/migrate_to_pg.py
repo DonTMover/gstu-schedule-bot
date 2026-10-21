@@ -4,6 +4,7 @@ import psycopg2
 from psycopg2.extras import execute_values
 from dotenv import load_dotenv
 from pathlib import Path
+from datetime import datetime, timezone
 
 # Хрень сгенереная чатом гпт, работает и слава богу
 
@@ -17,18 +18,49 @@ if not DATABASE_URL:
 # --- Пути к файлам ---
 teachers_file = Path("teachers.json")
 users_file = Path("db.json")
+backup_dir = Path(os.getenv("BACKUP_DIR", "backups"))
+
+def backup_tables(conn, label):
+    """Save all application tables before and after migration."""
+    backup_dir.mkdir(parents=True, exist_ok=True)
+    timestamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    path = backup_dir / f"postgres-{label}-{timestamp}.json"
+    tables = {}
+    with conn.cursor() as backup_cur:
+        for table in ("users", "teachers", "grades"):
+            backup_cur.execute(
+                """
+                SELECT EXISTS (
+                    SELECT 1 FROM information_schema.tables
+                    WHERE table_schema = 'public' AND table_name = %s
+                )
+                """,
+                (table,)
+            )
+            if not backup_cur.fetchone()[0]:
+                continue
+            backup_cur.execute(f"SELECT * FROM {table}")
+            columns = [desc[0] for desc in backup_cur.description]
+            tables[table] = [
+                dict(zip(columns, row, strict=True)) for row in backup_cur.fetchall()
+            ]
+    path.write_text(json.dumps(tables, ensure_ascii=False, default=str, indent=2), encoding="utf-8")
+    print(f"✅ Бэкап {label}: {path}")
 
 # --- Подключение к PostgreSQL ---
 conn = psycopg2.connect(DATABASE_URL)
 cur = conn.cursor()
+backup_tables(conn, "before")
 
 # --- Создание таблиц с уникальными ограничениями ---
 cur.execute("""
 CREATE TABLE IF NOT EXISTS users (
     id BIGINT PRIMARY KEY,
-    group_name TEXT
+    group_name TEXT,
+    interface TEXT NOT NULL DEFAULT 'classic'
 );
 ALTER TABLE users ADD COLUMN IF NOT EXISTS subgroup INTEGER;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS interface TEXT NOT NULL DEFAULT 'classic';
 
 -- Таблица преподавателей
 CREATE TABLE IF NOT EXISTS teachers (
@@ -96,4 +128,7 @@ conn.commit()
 cur.close()
 conn.close()
 
+conn = psycopg2.connect(DATABASE_URL)
+backup_tables(conn, "after")
+conn.close()
 print("🎉 Миграция завершена")

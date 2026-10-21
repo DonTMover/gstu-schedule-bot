@@ -9,6 +9,7 @@ services:
       - app/.env
     volumes:
       - ./logs:/app/logs # логи наружу
+      - ./backups:/app/backups # бэкапы миграции наружу
       # - ./proxies.txt:/app/proxies.txt # проксю парсим тоже снаружи
     depends_on:
       postgres:
