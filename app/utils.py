@@ -38,10 +38,8 @@ def get_inline_keyboard_select() -> InlineKeyboardMarkup:
 
 def get_interface_keyboard() -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(inline_keyboard=[
-        [
-            InlineKeyboardButton(text="Подробный интерфейс", callback_data="interface:classic"),
-            InlineKeyboardButton(text="Минималистичный", callback_data="interface:minimal"),
-        ]
+        [InlineKeyboardButton(text="Подробный интерфейс", callback_data="interface:classic")],
+        [InlineKeyboardButton(text="Минималистичный", callback_data="interface:minimal")],
     ])
 
 def get_interface_settings_keyboard() -> InlineKeyboardMarkup:
@@ -112,10 +110,12 @@ async def get_teacher_rating_keyboard(name: str) -> InlineKeyboardMarkup:
 
 # =================== Поиск ===================
 def handle_group_search(query: str):
+    query = query.strip()
     results = []
     if query:
+        normalized_query = query.casefold()
         for key, value in groups.items():
-            if query.lower() in key.lower() or query.lower() in value.lower():
+            if normalized_query in key.casefold() or normalized_query in value.casefold():
                 result_id = hashlib.md5(key.encode()).hexdigest()
                 results.append(
                     InlineQueryResultArticle(
@@ -136,6 +136,19 @@ def handle_group_search(query: str):
             )
         )
     return results
+
+def get_inline_search_query(query: str, prefix: str) -> str | None:
+    normalized_query = query.strip()
+    if not normalized_query.casefold().startswith(f"{prefix.casefold()}:"):
+        return None
+    return normalized_query[len(prefix) + 1:].strip()
+
+def resolve_group_name(query: str) -> str | None:
+    normalized = query.strip().casefold()
+    for group_name, slug in groups.items():
+        if normalized in {group_name.casefold(), slug.casefold()}:
+            return group_name
+    return None
 
 async def handle_teacher_inline_search(query: str, names_only=False):
     results = []

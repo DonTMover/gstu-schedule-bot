@@ -25,7 +25,8 @@ from aiogram.methods import EditMessageText
 from utils import (get_inline_keyboard_select, get_inline_keyboard_disclaimer,get_teacher_rating_keyboard,
                    handle_group_search, handle_teacher_inline_search, get_days_keyboard,
                    get_human_readable_schedule, get_human_readable_teacher_schedule,get_subgroup_keyboard,
-                   get_interface_keyboard, get_interface_settings_keyboard, format_minimal_schedule)
+                   get_interface_keyboard, get_interface_settings_keyboard, format_minimal_schedule,
+                   resolve_group_name, get_inline_search_query)
 from api import fetch_schedule_subgroup_cached, get_teacher_schedule_cached, fetch_schedule_cached
 from db import db
 from cache import cache
@@ -80,6 +81,17 @@ async def handler(message: Message):
 
     # 1. ГРУППЫ
     match_group = re.search(r"Вы выбрали группу: (\S+)", text)
+    if not match_group:
+        inline_group = re.search(r"(?:^|\s)group:\s*([^\s@()]+)", text, re.IGNORECASE)
+        if inline_group:
+            group_code = resolve_group_name(inline_group.group(1))
+            if group_code:
+                await db.set_group(message.from_user.id, group_code)
+                await message.answer(
+                    f"Группа {group_code} выбрана. Теперь выберите подгруппу.",
+                    reply_markup=get_subgroup_keyboard(),
+                )
+                return
     logger.info(f"Regex match for group: {match_group}")
     if match_group:
         group_code = match_group.group(1)
@@ -246,14 +258,16 @@ async def inline_handler(inline_query: types.InlineQuery):
     query = inline_query.query.strip()
     results = []
 
-    if query.startswith("teacher:"):
-        results = await handle_teacher_inline_search(query.replace("teacher:", "").strip())
+    group_query = get_inline_search_query(query, "group")
+    teacher_query = get_inline_search_query(query, "teacher")
+    teacher_schedule_query = get_inline_search_query(query, "teacher_schedule")
 
-    elif query.startswith("group:"):
-        results = handle_group_search(query.replace("group:", "").strip())
-
-    elif query.startswith("teacher_schedule:"):
-        results = await handle_teacher_inline_search(query.replace("teacher_schedule:", "").strip(),names_only=True)
+    if group_query is not None:
+        results = handle_group_search(group_query)
+    elif teacher_query is not None:
+        results = await handle_teacher_inline_search(teacher_query)
+    elif teacher_schedule_query is not None:
+        results = await handle_teacher_inline_search(teacher_schedule_query, names_only=True)
 
     await inline_query.answer(results, cache_time=1)
 
