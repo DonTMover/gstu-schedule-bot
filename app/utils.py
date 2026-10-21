@@ -6,6 +6,7 @@ from loguru import logger
 from datetime import datetime, date, timedelta
 from collections import defaultdict
 import hashlib
+import re
 
 from db import db
 from groupes import groups
@@ -138,7 +139,7 @@ def handle_group_search(query: str):
     return results
 
 def get_inline_search_query(query: str, prefix: str) -> str | None:
-    normalized_query = query.strip()
+    normalized_query = re.sub(r"^@[A-Za-z0-9_]+\s+", "", query.strip())
     if not normalized_query.casefold().startswith(f"{prefix.casefold()}:"):
         return None
     return normalized_query[len(prefix) + 1:].strip()

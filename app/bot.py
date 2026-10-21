@@ -269,7 +269,11 @@ async def inline_handler(inline_query: types.InlineQuery):
     elif teacher_schedule_query is not None:
         results = await handle_teacher_inline_search(teacher_schedule_query, names_only=True)
 
-    await inline_query.answer(results, cache_time=1)
+    logger.info(
+        f"Inline query from {inline_query.from_user.id}: "
+        f"{query!r}, results={len(results)}"
+    )
+    await inline_query.answer(results, cache_time=0, is_personal=True)
 
 @dp.callback_query(F.data.startswith("rate:")) # Обработка оценок
 async def rate_teacher(callback: types.CallbackQuery):

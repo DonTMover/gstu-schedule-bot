@@ -26,6 +26,12 @@ class GroupSearchTests(unittest.TestCase):
         self.assertEqual(get_inline_search_query("GROUP: а", "group"), "а")
         self.assertEqual(get_inline_search_query("group:а", "group"), "а")
 
+    def test_inline_query_can_include_bot_mention(self):
+        self.assertEqual(
+            get_inline_search_query("@schedule_bot group:а", "group"),
+            "а",
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
