@@ -20,6 +20,7 @@ from aiogram.types import Message
 from aiogram import types
 from aiogram.types import InlineQuery
 from aiogram.methods import EditMessageText
+from aiogram.exceptions import TelegramBadRequest
 
 # from packages
 from utils import (get_inline_keyboard_select, get_inline_keyboard_disclaimer,get_teacher_rating_keyboard,
@@ -280,6 +281,8 @@ async def rate_teacher(callback: types.CallbackQuery):
     _, hash_id, value_str = callback.data.split(":")
     value = int(value_str)
 
+    await db.ensure_user(callback.from_user.id)
+
     # Находим имя преподавателя по хешу через новый метод
     name = await db.get_teacher_name_by_hash(hash_id)
     if not name:
@@ -306,11 +309,23 @@ async def rate_teacher(callback: types.CallbackQuery):
 
 @dp.callback_query(lambda c: c.data == "comeback") # Возврат к началу
 async def comeback(callback: types.CallbackQuery):
-    await callback.message.edit_text(
-        text="Выберите группу снова или перейдите в другой раздел.",
-        reply_markup=get_inline_keyboard_select()
-    )
-    await callback.answer()
+    try:
+        await callback.message.edit_text(
+            text="Выберите группу снова или перейдите в другой раздел.",
+            reply_markup=get_inline_keyboard_select()
+        )
+    except TelegramBadRequest as error:
+        if "message is not modified" not in str(error):
+            logger.warning(f"Could not return to group menu: {error}")
+            raise
+        logger.debug("Group menu was already displayed")
+
+    try:
+        await callback.answer()
+    except TelegramBadRequest as error:
+        if "query is too old" not in str(error) and "query ID is invalid" not in str(error):
+            logger.warning(f"Could not acknowledge comeback callback: {error}")
+            raise
 
 @dp.callback_query(F.data.startswith("teacher_day:"))
 async def teacher_day_schedule(callback: types.CallbackQuery):
