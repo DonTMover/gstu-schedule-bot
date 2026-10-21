@@ -1,4 +1,5 @@
 # load environment variables
+from pathlib import Path
 from dotenv import load_dotenv
 from os import getenv
 
@@ -21,11 +22,12 @@ from aiogram.types import InlineQuery
 from aiogram.methods import EditMessageText
 
 # from packages
-from utils import (get_inline_keyboard_select, get_days_students_keyboard, get_inline_keyboard_disclaimer,
-                   handle_group_search, handle_teacher_inline_search,get_teacher_rating_keyboard, 
-                   handle_teacher_inline_search_names, get_human_readable_schedule, get_human_readable_teacher_schedule,
-                   get_days_teacher_keyboard)
-from api import fetch_schedule_cached, get_teacher_schedule_cached
+from utils import (get_inline_keyboard_select, get_inline_keyboard_disclaimer,get_teacher_rating_keyboard,
+                   handle_group_search, handle_teacher_inline_search, get_days_keyboard,
+                   get_human_readable_schedule, get_human_readable_teacher_schedule,get_subgroup_keyboard,
+                   get_interface_keyboard, get_interface_settings_keyboard, format_minimal_schedule,
+                   resolve_group_name, get_inline_search_query)
+from api import fetch_schedule_subgroup_cached, get_teacher_schedule_cached, fetch_schedule_cached
 from db import db
 from cache import cache
 
@@ -33,12 +35,22 @@ from cache import cache
 load_dotenv()
 TOKEN = getenv("BOT_TOKEN")
 
+LOG_PATH = Path(getenv("BOT_LOG_PATH", "/tmp/bot.log"))
+if LOG_PATH.exists() and LOG_PATH.is_dir():
+    fallback = LOG_PATH.parent / "bot.log"
+    if fallback.exists() and fallback.is_dir():
+        fallback = Path("/tmp/bot.log")
+    LOG_PATH = fallback
+LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
+
+# add logging
+logger.add(str(LOG_PATH), rotation="10 MB", retention="30 days", level="INFO")
+
 dp = Dispatcher()
 
-#add logging
-logger.add("bot.log", rotation="10 MB", retention="30 days", level="INFO")
-
 user_teacher = {} # временное хранилище для выбранного преподавателя пользователем
+user_week = {}    # временное хранилище для выбранной недели пользователем
+user_day = {}     # временное хранилище для выбранного дня недели пользователем
 
 @dp.message(CommandStart()) # Обрабатываем старт бота и записываем чела в группу
 async def start(message: Message):
@@ -46,7 +58,10 @@ async def start(message: Message):
     await message.answer( # TODO: добавить в дикслеймер еще ссылку на гитхаб
         text="Привет, сначала прочти дисклеймер. \n\n"
         "Этот бот не является официальным приложением ГГТУ и не связан с университетом. \n\n"
-        "Автор не несет ответственности за возможные ошибки в расписании. \n\n"
+        "Автор не несет ответственности за возможные ошибки в расписании и его интерпретации. \n\n" \
+        "Так-же автор не несет ответственности за любые убытки или неудобства, \n"
+        "возникшие в результате использования или невозможности использования этого бота. \n\n"
+        "Так-же автор не несет ответственности за хранение и обработку ваших персональных данных, \n\n"
         "Используя этот бот, вы соглашаетесь с тем, что вся информация предоставляется 'как есть' без каких-либо гарантий. \n\n"
         "Если вы не согласны с этими условиями, пожалуйста, не используйте этот бот.\n\n"
         "После принятия условий вы сможете выбрать свою группу и просматривать расписание, а также расписание преподавателей. \n\n"
@@ -66,6 +81,17 @@ async def handler(message: Message):
 
     # 1. ГРУППЫ
     match_group = re.search(r"Вы выбрали группу: (\S+)", text)
+    if not match_group:
+        inline_group = re.search(r"(?:^|\s)group:\s*([^\s@()]+)", text, re.IGNORECASE)
+        if inline_group:
+            group_code = resolve_group_name(inline_group.group(1))
+            if group_code:
+                await db.set_group(message.from_user.id, group_code)
+                await message.answer(
+                    f"Группа {group_code} выбрана. Теперь выберите подгруппу.",
+                    reply_markup=get_subgroup_keyboard(),
+                )
+                return
     logger.info(f"Regex match for group: {match_group}")
     if match_group:
         group_code = match_group.group(1)
@@ -76,8 +102,8 @@ async def handler(message: Message):
         if group_code in groups:
             logger.info(f"User {message.from_user.id} selected valid group {group_code}")
             await message.answer(
-                text="Выберите день недели, чтобы увидеть расписание.",
-                reply_markup=get_days_students_keyboard()
+                text="Выберите подгруппу чтобы увидеть расписание.",
+                reply_markup=get_subgroup_keyboard()
             )
         return
 
@@ -134,7 +160,7 @@ async def handler(message: Message):
             # data = get_human_readable_teacher_schedule(teacher_schedule)
             await message.answer(
                 text="Выберите день недели, чтобы увидеть расписание.",
-                reply_markup=get_days_teacher_keyboard()
+                reply_markup=get_days_keyboard(for_teacher=True)
             )
         else:
             await message.answer(
@@ -143,7 +169,72 @@ async def handler(message: Message):
             )
         return
 
+@dp.callback_query(F.data.startswith("subgroup:"))
+async def process_subgroup(callback: types.CallbackQuery):
+    subgroup = int(callback.data.split(":")[1])
+    
+    # сохраняем в БД выбор пользователя
+    await db.set_subgroup(callback.from_user.id, subgroup)
+    logger.info(f"User {callback.from_user.id} selected subgroup {subgroup}")
 
+    await callback.message.edit_text(
+        f"✅ Ваша подгруппа: {subgroup}\nТеперь выберите день недели:",
+        reply_markup=get_days_keyboard(for_teacher=False)
+    )
+    await callback.answer()
+
+@dp.callback_query(F.data.startswith("interface:"))
+async def process_interface(callback: types.CallbackQuery):
+    interface = callback.data.split(":")[1]
+    await db.ensure_user(callback.from_user.id)
+    await db.set_interface(callback.from_user.id, interface)
+    label = "подробный" if interface == "classic" else "минималистичный"
+    await callback.message.edit_text(
+        f"✅ Выбран {label} интерфейс.\nТеперь вы можете выбрать группу.",
+        reply_markup=get_inline_keyboard_select()
+    )
+    await callback.answer()
+
+@dp.message(Command("interface"))
+async def interface_command(message: types.Message):
+    await db.ensure_user(message.from_user.id)
+    await message.answer(
+        "Выберите интерфейс расписания:",
+        reply_markup=get_interface_settings_keyboard()
+    )
+
+@dp.callback_query(lambda c: c.data.startswith("week:"))
+async def select_week(callback: types.CallbackQuery):
+    user_id = callback.from_user.id
+    action = callback.data.split(":")[1]  # prev или next
+
+    from datetime import date, timedelta
+    today = date.today()
+    monday = today - timedelta(days=today.weekday())
+    if user_id not in user_week:
+        user_week[user_id] = monday
+    else:
+        monday = user_week[user_id]
+
+    # Сдвигаем неделю
+    if action == "prev":
+        monday -= timedelta(days=7)
+    elif action == "next":
+        monday += timedelta(days=7)
+    user_week[user_id] = monday
+
+    # Используем последний выбранный день пользователя, если есть
+    selected_day_code = user_day.get(user_id, "MONDAY")
+
+    class FakeCallback:
+        def __init__(self, from_user, message, data):
+            self.from_user = from_user
+            self.message = message
+            self.data = data
+        async def answer(self):
+            pass
+    fake_callback = FakeCallback(callback.from_user, callback.message, f"day:{selected_day_code}")
+    await day_schedule(fake_callback)
 
 @dp.callback_query(lambda c: c.data == "search") # Для InlineSearch поиска группы
 async def process_search(callback_query):
@@ -153,8 +244,8 @@ async def process_search(callback_query):
 @dp.callback_query(lambda c: c.data == "disclaimer:accept") # Обработка принятия дисклеймера
 async def process_disclaimer(callback_query: types.CallbackQuery):
     await callback_query.message.edit_text(
-        text="Спасибо за принятие условий. Теперь вы можете выбрать группу.",
-        reply_markup=get_inline_keyboard_select()
+        text="Спасибо за принятие условий.\n\nВыберите интерфейс расписания:",
+        reply_markup=get_interface_keyboard()
     )
     await callback_query.answer("Вы приняли условия.")
 
@@ -167,16 +258,22 @@ async def inline_handler(inline_query: types.InlineQuery):
     query = inline_query.query.strip()
     results = []
 
-    if query.startswith("teacher:"):
-        results = await handle_teacher_inline_search(query.replace("teacher:", "").strip())
+    group_query = get_inline_search_query(query, "group")
+    teacher_query = get_inline_search_query(query, "teacher")
+    teacher_schedule_query = get_inline_search_query(query, "teacher_schedule")
 
-    elif query.startswith("group:"):
-        results = handle_group_search(query.replace("group:", "").strip())
+    if group_query is not None:
+        results = handle_group_search(group_query)
+    elif teacher_query is not None:
+        results = await handle_teacher_inline_search(teacher_query)
+    elif teacher_schedule_query is not None:
+        results = await handle_teacher_inline_search(teacher_schedule_query, names_only=True)
 
-    elif query.startswith("teacher_schedule:"):
-        results = await handle_teacher_inline_search_names(query.replace("teacher_schedule:", "").strip())
-
-    await inline_query.answer(results, cache_time=1)
+    logger.info(
+        f"Inline query from {inline_query.from_user.id}: "
+        f"{query!r}, results={len(results)}"
+    )
+    await inline_query.answer(results, cache_time=0, is_personal=True)
 
 @dp.callback_query(F.data.startswith("rate:")) # Обработка оценок
 async def rate_teacher(callback: types.CallbackQuery):
@@ -278,9 +375,13 @@ async def teacher_day_schedule(callback: types.CallbackQuery):
     else:
         parts = [f"📅 {day_name}, {day_date_str}  •  Неделя: <b>{week_type}</b>\n"]
         for i, lesson in enumerate(lessons, 1):
+            lt = lesson.get('lessonType')
+            lt_short = lesson.get('lessonTypeShort')
+            lt_str = f"{lt} ({lt_short})\n" if lt and lt_short else (f"{lt}\n" if lt else "")
             parts.append(
                 f"<b>{lesson.get('lessonNumber')}. {lesson.get('subject') or '—'}</b>"
                 f" ({lesson.get('subjectShort') or ''})\n"
+                f"📚 Тип занятия: {lt_str}"
                 f"🕒 {t(lesson.get('startTime'))} – {t(lesson.get('endTime'))}\n"
                 f"👥 Группы: {lesson.get('groups') or '-'}\n"
                 f"🏫 Кабинет: {lesson.get('classrooms') or '-'}\n"
@@ -289,7 +390,7 @@ async def teacher_day_schedule(callback: types.CallbackQuery):
 
     await callback.message.edit_text(
         text,
-        reply_markup=get_days_teacher_keyboard(),
+        reply_markup=get_days_keyboard(for_teacher=True),
         parse_mode="HTML"
     )
     await callback.answer()
@@ -301,6 +402,7 @@ async def teacher_day_schedule(callback: types.CallbackQuery):
 @dp.callback_query(F.data.startswith("day:"))  # Получение расписания на определенный день недели и его форматирование
 async def day_schedule(callback: types.CallbackQuery):
     code = callback.data.split(":")[1]   # 'MONDAY', 'TUESDAY', ...
+    user_day[callback.from_user.id] = code
     days_map = {
         "MONDAY": "Понедельник",
         "TUESDAY": "Вторник",
@@ -331,9 +433,14 @@ async def day_schedule(callback: types.CallbackQuery):
         return
 
     # Получаем расписание на ТЕКУЩУЮ неделю (функция уже фильтрует по startDate этой недели и добавляет date/weekType)
-    raw = await fetch_schedule_cached(user_group)
-    schedule = get_human_readable_schedule(raw)
+    subgroup = await db.get_subgroup(callback.from_user.id)
+    if subgroup == 0:
+        raw = await fetch_schedule_cached(user_group)
+    else:
+        raw = await fetch_schedule_subgroup_cached(user_group, subgroup=subgroup or 1)
+    schedule = get_human_readable_schedule(raw,monday=user_week.get(callback.from_user.id))
     lessons = schedule.get(day_name, [])
+    interface = await db.get_interface(callback.from_user.id)
     logger.info(f"Fetched schedule for user {callback.from_user.id} for {day_name}")
 
     # Определим дату выбранного дня и чётность недели для заголовка
@@ -363,14 +470,20 @@ async def day_schedule(callback: types.CallbackQuery):
             return "-"
         return v[:5]  # 'HH:MM'
 
-    if not lessons:
+    if interface == "minimal":
+        text = format_minimal_schedule(lessons, day_name, day_date_str, week_type)
+    elif not lessons:
         text = f"📅 {day_name}, {day_date_str}  •  Неделя: <b>{week_type}</b>\n\nЗанятий нет 🎉"
     else:
         parts = [f"📅 {day_name}, {day_date_str}  •  Неделя: <b>{week_type}</b>\n"]
         for i, lesson in enumerate(lessons, 1):
+            lt = lesson.get('lessonType')
+            lt_short = lesson.get('lessonTypeShort')
+            lt_str = f"{lt} ({lt_short})\n" if lt and lt_short else (f"{lt}\n" if lt else "-\n")
             parts.append(
                 f"<b>{lesson.get('lessonNumber')}. {lesson.get('subject') or '—'}</b>"
                 f" ({lesson.get('subjectShort') or ''})\n"
+                f"📚 Тип занятия: {lt_str}"
                 f"🕒 {t(lesson.get('startTime'))} – {t(lesson.get('endTime'))}\n"
                 f"👨‍🏫 {lesson.get('teachers') or '-'}\n"
                 f"🏫 {lesson.get('classrooms') or '-'}\n"
@@ -378,9 +491,17 @@ async def day_schedule(callback: types.CallbackQuery):
             )
         text = "\n".join(parts)
 
+    # Проверка: если текст и кнопки не изменились, не вызываем edit_text
+    current_text = callback.message.text or ""
+    current_markup = callback.message.reply_markup
+    new_markup = get_days_keyboard(for_teacher=False)
+    if text == current_text and (current_markup == new_markup or current_markup is None):
+        await callback.answer()
+        return
+
     await callback.message.edit_text(
         text,
-        reply_markup=get_days_students_keyboard(),
+        reply_markup=new_markup,
         parse_mode="HTML"
     )
     await callback.answer()

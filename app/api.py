@@ -1,6 +1,6 @@
 import aiohttp
 import asyncio
-from collections import defaultdict
+from copy import deepcopy
 from groupes import groups
 import uuid
 from cache import cache
@@ -9,13 +9,66 @@ from os import getenv
 from dotenv import load_dotenv
 from datetime import datetime, date, timedelta
 
+load_dotenv()
+
 BASE_URL = "https://sc.gstu.by/api/schedules/group"
+BASE_URL_SUBGROUP = "https://sc.gstu.by/api/schedules/subgroup"
 
 USER_AGENTS = [
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:142.0) Gecko/20100101 Firefox/142.0",
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36",
     "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:115.0) Gecko/20100101 Firefox/115.0",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.5 Safari/605.1.15",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
 ]
+
+def get_proxy() -> str | None:
+    """Return a configured proxy, or disable proxying for empty values."""
+    proxy = getenv("PROXY")
+    if not proxy:
+        return None
+    return proxy.strip() or None
+
+
+def _lesson_key(lesson: dict) -> tuple:
+    subject = lesson.get("subject") or {}
+    if isinstance(subject, dict):
+        subject = subject.get("id") or subject.get("name")
+    lesson_type = lesson.get("lessonType") or {}
+    if isinstance(lesson_type, dict):
+        lesson_type = lesson_type.get("id") or lesson_type.get("name")
+    return (
+        lesson.get("dayOfWeek"),
+        lesson.get("lessonNumber"),
+        lesson.get("startTime"),
+        lesson.get("endTime"),
+        lesson.get("startDate"),
+        lesson.get("endDate"),
+        subject,
+        lesson_type,
+    )
+
+
+def merge_schedule_groups(selected_schedule: dict, full_schedule: dict) -> dict:
+    """Keep subgroup filtering while restoring all groups for each lesson."""
+    result = deepcopy(selected_schedule)
+    selected_items = result.get("data", {}).get("scheduleItems", [])
+    full_items = full_schedule.get("data", {}).get("scheduleItems", [])
+
+    groups_by_lesson = {}
+    for item in full_items:
+        key = _lesson_key(item)
+        names = groups_by_lesson.setdefault(key, [])
+        for group in item.get("groups", []):
+            name = group.get("name") if isinstance(group, dict) else group
+            if name and name not in names:
+                names.append(name)
+
+    for item in selected_items:
+        names = groups_by_lesson.get(_lesson_key(item))
+        if names:
+            item["groups"] = [{"name": name} for name in names]
+    return result
 
 
 async def fetch_schedule(group_name: str) -> dict: # тут запрашиваем
@@ -26,11 +79,10 @@ async def fetch_schedule(group_name: str) -> dict: # тут запрашивае
     headers["Cookie"] = f"_tid={tid}"
     headers["Referer"] = f"https://sc.gstu.by/group/{groups[group_name]}"
 
-    load_dotenv()
     async with aiohttp.ClientSession(headers=headers) as session:
         async with session.get(f"{BASE_URL}/{groups[group_name]}", 
                                timeout=15,
-                                #proxy=getenv('PROXY') # get proxy from env
+                                proxy=get_proxy()
                                ) as resp:
             resp.raise_for_status()
             return await resp.json()
@@ -42,15 +94,46 @@ async def fetch_schedule_cached(group_name: str) -> dict: # Снаачало п�
     if data:
         return data
     
-    try:
-        fresh = await fetch_schedule(group_name)
-        await cache.set_json(key, fresh, expire=60 * 60 * 24 * 2) 
-        return fresh
-    except HTTPStatusError as e:
-        if data and e.responce.status_code == 403:
-            return data
-        raise 
+    fresh = await fetch_schedule(group_name)
+    await cache.set_json(key, fresh, expire=60 * 60 * 24 * 2)
+    return fresh
 
+async def fetch_schedule_subgroup(group_name: str, subgroup: int) -> dict:
+    """Запрос расписания группы с подгруппой напрямую из API ГГТУ."""
+
+    if str(subgroup) == "0":
+        return await fetch_schedule_cached(group_name)
+
+    tid = uuid.uuid4().hex
+    headers = get_headers()
+    headers["X-Id"] = tid
+    headers["Cookie"] = f"_tid={tid}"
+    headers["Referer"] = f"https://sc.gstu.by/schedules/subgroup/{groups[group_name]}-{subgroup}"
+
+    async with aiohttp.ClientSession(headers=headers) as session:
+        async with session.get(f"{BASE_URL_SUBGROUP}/{groups[group_name]}-{subgroup}",
+                               timeout=15,
+                               proxy=get_proxy()) as resp:
+            resp.raise_for_status()
+            subgroup_schedule = await resp.json()
+
+    # The subgroup endpoint filters the lesson's groups to the selected subgroup.
+    # Enrich it with the unfiltered group response before it reaches the formatter.
+    full_schedule = await fetch_schedule_cached(group_name)
+    return merge_schedule_groups(subgroup_schedule, full_schedule)
+        
+async def fetch_schedule_subgroup_cached(group_name: str, subgroup: int) -> dict:
+    """Кэшируем расписание группы с подгруппой."""
+    key = f"schedule:{group_name}:subgroup:{subgroup}"
+    data = await cache.get_json(key)
+    if data:
+        full_schedule = await fetch_schedule_cached(group_name)
+        return merge_schedule_groups(data, full_schedule)
+
+    fresh = await fetch_schedule_subgroup(group_name, subgroup)
+    if fresh:
+        await cache.set_json(key, fresh, expire=60 * 60 * 24 * 2)  # 2 дня
+    return fresh
 
 async def fetch_teacher_schedule(slug: str) -> dict:
     """Запрос расписания преподавателя напрямую из API ГГТУ."""
@@ -63,8 +146,7 @@ async def fetch_teacher_schedule(slug: str) -> dict:
     async with aiohttp.ClientSession(headers=headers) as session:
         async with session.get(f"https://sc.gstu.by/api/schedules/teacher/{slug}",
                                timeout=15,
-                               #proxy=getenv("PROXY")
-                               ) as resp:
+                               proxy=get_proxy()) as resp:
             resp.raise_for_status()
             return await resp.json()
 
@@ -89,7 +171,6 @@ def get_headers(): # Рандомизируем хедерсы
         "Connection": "keep-alive",
     }
 
-# TODO: Перенести методы которые не относятся к запросам к API в utils
 
 
 

@@ -60,6 +60,33 @@ class Database: # Класс бд для работы с студентами и
         async with self.pool.acquire() as conn:
             row = await conn.fetchrow("SELECT 1 FROM users WHERE id = $1", user_id)
             return row is not None
+        
+    async def set_subgroup(self, user_id: int, subgroup) -> None:
+        async with self.pool.acquire() as conn:
+            await conn.execute(
+                "UPDATE users SET subgroup = $2 WHERE id = $1",
+                user_id, int(subgroup)
+            )
+
+    async def get_subgroup(self, user_id: int) -> Optional[int]:
+        async with self.pool.acquire() as conn:
+            row = await conn.fetchrow("SELECT subgroup FROM users WHERE id = $1", user_id)
+            return row["subgroup"] if row else None
+
+    async def set_interface(self, user_id: int, interface: str) -> None:
+        if interface not in {"classic", "minimal"}:
+            raise ValueError(f"Неизвестный интерфейс: {interface}")
+        async with self.pool.acquire() as conn:
+            await conn.execute(
+                "UPDATE users SET interface = $2 WHERE id = $1",
+                user_id, interface
+            )
+
+    async def get_interface(self, user_id: int) -> str:
+        async with self.pool.acquire() as conn:
+            row = await conn.fetchrow("SELECT interface FROM users WHERE id = $1", user_id)
+            return row["interface"] if row and row["interface"] else "classic"
+
 
     # --- teachers ---
     async def add_teacher_rating(self, full_name: str, grade: int, user_id: int) -> Tuple[float, int]:
